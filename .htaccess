@@ -1,0 +1,10 @@
+RewriteEngine On
+RewriteBase /pi/
+
+# Front Controller para outras requisições
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [L,QSA]
+
+php_value display_errors On
+php_value date.timezone America/Belem
