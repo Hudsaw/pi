@@ -22,9 +22,9 @@ $router->get('/login', 'AuthController@mostrarLogin');
 $router->get('/cadastro', 'PageController@mostrarCadastro');
 $router->get('/editar', 'PageController@mostrarCadastro', ['AuthMiddleware']);
 $router->get('/logout', 'AuthController@logout');
-$router->post('/cadastro', 'AuthController@cadastrar');
+$router->post('/cadastrar', 'AuthController@cadastrar');
 $router->post('/atualizar', 'AuthController@atualizar', ['AuthMiddleware']);
-$router->post('/login', 'AuthController@login');
+$router->post('/logar', 'AuthController@logar');
 
 
 $router->dispatch();

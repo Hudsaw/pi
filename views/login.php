@@ -8,7 +8,7 @@
             </div>
         <?php endif; ?>
 
-        <form class="auth-form" method="POST" action="<?= BASE_URL ?>/login">
+        <form class="auth-form" method="POST" action="<?= BASE_URL ?>/logar">
             <div class="form-group" id="email-container">
                 <label for="email">E-mail</label>
                 <input class="input" type="email" id="email" name="email" required

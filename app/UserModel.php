@@ -43,7 +43,7 @@ class UserModel
             $data['banco'],
             $data['agencia'],
             $data['conta'],
-            $data['especialidade_id'] ?? null,
+            $data['especialidade_id'],
             'bronze'
         ]);
 
@@ -103,7 +103,7 @@ class UserModel
         $stmt = $this->pdo->prepare("
             SELECT u.*, e.nome as especialidade
             FROM usuarios u
-            LEFT JOIN especialidade a ON u.especialidade_id = a.id
+            LEFT JOIN especialidade e ON u.especialidade_id = e.id
             WHERE u.id = ?
         ");
         $stmt->execute([$id]);

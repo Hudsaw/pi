@@ -23,7 +23,7 @@ class AuthController
         unset($_SESSION['login_error']);
     }
 
-    public function login()
+    public function logar()
     {
         error_log("Tentativa de login");
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -54,13 +54,13 @@ class AuthController
     {
         error_log("Exibindo tela de cadastro");
         $data = [
-            'errors' => $_SESSION['registrar_errors'] ?? [],
-            'old'    => $_SESSION['registrar_data'] ?? [],
-            'especializacao'  => $this->userModel->getEspecializacao(),
+            'errors'         => $_SESSION['registrar_erros'] ?? [],
+            'old'            => $_SESSION['registrar_data'] ?? [],
+            'especializacao' => $this->userModel->getEspecializacao(),
         ];
 
         $this->render('cadastro', $data);
-        unset($_SESSION['registrar_errors'], $_SESSION['registrar_data']);
+        unset($_SESSION['registrar_erros'], $_SESSION['registrar_data']);
     }
 
     public function cadastrar()
@@ -73,8 +73,8 @@ class AuthController
         $data = $this->validarUser($_POST, false);
 
         if (isset($data['errors'])) {
-            $_SESSION['registrar_errors'] = $data['errors'];
-            $_SESSION['registrar_data']   = $_POST;
+            $_SESSION['registrar_erros'] = $data['errors'];
+            $_SESSION['registrar_data']  = $_POST;
             $this->redirect('/cadastro');
         }
 
@@ -86,7 +86,7 @@ class AuthController
             $this->redirect('/');
         }
 
-        $_SESSION['registrar_errors'] = ['Falha ao criar usuário'];
+        $_SESSION['registrar_erros'] = ['Falha ao criar usuário'];
         $this->redirect('/cadastro');
     }
 
@@ -107,7 +107,7 @@ class AuthController
         $data   = $this->validarUser($_POST, true);
 
         if (isset($data['errors'])) {
-            $_SESSION['register_errors'] = $data['errors'];
+            $_SESSION['registrar_erros'] = $data['errors'];
             $this->redirect('/editar');
         }
 
@@ -118,7 +118,7 @@ class AuthController
             $this->redirect('/');
         }
 
-        $_SESSION['register_errors'] = ['Erro ao atualizar o currículo'];
+        $_SESSION['registrar_erros'] = ['Erro ao atualizar o currículo'];
         $this->redirect('/editar');
     }
 
@@ -128,20 +128,18 @@ class AuthController
     {
         $errors = [];
         $data   = [
-            'nome'            => trim($post['nome'] ?? ''),
-            'email'           => filter_var(trim($post['email'] ?? ''), FILTER_SANITIZE_EMAIL),
-            'telefone'        => trim($post['telefone'] ?? ''),
-            'cpf'             => trim($post['cpf'] ?? ''),
-            'cep'             => trim($post['cep'] ?? ''),
-            'complemento'     => trim($post['complemento'] ?? ''),
-            'area_atuacao_id' => $post['area_atuacao_id'] ?? null,
-            'escolaridade'    => $post['escolaridade'] ?? null,
-            'resumo'          => trim($post['resumo'] ?? ''),
-            'experiencias'    => trim($post['experiencias'] ?? ''),
-            'linkedin'        => trim($post['linkedin'] ?? ''),
-            'github'          => trim($post['github'] ?? ''),
-            'senha'           => $post['senha'] ?? '',
-            'confirmar_senha' => $post['confirmar_senha'] ?? '',    
+            'nome'             => trim($post['nome'] ?? ''),
+            'email'            => filter_var(trim($post['email'] ?? ''), FILTER_SANITIZE_EMAIL),
+            'telefone'         => trim($post['telefone'] ?? ''),
+            'cpf'              => trim($post['cpf'] ?? ''),
+            'cep'              => trim($post['cep'] ?? ''),
+            'complemento'      => trim($post['complemento'] ?? ''),
+            'banco'            => trim($post['banco'] ?? ''),
+            'agencia'          => trim($post['agencia'] ?? ''),
+            'conta'            => trim($post['conta'] ?? ''),
+            'especialidade_id' => $post['especialidade_id'] ?? '2',
+            'senha'            => $post['senha'] ?? '',
+            'confirmar_senha'  => $post['confirmar_senha'] ?? '',
         ];
 
         if (empty($data['nome'])) {
@@ -154,15 +152,14 @@ class AuthController
         }
 
         if (! $isUpdate) {
-            if (!$isUpdate) {
-        if (empty($data['cpf'])) {
-            $errors['cpf'] = 'CPF é obrigatório';
-        } elseif (!preg_match('/^\d{11}$/', $data['cpf'])) {
-            $errors['cpf'] = 'CPF deve conter exatamente 11 dígitos numéricos';
-        } elseif ($this->userModel->cpfExiste($data['cpf'])) {
-            $errors['cpf'] = 'CPF já cadastrado';
-        }
-    }
+
+            if (empty($data['cpf'])) {
+                $errors['cpf'] = 'CPF é obrigatório';
+            } elseif (! preg_match('/^\d{11}$/', $data['cpf'])) {
+                $errors['cpf'] = 'CPF deve conter exatamente 11 dígitos numéricos';
+            } elseif ($this->userModel->cpfExiste($data['cpf'])) {
+                $errors['cpf'] = 'CPF já cadastrado';
+            }
 
             if (! filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 $errors['email'] = 'Email inválido';
@@ -190,7 +187,7 @@ class AuthController
     private function redirect($url)
     {
         $baseUrl = rtrim(BASE_URL, '/') . '/';
-        $path = ltrim($url, '/');
+        $path    = ltrim($url, '/');
         header("Location: " . $baseUrl . $path);
         exit();
     }

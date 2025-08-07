@@ -32,7 +32,7 @@ class PageController
     {
         error_log("Exibindo formulario de cadastro");
         $data = [
-            'errors' => $_SESSION['register_errors'] ?? [],
+            'errors' => $_SESSION['registrar_erros'] ?? [],
             'dados'  => [],
             'areas'  => $this->userModel->getEspecialidade(),
         ];
@@ -43,7 +43,7 @@ class PageController
         }
 
         $this->render('cadastro', $data);
-        unset($_SESSION['register_errors']);
+        unset($_SESSION['registrar_erros']);
     }
 
     // Métodos auxiliares
@@ -56,13 +56,6 @@ class PageController
     
     $user = $this->userModel->getUserPeloId($_SESSION['user_id']);
     
-    // Adicionar pontuação se não estiver presente
-    if ($user && !isset($user['avaliacao'])) {
-        $score = $this->userModel->getUserScore($_SESSION['user_id']);
-        $user['avaliacao'] = $score['correct'] ?? 0;
-        $user['total_perguntas'] = $score['total'] ?? 0;
-    }
-    
     return $user;
 }
 
@@ -71,11 +64,6 @@ class PageController
         return isset($_SESSION['user_id']);
     }
 
-    private function ehAdmin()
-    {
-        error_log("Verificando se usuário é administrador" . $_SESSION['user_role']);
-        return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
-    }
 
     private function render($view, $data = [])
     {

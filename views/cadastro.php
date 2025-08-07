@@ -10,7 +10,7 @@
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="<?php echo BASE_URL?>/<?php echo isset($_SESSION['user_id']) ? 'atualizar' : 'cadastro'?>" class="form-cadastro">
+        <form method="POST" action="<?php echo BASE_URL?>/<?php echo isset($_SESSION['user_id']) ? 'atualizar' : 'cadastrar'?>" class="form-cadastro">
             <!--Dados Pessoais-->
             <h3>Dados Pessoais</h3>
             <div class="form-group">
@@ -80,8 +80,7 @@
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="form-section">
-                <h3>conta bancaria</h3>
+            
             <div class="form-group">
                 <label for="banco">Banco</label>
                 <input class="input" type="text" id="banco" name="banco" required
@@ -96,7 +95,7 @@
                 <label for="conta">Conta</label>
                 <input class="input" type="text" id="conta" name="conta" required
                     value="<?php echo htmlspecialchars($dados['conta'] ?? ''); ?>">
-</div>
+
             </div>
 
 

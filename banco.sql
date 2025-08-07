@@ -42,7 +42,7 @@ CREATE TABLE usuarios (
     agencia INT NULL DEFAULT 0,
     conta INT NULL DEFAULT 0,
     saldo DECIMAL(10, 2) DEFAULT 0.00,
-    especialidade INT NOT NULL DEFAULT 2,
+    especialidade_id INT NOT NULL DEFAULT 2,
     nivel INT NOT NULL DEFAULT 1,
     ativo TINYINT DEFAULT 1
  );
