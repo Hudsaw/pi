@@ -47,7 +47,7 @@ CREATE TABLE usuarios (
     ativo TINYINT DEFAULT 1
  );
 
- INSERT INTO usuarios (tipo, nome, cpf, email, telefone, cep, complemento, senha, banco, agencia, conta, especialidade, nivel) VALUES
+ INSERT INTO usuarios (tipo, nome, cpf, email, telefone, cep, complemento, senha, banco, agencia, conta, especialidade_id, nivel) VALUES
 ('admin', 'Administrador', '12345678901', 'admin@pi.com', '11987654321', '12345678', 'Apto 101', '$2y$10$eW5z1Z1Z1Z1Z1Z1Z1Z1Z1.Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1', 123, 456, 789, 2, 2),
 ('costureira', 'Maria da Silva', '98765432100', 'costura@pi.com', '11912345678', '87654321', 'Casa 2', '$2y$10$eW5z1Z1Z1Z1Z1Z1Z1Z1Z1.Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1', 321, 654, 987, 2, 2);
 

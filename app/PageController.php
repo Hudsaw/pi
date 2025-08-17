@@ -15,7 +15,7 @@ class PageController
         $especialidade = $this->userModel->getEspecialidade();
 
         $this->render('home', [
-            'title'         => 'Bem-vindo ao GFC',
+            'title'         => 'PontoCerto',
             'areas'         => $especialidade,
             'user'          => $user,
             'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
