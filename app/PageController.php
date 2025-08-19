@@ -21,8 +21,13 @@ class PageController
             'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
             'usuarioLogado' => $this->estaLogado(),
             'dados'         => [
-                'titulo'    => 'Bem-vindo ao Gerenciamento de Facção',
-                'descricao' => 'Sistema de gerenciamento de facção para controle de lotes e serviços',
+                'titulo'    => 'Centralize, organize e produza com precisão',
+                'descricao' => 'O PontoCerto é um sistema de gerenciamento desenvolvido
+                        especialmente para malharias. Com ele, você centraliza
+                        cadastros, organiza a produção, acompanha pedidos e gera
+                        relatórios de desempenho de forma simples e eficiente.
+                        Tudo em um só lugar, garantindo mais produtividade,
+                        clareza e controle para sua empresa.',
                 'usuario'   => $user,
             ],
         ]);

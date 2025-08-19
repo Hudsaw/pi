@@ -10,6 +10,7 @@
     <link rel="icon" type="image/png" href="icon.png">
 </head>
 
+
 <body class="light-theme">
     
     <header>
@@ -18,7 +19,7 @@
                 <nav class="secao">
                     <div class="logo">
                         <div>
-                            <a href="<?= BASE_URL ?>" class="logo-text">Facção</a>
+                            <a href="<?= BASE_URL ?>" class="logo-text">PontoCerto</a>
                         </div>
                     </div>
 

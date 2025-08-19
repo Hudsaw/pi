@@ -30,10 +30,10 @@ class AuthController
             $this->redirect('/login');
         }
 
-        $email    = strtolower(trim($_POST['email']));
+        $cpf    = $_POST['cpf'];
         $password = $_POST['senha'];
 
-        $user = $this->userModel->autenticar($email, $password);
+        $user = $this->userModel->autenticar($cpf, $password);
 
         if ($user) {
             $_SESSION['user_id']   = $user['id'];

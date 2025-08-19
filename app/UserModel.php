@@ -8,10 +8,10 @@ class UserModel
         $this->pdo = $pdo;
     }
 
-    public function autenticar($email, $password)
+    public function autenticar($cpf, $password)
     {
-        $stmt = $this->pdo->prepare("SELECT id, nome, email, senha, tipo FROM usuarios WHERE email = ?");
-        $stmt->execute([$email]);
+        $stmt = $this->pdo->prepare("SELECT id, nome, email, senha, tipo FROM usuarios WHERE cpf = ?");
+        $stmt->execute([$cpf]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['senha'])) {

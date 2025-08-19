@@ -9,10 +9,10 @@
         <?php endif; ?>
 
         <form class="auth-form" method="POST" action="<?= BASE_URL ?>/logar">
-            <div class="form-group" id="email-container">
-                <label for="email">E-mail</label>
-                <input class="input" type="email" id="email" name="email" required
-                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+            <div class="form-group" id="cpf-container">
+                <label for="cpf">CPF</label>
+                <input class="input" type="cpf" id="cpf" name="cpf" required
+                    value="<?= $_POST['cpf'] ?? '' ?>">
             </div>
             <div class="form-group" id="senha-container">
                 <label for="senha">Senha</label>
