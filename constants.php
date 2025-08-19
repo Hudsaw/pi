@@ -3,6 +3,7 @@
 define('BASE_PATH', '/pi');
 define('BASE_URL', 'https://localhost/pi');
 define('VIEWS_PATH', __DIR__ . '/views/');
+define('ASSETS_URL', BASE_URL . '/public/');
 define('APP_PATH', __DIR__. '/app/');
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'pi');

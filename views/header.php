@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <title><?= $title ?? 'PontoCerto' ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="styleH.css">
-    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="stylesheet" href="<?php echo ASSETS_URL?>style.css">
+    <link rel="stylesheet" href="<?php echo ASSETS_URL?>styleH.css">
+    <link rel="icon" type="image/png" href="<?php echo ASSETS_URL?>icon.png">
 </head>
 
 
@@ -19,13 +19,17 @@
                 <nav class="secao">
                     <div class="logo">
                         <div>
-                            <a href="<?= BASE_URL ?>" class="logo-text">PontoCerto</a>
+                        <a href="<?php echo BASE_URL?>" class="logo">
+            <img src="<?php echo ASSETS_URL?>banner.png" alt="PontoCerto Logo" class="banner-img">
+            </a>    
                         </div>
                     </div>
 
                     <nav class="nav-user">
                         <div class="user-greeting">
-                            <span>Olá, <?= htmlspecialchars($nomeUsuario ?? 'Visitante') ?>!</span>
+                            <a href="<?= BASE_URL ?>/cadastro" class="greeting-link">
+                                Olá, <?= htmlspecialchars($nomeUsuario ?? 'Visitante') ?>!
+                            </a>
                         </div>
                         <div class="user-actions">
                             <div>
