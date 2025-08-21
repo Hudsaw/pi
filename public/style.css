@@ -1,3 +1,11 @@
+@font-face {
+    font-family: 'Schibsted Grotesk';
+    src: url('../fonts/SchibstedGrotesk-Regular.ttf'),
+         url('../fonts/SchibstedGrotesk-Bold.ttf'),
+         url('../fonts/SchibstedGrotesk-ExtraBold.ttf'),
+         url('../fonts/SchibstedGrotesk-Italic.ttf');
+}
+
 :root {
     --azul-escuro: #03045E;
     --azul-medio: #0077B6;
@@ -9,532 +17,122 @@
 
 body {
     margin: 0;
+    font-family: 'Schibsted Grotesk', sans-serif;
 }
 
-* {
-    font-family: arial;
+h1 {
+    font-size: 5rem;
+    margin: 1rem;
 }
 
-.container-tela-inicial {
+h3 {
+    font-size: 2rem;
+    margin: 1rem;
+}
+
+h4 {
+    font-size: 1.5rem;
+    font-weight: normal;
+    margin: 1rem;
+}
+
+a {
+    cursor: pointer;
+}
+
+.principal {
     height: 100vh;
+    width: 100vw;
 }
 
-.container-lateral {
-    width: 50vw;
-    display: flex;
-    flex-direction: column;
+.topo {
+    height: 15%;
+    padding-inline: 10%;
 }
 
-.container-login {
-    width: 50vw;
-    display: flex;
-    flex-direction: column;
-    background: var(--fundo);
-    align-items: center;
-    justify-content: center;
+.conteudo {
+    height: 85%;
+}
+
+.painel {
+    height: 55%;
+}
+
+img {
+    height: 100%;
+}
+
+.texto-inicial {
+    background: var(--azul-medio);
+    color: white;
+    padding: 2rem;
+    width: 100%;
+}
+
+.titulo-cards {
+    font-size: 1.5rem;
+    padding-block: 1rem;
+    font-weight: bold;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem
+}
+
+.card {
+    font-size: 1.5rem;
+    display: grid;
+    border: 2px solid var(--azul);
+    padding: 3rem;
+    text-align: center;
 }
 
 .formulario-login {
     background: white;
-    display: flex;
-    flex-direction: column;
-    padding: 24px;
-    gap: 24px;
-    box-shadow: 2px 2px 10px black;
-    border-radius: 8px;
+    height: 50%;
 }
 
-.div-botao {
-    display: flex;
-    justify-content: center;
-}
-
-.botao-login {
-    background-color: var(--azul-medio);
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 15pt;
-    color: white;
-    border: none;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.imagem-tela-inicial {
-    height: 60vh;
-    width: 50vw;
-}
-
-.info {
-    width: 50vw;
-    height: 30vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2vh;
-}
-
-.subtitulo {
-    font-size: 25pt;
-    font-weight: bold;
-    padding-inline: 5vw;
-    color: var(--azul-medio)
-}
-
-.conteudo {
-    font-size: 15pt;
-    padding-inline: 5vw;
-}
-
-.titulo {
-    font-size: 35pt;
-    color: var(--azul-clarissimo);
-    font-weight: bold;
-}
-
-.topo {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-    height: 10vh;
-    background-color: var(--azul-medio);
-    box-shadow: 0 2px 5px black;
-    gap: 70vw;
-    position: relative;
-}
-
-.principal {
-    display: flex;
-}
-
-.campos {
-    display: flex;
-    gap: 16px;
-}
-
-.labels, .inputs {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 24px;
-    font-size: 15pt;
-}
-
-.inputs {
+.banner {
+    height: 15%;
     width: 100%;
 }
 
-.inputs input {
-    font-size: 15pt;
-}
-
-hr {
-  border: none; 
-  border-top: 2px solid lightgray; 
-  margin: 0;
-}
-
-.logo {
-    color: var(--cor-principal-1);
-    font-size: 1.5rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: var(--espacamento-pequeno);
-}
-
-.logo i {
-    font-size: 1.5em;
-}
-
-/* Layout Principal */
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 15px;
-}
-
-
-
-/* Cabeçalho */
-header {
-    background-color: var(--primary-color);
-    color: var(--primary-light);
-    padding: 1rem 0;
-    box-shadow: 0 2px 5px var(--bg-dark);
-    
-    .header-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 15px;
-    }
-
-    .secao{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    }
-
-    .logo {
-        font-size: 2rem;
-        font-weight: bold;
-        color: var(--primary-light);
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-
-        .logo-img {
-            width: 80px;
-            height: 80px;
-            margin-right: 10px;
-        }
-        
-    }
-
-    .banner-img {
-    height: 150px;
-    width: auto;
-    object-fit: cover;
-} 
-
-
-    #espacador{
-        color: var(--primary-color);
-    }
-
-    .user-greeting{
-        
-        font-size: 1.5rem;
-        color: var(--primary-light);
-    }
-
-    .nav-user{
-        display: flex;
-        flex-direction: column;
-        text-align: end;
-
-        .user-actions{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 5px;
-            font-size: 1.2rem;
-        }
-        .theme-switcher{
-            color: var(--primary-light);
-            background-color: var(--primary-color);
-            width: 30px;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-        } 
-    }
-
-    a, a:visited {
-        color: var(--primary-light);
-        text-decoration: none;
-        font-size: 1.2rem;
-    }
-
-}
-
-
-
-/* Conteúdo Principal */
-main {
-    flex: 1;
-    padding: 2rem 0;
-}
-
-
-
-/* Rodapé */
-footer {
-    background-color: var(--primary-color);
-    color: var(--primary-light);
-    padding: 1.5rem 0;
-    text-align: center;
-    margin-top: auto;
-}
-
-
-
-/* Componentes Comuns */
-.card {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--bg-white);
-    border-radius: 8px;
-    box-shadow: 0 2px 10px var(--bg-dark);
-    padding: 2rem;
-    margin: 2rem auto;
-    max-width: 800px;
-    width: 100%;
-}
-.card h1,.card h2 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: var(--primary-color);
-}
-
-.btn {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background-color: var(--primary-color);
-    color: var(--primary-light);
-    border: none;
-    border-radius: 4px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-size: 1rem;
-    margin: 0.5rem 0;
-    width: 250px;
+.bem-vindo {
+    color: var(--azul-medio);
     text-align: center;
 }
 
-.btn:hover {
-    background-color: var(--primary-dark);
-}
-
-.btn-secondary {
-    background-color: var(--secondary-color);
-}
-
-.btn-secondary:hover {
-    background-color: var(--secondary-dark);
-}
-
-.btn-ver{
-    color: var(--link-color);
-    text-decoration: none;
-
-    &:hover{
-        color: var(--link-hover-color);
-    }
-}
-
-
-
-/* Formulários */
-.form-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 1rem;
-}
-
-.form-cadastro{
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    width: 600px;
-}
-
-.form-section{
-    width: 100%;
-    text-align: left;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-}
-
-#form-home {
-    width: 250px;
-}
-
-.form-login{
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 1rem;
-}
-
-.form-control {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 1rem;
-    margin: 0 auto;
-}
-
-.form-group label {
-    display: block;
-    font-weight: bold;
-    text-align: left;
-
-    
-}
-
-.form-cadastro{
-    display: flex;
-    flex-direction: column;
-    align-items: start;
+.label {
+    text-align: center;
+    gap: 1rem;
 }
 
 .input {
-    padding: 0.14rem;
-    background: var(--primary-light);
-    border: 2px solid var(--input-border-color);
-    border-radius: 4px;
-    width: 200px;
-    outline: none;
-
+    gap: 1rem;
 }
 
-#area{
-    outline: none;
-    border: 2px solid var(--input-border-color);
-    padding: 0.1rem;
+input {
+    padding: 0.5rem;
+    border: 1px solid gray;
     border-radius: 4px;
 }
 
-#select1,
-#select2 {
-    outline: none;
-    border: 2px solid var(--input-border-color);
-    padding: 0.1rem;
-    border-radius: 4px;
-    width: 200px;
+label {
+    padding: 0.5rem;
+    height: 15px;
 }
 
-#cep-container{
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-
-    #cep-info{
-        display: flex;
-        align-items: center;
-        margin-left: 1rem;
-        width: 150px;
-        margin-bottom: 1rem;
-        text-align: center;
-    }
+.inputs {
+    padding-inline: 2rem;
+    gap: 1rem;
 }
 
-#actions{
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1rem;
-    width: 736px;
-}
-
-#email-container, #senha-container{
-    width: 250px;
-}
-
-h3{
-    padding: 1rem 0;
-    margin-top: 0.5rem;
-}
-
-
-
-/* Alertas */
-.alert {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-}
-
-.alert-success {
-    color: var(--success-color);
-    border: 1px solid var(--success-color);
-}
-
-.alert-error {
-    color: var(--error-color);
-    border: 1px solid var(--error-color);
-}
-
-
-
-/* PÁGINAS ESPECÍFICAS */
-
-/* Home */
-#hero {
-    text-align: center;
-    padding: 2rem 0;
-    align-items: center;
-}
-#sobre{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin-top: 5px;
-
-    
-
-}
-#icon1,#icon2,#icon3{
-    color: var(--secondary-color);
-}
-
-/* Currículo */
-.curriculo-header {
-    margin-bottom: 2rem;
-}
-
-
-/*Login*/
-.auth-form{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--bg-white);
-}
-.link-btn{
-    color: var(--link-color);
-    &:hover{
-        color: var(--link-hover-color);
-        transition: color 0.3s;
-    }
-}
-#criar_conta{
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin-top: 5px;
-    width: 250px;
-}
-
-#login{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-
-.alternativas input[type="radio"] {
-    padding-right: 10px;
-}
-
-
-
-/* Responsividade */
-@media (max-width: 768px) {
-    .container {
-        padding: 0 10px;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-	
+.botao-azul {
+    border-radius: 8px;
+    background: var(--azul-medio);
+    color: white;
+    padding: 0.5rem 4rem;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
 }
