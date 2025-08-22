@@ -38,6 +38,7 @@ h4 {
 
 a {
     cursor: pointer;
+    text-decoration: none;
 }
 
 .principal {
@@ -46,12 +47,12 @@ a {
 }
 
 .topo {
-    height: 15%;
+    height: 10%;
     padding-inline: 10%;
 }
 
 .conteudo {
-    height: 85%;
+    height: 90%;
 }
 
 .painel {
@@ -60,6 +61,10 @@ a {
 
 img {
     height: 100%;
+}
+
+hr {
+    width: 99%;
 }
 
 .texto-inicial {
@@ -75,27 +80,29 @@ img {
     font-weight: bold;
 }
 
-.cards {
+.cards-landing {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem
 }
 
-.card {
+.card-landing {
     font-size: 1.5rem;
     display: grid;
     border: 2px solid var(--azul);
     padding: 3rem;
     text-align: center;
+    border-radius: 8px;
 }
 
 .formulario-login {
     background: white;
-    height: 50%;
+    gap: 2rem;
+    padding-block: 2rem;
 }
 
 .banner {
-    height: 15%;
+    height: 100px;
     width: 100%;
 }
 
@@ -105,18 +112,24 @@ img {
 }
 
 .label {
-    text-align: center;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .input {
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 input {
-    padding: 0.5rem;
+    padding: calc(0.5rem - 1px);
     border: 1px solid gray;
     border-radius: 4px;
+}
+
+select {
+    padding: calc(0.5rem - 1px);
+    border: 1px solid gray;
+    border-radius: 4px;
+    height: 31px;
 }
 
 label {
@@ -129,10 +142,87 @@ label {
     gap: 1rem;
 }
 
-.botao-azul {
+.voltar {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    border: 1px solid white;
+    padding: 0.5rem 1rem;
     border-radius: 8px;
-    background: var(--azul-medio);
     color: white;
-    padding: 0.5rem 4rem;
-    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
+    font-weight: bold;;
+}
+
+.menu {
+    width: 250px;
+    height: 100%;
+    background: var(--azul-medio);
+}
+
+.imagem-topo {
+    margin-inline: auto;
+}
+
+.nome-usuario {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.item {
+    color: white;
+    padding: 2rem;
+    font-size: 1.2rem;
+    border-bottom: 1px solid var(--azul-clarissimo);
+}
+
+.sair {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    border: 1px solid white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;;
+}
+
+.cards {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 500px);
+    gap: 2rem;
+    padding: 3rem;
+    overflow: auto;
+}
+
+.card {
+    font-size: 1.5rem;
+    display: grid;
+    border: 2px solid var(--azul);
+    padding: 3rem;
+    text-align: center;
+    border-radius: 8px;
+    height: 250px;
+    color: var(--azul);
+    font-weight: bold;
+}
+
+.novo-usuario {
+    border: 2px solid green;
+    color: green;
+}
+
+.formulario-cadastro {
+    width: 100%;
+}
+
+.formulario-cadastro hr {
+    margin-bottom: 2rem;
+}
+
+.titulo {
+    font-size: 2rem;
+    text-align: center;
+    margin-block: 1rem;
+    width: 100%;
 }

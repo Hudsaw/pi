@@ -36,13 +36,43 @@
     position: relative;
 }
 
-.botao {
+.botao-grande {
     border: 2px solid var(--azul);
     border-radius: 8px;
+    background: white;
     color: var(--azul);
     padding: 1rem 2rem;
     font-weight: bold;
     box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.botao-azul {
+    border-radius: 8px;
+    background: var(--azul-medio);
+    color: white;
+    padding: 0.5rem 1rem;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.botao {
+    border: 2px solid var(--azul);
+    border-radius: 8px;
+    background: white;
+    padding: 0.5rem 1rem;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.botao-remover {
+    border: 2px solid red;
+    border-radius: 8px;
+    background: white;
+    color: red;
+    padding: 0.5rem 1rem;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
 }
 
 .redondinho {
