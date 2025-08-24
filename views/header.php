@@ -4,46 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <title><?= $title ?? 'PontoCerto' ?></title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="<?php echo ASSETS_URL?>styleH.css">
+    <link rel="stylesheet" href="<?php echo ASSETS_URL?>ajuda.css">
+    <link rel="stylesheet" href="<?php echo ASSETS_URL?>style.css">
     <link rel="icon" type="image/png" href="<?php echo ASSETS_URL?>icon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
-
-<body class="light-theme">
-    
-    <header>
-        <div class="container">
-            <div class="header-container">
-                <nav class="secao">
-                    <div class="logo">
-                        <div>
-                        <a href="<?php echo BASE_URL?>" class="logo">
-            <img src="<?php echo ASSETS_URL?>banner.png" alt="PontoCerto Logo" class="banner-img">
-            </a>    
-                        </div>
+<body>
+    <?php if ($login ?? false): ?>
+        <div class="principal azul flex center">
+    <?php else: ?>
+        <div class="principal">
+            <?php if ($usuarioLogado ?? false): ?>
+                <div class="topo flex h-center shadow">
+                    <img class="imagem-topo" src="<?php echo ASSETS_URL?>banner.png" alt="banner">
+                    <span class="flex l-gap v-center">
+                        <span class="nome-usuario"><?= htmlspecialchars($nomeUsuario) ?></span>
+                    </span>
+                </div>
+                <?php else: ?>        
+                    <div class="topo flex space-between shadow">
+                        <img src="<?php echo ASSETS_URL?>banner.png" alt="banner">
+                        <span class="flex l-gap v-center">
+                            <span class="bold">OLÁ, VISITANTE!</span>
+                            <a href="<?= BASE_URL ?>/login" class="botao-grande">LOGIN</a>
+                        </span>
                     </div>
-
-                    <nav class="nav-user">
-                        <div class="user-greeting">
-                            <a href="<?= BASE_URL ?>/cadastro" class="greeting-link">
-                                Olá, <?= htmlspecialchars($nomeUsuario ?? 'Visitante') ?>!
-                            </a>
-                        </div>
-                        <div class="user-actions">
-                            <div>
-                                <?php if ($usuarioLogado ?? false): ?>
-                                    <a href="<?= BASE_URL ?>/logout" class="btn-logout">
-                                        <span class="btn-text">Sair</span>
-                                    </a>
-                                <?php else: ?>
-                                    <a href="<?= BASE_URL ?>/login" class="btn-login">
-                                        <span class="btn-text">Login</span>
-                                    </a>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </nav>
-                </nav>
-            </div>
-    </header>
+            <?php endif; ?>
+    <?php endif; ?>

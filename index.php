@@ -19,12 +19,15 @@ $router->get('/', 'PageController@home');
 
 // Rotas de autenticação
 $router->get('/login', 'AuthController@mostrarLogin');
+$router->post('/logar', 'AuthController@logar');
+$router->get('/painel', 'PageController@painel', ['AuthMiddleware']);
+$router->get('/usuarios', 'PageController@usuarios', ['AuthMiddleware']);
+$router->get('/visualizar-usuario', 'PageController@visualizarUsuario', ['AuthMiddleware']);
 $router->get('/cadastro', 'PageController@mostrarCadastro');
 $router->get('/editar', 'PageController@mostrarCadastro', ['AuthMiddleware']);
 $router->get('/logout', 'AuthController@logout');
 $router->post('/cadastrar', 'AuthController@cadastrar');
 $router->post('/atualizar', 'AuthController@atualizar', ['AuthMiddleware']);
-$router->post('/logar', 'AuthController@logar');
 
 
 $router->dispatch();

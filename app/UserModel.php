@@ -13,12 +13,12 @@ class UserModel
         $stmt = $this->pdo->prepare("SELECT id, nome, email, senha, tipo FROM usuarios WHERE cpf = ?");
         $stmt->execute([$cpf]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user && password_verify($password, $user['senha'])) {
+        
+        if ($user && $this->password_verify($password, $user['senha'])) {
             unset($user['senha']);
             return $user;
         }
-
+        
         return false;
     }
 
@@ -110,6 +110,17 @@ class UserModel
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getTodosUser()
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT u.*, e.nome as especialidade
+            FROM usuarios u
+            LEFT JOIN especialidade e ON u.especialidade_id = e.id
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getUserPeloEmail($email)
     {
         $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
@@ -142,4 +153,7 @@ class UserModel
         return $this->pdo->query("SELECT * FROM nivel")->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    private function password_verify($senha, $senhaInformada) {
+        return $senha === $senhaInformada;
+    }
 }

@@ -16,19 +16,13 @@ class PageController
 
         $this->render('home', [
             'title'         => 'PontoCerto',
-            'areas'         => $especialidade,
             'user'          => $user,
             'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
             'usuarioLogado' => $this->estaLogado(),
             'dados'         => [
                 'titulo'    => 'Centralize, organize e produza com precisão',
                 'descricao' => 'O PontoCerto é um sistema de gerenciamento desenvolvido
-                        especialmente para malharias. Com ele, você centraliza
-                        cadastros, organiza a produção, acompanha pedidos e gera
-                        relatórios de desempenho de forma simples e eficiente.
-                        Tudo em um só lugar, garantindo mais produtividade,
-                        clareza e controle para sua empresa.',
-                'usuario'   => $user,
+                        especialmente para malharias.',
             ],
         ]);
     }
@@ -97,4 +91,46 @@ class PageController
         exit();
     }
 
+    public function painel()
+    {
+        error_log("Exibindo painel");
+        $user  = $this->getUsuario();
+
+        $this->render('painel', [
+            'title'         => 'PontoCerto',
+            'user'          => $user,
+            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+            'usuarioLogado' => $this->estaLogado(),
+        ]);
+    }
+
+    public function usuarios()
+    {
+        error_log("Exibindo usuarios");
+        $user  = $this->getUsuario();
+
+        $this->render('usuarios', [
+            'title'         => 'PontoCerto',
+            'user'          => $user,
+            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+            'usuarioLogado' => $this->estaLogado(),
+            'listaUsuarios' => $this->userModel->getTodosUser(), 
+        ]);
+    }
+
+    public function visualizarUsuario()
+    {
+        error_log("Exibindo usuarios");
+        $user  = $this->getUsuario();
+        
+        $id = $_GET['id'];
+
+        $this->render('visualizar-usuario', [
+            'title'         => 'PontoCerto',
+            'user'          => $user,
+            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+            'usuarioLogado' => $this->estaLogado(),
+            'usuario'       => $this->userModel->getUserPeloId($id),
+        ]);
+    }
 }

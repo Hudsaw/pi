@@ -16,7 +16,8 @@ class AuthController
         }
 
         $data = [
-            'error' => $_SESSION['login_error'] ?? null,
+            'erro' => $_SESSION['login_error'] ?? null,
+            'login' => true
         ];
 
         $this->render('login', $data);
@@ -29,18 +30,18 @@ class AuthController
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect('/login');
         }
-
-        $cpf    = $_POST['cpf'];
+        
+        $cpf      = $_POST['cpf'];
         $password = $_POST['senha'];
-
+        
         $user = $this->userModel->autenticar($cpf, $password);
-
+        
         if ($user) {
             $_SESSION['user_id']   = $user['id'];
             $_SESSION['user_name'] = $user['nome'];
             $_SESSION['user_role'] = $user['tipo'];
 
-            $redirect = $_SESSION['redirect_url'] ?? '/';
+            $redirect = $_SESSION['redirect_url'] ?? '/painel';
             unset($_SESSION['redirect_url']);
 
             $this->redirect($redirect);
