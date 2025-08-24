@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PontoCerto</title>
+    <link rel="stylesheet" href="/public/ajuda.css">
+    <link rel="stylesheet" href="/public/style.css">
+    <link rel="icon" type="image/png" href="icon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div class="principal">
+        <div class="topo flex h-center shadow">
+            <img class="imagem-topo" src="public/banner.png" alt="banner">
+            <span class="flex l-gap v-center">
+                <span class="nome-usuario">Maria Antonia</span>
+            </span>
+        </div>
+        <div class="conteudo flex">
+            <div class="menu flex vertical shadow">
+                <a href="usuarios.html" class="item bold">Usuários</a>
+                <a href="index.html" class="sair">Sair</a>
+            </div>
+            <form class="formulario-cadastro">
+                <div class="titulo">Usuario 2</div>
+                <hr class="shadow">
+                <span class="lista-informacoes flex center">
+                    <span class="lista-informacoes-coluna bold flex vertical">
+                        <span class="flex v-center" for="nome">Nome Completo</span>
+                        <span class="flex v-center" for="telefone">Telefone</span>
+                        <span class="flex v-center" for="email">Email</span>
+                        <span class="flex v-center" for="cpf">CPF</span>
+                        <span class="flex v-center" for="cep">CEP</span>
+                        <span class="flex v-center" for="logradouro">logradouro</span>
+                        <span class="flex v-center" for="complemento">Complemento</span>
+                        <span class="flex v-center" for="cidade">Cidade</span>
+                        <span class="flex v-center" for="tipo">Tipo da chave PIX</span>
+                        <span class="flex v-center" for="pix">PIX</span>
+                    </span>
+                    <span class="lista-informacoes-coluna flex vertical">
+                        <span class="flex v-center" for="nome">Usuario 2</span>
+                        <span class="flex v-center" for="telefone">(47) 9 9999-9999</span>
+                        <span class="flex v-center" for="email">teste@teste.com.br</span>
+                        <span class="flex v-center" for="cpf">123.123.123-12</span>
+                        <span class="flex v-center" for="cep">89 100 00</span>
+                        <span class="flex v-center" for="logradouro">Rua legal</span>
+                        <span class="flex v-center" for="complemento">123</span>
+                        <span class="flex v-center" for="cidade">Gaspar</span>
+                        <span class="flex v-center" for="tipo">CPF</span>
+                        <span class="flex v-center" for="pix">123.123.123-12</span>
+                    </span>
+                </span>
+                <br>
+                <hr>
+                <div class="flex h-center l-gap">
+                    <a href="editar-usuario.html" class="botao">Editar usuario</a>
+                    <a onclick="alert()" class="botao-remover">Remover usuário</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+<html>
