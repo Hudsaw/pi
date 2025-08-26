@@ -17,9 +17,12 @@
         <div class="principal">
             <?php if ($usuarioLogado ?? false): ?>
                 <div class="topo flex h-center shadow">
-                    <img class="imagem-topo" src="<?php echo ASSETS_URL?>banner.png" alt="banner">
+                    <a class="imagem-topo" href="<?= BASE_URL ?>/painel">
+                        <img src="<?php echo ASSETS_URL?>banner.png" alt="banner">
+                    </a>
                     <span class="flex l-gap v-center">
                         <span class="nome-usuario"><?= htmlspecialchars($nomeUsuario) ?></span>
+                        <a href="<?= BASE_URL ?>/logout" class="botao-grande">LOGOUT</a>
                     </span>
                 </div>
                 <?php else: ?>        

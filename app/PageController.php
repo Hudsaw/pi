@@ -29,20 +29,32 @@ class PageController
 
     public function mostrarCadastro()
     {
-        error_log("Exibindo formulario de cadastro");
+        error_log("Exibindo tela de cadastro");
+        $user  = $this->getUsuario();
+
         $data = [
-            'errors' => $_SESSION['registrar_erros'] ?? [],
-            'dados'  => [],
-            'areas'  => $this->userModel->getEspecialidade(),
+            'errors'        => $_SESSION['registrar_erros'] ?? [],
+            'old'           => $_SESSION['registrar_data'] ?? [],
+            'title'         => 'PontoCerto',
+            'user'          => $user,
+            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+            'usuarioLogado' => $this->estaLogado(),
+            'usuario'   => [
+                'nome'           => $_POST['nome'] ?? '',
+                'telefone'       => $_POST['telefone'] ?? '',
+                'email'          => $_POST['email'] ?? '',
+                'cpf'            => $_POST['cpf'] ?? '',
+                'cep'            => $_POST['cep'] ?? '',
+                'logradouro'     => $_POST['logradouro'] ?? '',
+                'complemento'    => $_POST['complemento'] ?? '',
+                'cidade'         => $_POST['cidade'] ?? '',
+                'tipo_chave_pix' => $_POST['tipo_chave_pix'] ?? '',
+                'chave_pix'      => $_POST['chave_pix'] ?? '',
+            ]
         ];
 
-        // Se usuário está logado, carrega seus dados
-        if (isset($_SESSION['user_id'])) {
-            $data['dados'] = $this->userModel->getUserPeloId($_SESSION['user_id']);
-        }
-
-        $this->render('cadastro', $data);
-        unset($_SESSION['registrar_erros']);
+        $this->render('criar-usuario', $data);
+        unset($_SESSION['registrar_erros'], $_SESSION['registrar_data']);
     }
 
     // Métodos auxiliares
@@ -126,6 +138,22 @@ class PageController
         $id = $_GET['id'];
 
         $this->render('visualizar-usuario', [
+            'title'         => 'PontoCerto',
+            'user'          => $user,
+            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+            'usuarioLogado' => $this->estaLogado(),
+            'usuario'       => $this->userModel->getUserPeloId($id),
+        ]);
+    }
+
+    public function editarUsuario()
+    {
+        error_log("Editando usuario");
+        $user  = $this->getUsuario();
+        
+        $id = $_GET['id'];
+
+        $this->render('editar-usuario', [
             'title'         => 'PontoCerto',
             'user'          => $user,
             'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',

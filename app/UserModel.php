@@ -10,7 +10,7 @@ class UserModel
 
     public function autenticar($cpf, $password)
     {
-        $stmt = $this->pdo->prepare("SELECT id, nome, email, senha, tipo FROM usuarios WHERE cpf = ?");
+        $stmt = $this->pdo->prepare("SELECT id, nome, email, senha, tipo FROM usuarios WHERE cpf = ? AND ativo = 1");
         $stmt->execute([$cpf]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -27,24 +27,22 @@ class UserModel
     try {
         $stmt = $this->pdo->prepare("
             INSERT INTO usuarios
-            (nome, email, senha, tipo, cpf, telefone, cep, complemento, banco, agencia, conta, especialidade_id, nivel)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (nome, cpf, email, telefone, cep, logradouro, complemento, cidade, tipo_chave_pix, chave_pix, senha, especialidade_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
         ");
 
         $success = $stmt->execute([
             $data['nome'],
-            $data['email'],
-            password_hash($data['senha'], PASSWORD_DEFAULT),
-            'costureira',
             $data['cpf'],
+            $data['email'],
             $data['telefone'],
             $data['cep'],
+            $data['logradouro'],
             $data['complemento'],
-            $data['banco'],
-            $data['agencia'],
-            $data['conta'],
-            $data['especialidade_id'],
-            'bronze'
+            $data['cidade'],
+            $data['tipo_chave_pix'],
+            $data['chave_pix'],
+            $data['senha'],
         ]);
 
         return $success ? $this->pdo->lastInsertId() : false;
@@ -58,16 +56,16 @@ class UserModel
 {
     try {
         $campos = [
-            'nome'      => $data['nome'],
-            'email'     => $data['email'],
-            'telefone'  => $data['telefone'],
-            'cpf'       => $data['cpf'],
-            'cep'       => $data['cep'],
-            'complemento' => $data['complemento'],
-            'banco' => $data['banco'],
-            'agencia'     => $data['agencia'],
-            'conta' => $data['conta'],
-            'especialidade_id' => $data['especialidade_id']
+            'nome'           => $data['nome'],
+            'telefone'       => $data['telefone'],
+            'email'          => $data['email'],
+            'cpf'            => $data['cpf'],
+            'cep'            => $data['cep'],
+            'logradouro'     => $data['logradouro'],
+            'complemento'    => $data['complemento'],
+            'cidade'         => $data['cidade'],
+            'tipo_chave_pix' => $data['tipo_chave_pix'],
+            'chave_pix'      => $data['chave_pix'],
         ];
 
         // Adicionar senha se fornecida
@@ -98,6 +96,17 @@ class UserModel
     }
 }
 
+    public function removerUser($userId)
+    {
+        try {
+            $stmt = $this->pdo->prepare("UPDATE usuarios SET ativo = 0 WHERE id = ?");
+            return $stmt->execute([$userId]);
+        } catch (PDOException $e) {
+            error_log("Error deleting user: " . $e->getMessage());
+            return false;
+        }
+    }
+
     public function getUserPeloId($id)
     {
         $stmt = $this->pdo->prepare("
@@ -116,6 +125,7 @@ class UserModel
             SELECT u.*, e.nome as especialidade
             FROM usuarios u
             LEFT JOIN especialidade e ON u.especialidade_id = e.id
+            WHERE u.ativo = 1
         ");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -23,11 +23,11 @@ $router->post('/logar', 'AuthController@logar');
 $router->get('/painel', 'PageController@painel', ['AuthMiddleware']);
 $router->get('/usuarios', 'PageController@usuarios', ['AuthMiddleware']);
 $router->get('/visualizar-usuario', 'PageController@visualizarUsuario', ['AuthMiddleware']);
-$router->get('/cadastro', 'PageController@mostrarCadastro');
-$router->get('/editar', 'PageController@mostrarCadastro', ['AuthMiddleware']);
+$router->get('/editar-usuario', 'PageController@editarUsuario', ['AuthMiddleware']);
+$router->post('/salvar-usuario', 'AuthController@salvarUsuario', ['AuthMiddleware']);
+$router->get('/remover-usuario', 'AuthController@removerUsuario', ['AuthMiddleware']);
+$router->get('/criar-usuario', 'PageController@mostrarCadastro', ['AuthMiddleware']);
+$router->post('/cadastrar-usuario', 'AuthController@cadastrarUsuario', ['AuthMiddleware']);
 $router->get('/logout', 'AuthController@logout');
-$router->post('/cadastrar', 'AuthController@cadastrar');
-$router->post('/atualizar', 'AuthController@atualizar', ['AuthMiddleware']);
-
 
 $router->dispatch();

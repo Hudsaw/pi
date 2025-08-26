@@ -1,3 +1,5 @@
+-- drop database pi;
+
 create database pi;
 use pi;
 
@@ -36,20 +38,25 @@ CREATE TABLE usuarios (
     email varchar(250) NOT NULL UNIQUE,
     telefone varchar(11) NOT NULL,
     cep varchar(8) NOT NULL,
+    logradouro varchar(250),
     complemento varchar(50),
+    cidade varchar(100),
+    tipo_chave_pix enum('cpf', 'cnpj', 'email', 'telefone', 'aleatoria') DEFAULT 'cpf',
+    chave_pix varchar(250),
     senha varchar(255) NOT NULL,
     banco int NULL DEFAULT 0,
     agencia INT NULL DEFAULT 0,
     conta INT NULL DEFAULT 0,
-    saldo DECIMAL(10, 2) DEFAULT 0.00,
+    /*saldo DECIMAL(10, 2) DEFAULT 0.00,*/
     especialidade_id INT NOT NULL DEFAULT 2,
-    nivel INT NOT NULL DEFAULT 1,
+    /*nivel INT NOT NULL DEFAULT 1,*/
     ativo TINYINT DEFAULT 1
  );
 
- INSERT INTO usuarios (tipo, nome, cpf, email, telefone, cep, complemento, senha, banco, agencia, conta, especialidade_id, nivel) VALUES
-('admin', 'Administrador', '12345678901', 'admin@pi.com', '11987654321', '12345678', 'Apto 101', '$2y$10$eW5z1Z1Z1Z1Z1Z1Z1Z1Z1.Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1', 123, 456, 789, 2, 2),
-('costureira', 'Maria da Silva', '98765432100', 'costura@pi.com', '11912345678', '87654321', 'Casa 2', '$2y$10$eW5z1Z1Z1Z1Z1Z1Z1Z1Z1.Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1Z1', 321, 654, 987, 2, 2);
+ INSERT INTO usuarios (tipo, nome, cpf, email, telefone, cep, logradouro, complemento, cidade, tipo_chave_pix, chave_pix, senha, banco, agencia, conta, especialidade_id, ativo) VALUES
+('admin'     , 'Administrador' , '12345678901', 'admin@pi.com'  , '11987654321', '12345678', 'Rua Botuverá'    , 'Apto 101', 'Gaspar'   , 'cpf'     , '12345678901'   , '123'  , 123, 456, 789, 3, 1),
+('costureira', 'Maria da Silva', '98765432100', 'costura@pi.com', '11912345678', '87654321', 'Rua São Paulo'   , 'Casa 2'  , 'Blumenau' , 'email'   , 'costura@pi.com', 'teste', 321, 654, 987, 2, 1),
+('costureira', 'Janaina'       , '87439287245', 'catu@piri.com' , '73737373737', '2313'    , 'Av. Das Alegrias', 'Casa 3'  , 'São Paulo', 'telefone', '73737373737'   , '321'  , 321, 654, 987, 1, 1);
 
 -- Tabela de Lotes
 CREATE TABLE lotes (

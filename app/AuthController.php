@@ -51,44 +51,32 @@ class AuthController
         $this->redirect('/login');
     }
 
-    public function mostrarCadastro()
-    {
-        error_log("Exibindo tela de cadastro");
-        $data = [
-            'errors'         => $_SESSION['registrar_erros'] ?? [],
-            'old'            => $_SESSION['registrar_data'] ?? [],
-            'especializacao' => $this->userModel->getEspecializacao(),
-        ];
-
-        $this->render('cadastro', $data);
-        unset($_SESSION['registrar_erros'], $_SESSION['registrar_data']);
-    }
-
-    public function cadastrar()
+    public function cadastrarUsuario()
     {
         error_log("Tentativa de cadastro");
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('/cadastrar');
+            $this->redirect('/criar-usuario');
         }
 
         $data = $this->validarUser($_POST, false);
 
         if (isset($data['errors'])) {
+            error_log("Erros de validacao: " . print_r($data['errors'], true));
             $_SESSION['registrar_erros'] = $data['errors'];
             $_SESSION['registrar_data']  = $_POST;
-            $this->redirect('/cadastro');
+            $this->redirect('/criar-usuario');
         }
 
         $userId = $this->userModel->criarUser($data);
 
         if ($userId) {
-            $_SESSION['user_id']   = $userId;
-            $_SESSION['user_name'] = $data['nome'];
-            $this->redirect('/');
+            // $_SESSION['user_id']   = $userId;
+            // $_SESSION['user_name'] = $data['nome'];
+            $this->redirect('/usuarios');
         }
 
         $_SESSION['registrar_erros'] = ['Falha ao criar usuário'];
-        $this->redirect('/cadastro');
+        $this->redirect('/criar-usuario');
     }
 
     public function logout()
@@ -97,30 +85,51 @@ class AuthController
         $this->redirect('/');
     }
 
-    public function atualizar()
+    public function salvarUsuario()
     {
         error_log("Tentativa de atualizacao de curriculo");
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('/editar');
+            $this->redirect('/editar-usuario');
         }
 
-        $userId = $_SESSION['user_id'];
+        $userId = $_POST['id'];
         $data   = $this->validarUser($_POST, true);
 
         if (isset($data['errors'])) {
             $_SESSION['registrar_erros'] = $data['errors'];
-            $this->redirect('/editar');
+            $this->redirect('/editar-usuario');
         }
 
         $success = $this->userModel->atualizarUser($userId, $data);
 
         if ($success) {
             $_SESSION['success_message'] = 'Currículo atualizado com sucesso!';
-            $this->redirect('/');
+            $this->redirect('/visualizar-usuario?id=' . $userId);
         }
 
         $_SESSION['registrar_erros'] = ['Erro ao atualizar o currículo'];
-        $this->redirect('/editar');
+        $this->redirect('/editar-usuario');
+    }
+
+    public function removerUsuario() 
+    {
+        error_log("Tentativa de remocao de usuario");
+        $userId = $_GET['id'];
+
+        if (empty($userId) || !is_numeric($userId)) {
+            $_SESSION['error_message'] = 'ID de usuário inválido';
+            $this->redirect('/usuarios');
+        }
+
+        $success = $this->userModel->removerUser($userId);
+
+        if ($success) {
+            $_SESSION['success_message'] = 'Usuário removido com sucesso!';
+            $this->redirect('/usuarios');
+        }
+
+        $_SESSION['error_message'] = 'Erro ao remover o usuário';
+        $this->redirect('/usuarios');
     }
 
     // Métodos Auxiliares
@@ -129,31 +138,31 @@ class AuthController
     {
         $errors = [];
         $data   = [
-            'nome'             => trim($post['nome'] ?? ''),
-            'email'            => filter_var(trim($post['email'] ?? ''), FILTER_SANITIZE_EMAIL),
-            'telefone'         => trim($post['telefone'] ?? ''),
-            'cpf'              => trim($post['cpf'] ?? ''),
-            'cep'              => trim($post['cep'] ?? ''),
-            'complemento'      => trim($post['complemento'] ?? ''),
-            'banco'            => trim($post['banco'] ?? ''),
-            'agencia'          => trim($post['agencia'] ?? ''),
-            'conta'            => trim($post['conta'] ?? ''),
-            'especialidade_id' => $post['especialidade_id'] ?? '2',
-            'senha'            => $post['senha'] ?? '',
-            'confirmar_senha'  => $post['confirmar_senha'] ?? '',
+            'nome'           => trim($post['nome'] ?? ''),
+            'telefone'       => trim($post['telefone'] ?? ''),
+            'email'          => filter_var(trim($post['email'] ?? ''), FILTER_SANITIZE_EMAIL),
+            'cpf'            => trim($post['cpf'] ?? ''),
+            'cep'            => trim($post['cep'] ?? ''),
+            'logradouro'     => trim($post['logradouro'] ?? ''),
+            'complemento'    => trim($post['complemento'] ?? ''),
+            'cidade'         => trim($post['cidade'] ?? ''),
+            'tipo_chave_pix' => trim($post['tipo_chave_pix'] ?? ''),
+            'chave_pix'      => trim($post['chave_pix'] ?? ''),
+            'senha'          => trim($post['senha'] ?? ''),
+            'csenha'         => trim($post['csenha'] ?? ''),
         ];
 
         if (empty($data['nome'])) {
             $errors['nome'] = 'Nome é obrigatório';
         }
-        if (strlen($data['senha']) < 8) {
-            $errors['senha'] = 'Senha deve ter pelo menos 8 caracteres';
-        } elseif ($data['senha'] !== $data['confirmar_senha']) {
-            $errors['confirmar_senha'] = 'Senhas não coincidem';
-        }
-
+        
         if (! $isUpdate) {
-
+            if (strlen($data['senha']) < 8) {
+                $errors['senha'] = 'Senha deve ter pelo menos 8 caracteres';
+            } elseif ($data['senha'] !== $data['csenha']) {
+                $errors['csenha'] = 'Senhas não coincidem';
+            }
+            
             if (empty($data['cpf'])) {
                 $errors['cpf'] = 'CPF é obrigatório';
             } elseif (! preg_match('/^\d{11}$/', $data['cpf'])) {
