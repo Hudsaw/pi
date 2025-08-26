@@ -1,28 +1,19 @@
 <?php
 class AuthMiddleware
 {
-    private $userModel;
-
-    public function __construct(UserModel $userModel)
-    {
-        $this->userModel = $userModel;
-    }
-
     public function handle()
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Verifica se está autenticado
         if (!isset($_SESSION['user_id'])) {
-            header("Location: " . BASE_URL . "login");
-            return false;
+            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
+            header('Location: ' . BASE_URL . 'login');
+            exit();
         }
-        
-        // Verificar se o usuário ainda existe no banco de dados
-        $user = $this->userModel->getUserPeloId($_SESSION['user_id']);
-        if (!$user) {
-            session_destroy();
-            header("Location: " . BASE_URL . "login");
-            return false;
-        }
-        
+
         return true;
     }
 }

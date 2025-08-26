@@ -1,5 +1,5 @@
 <div class="principal azul flex center">
-    <a href="index.html" class="voltar">Voltar</a>
+    <a href="<?= BASE_URL ?>" class="voltar">Voltar</a>
     <form class="formulario-login flex vertical redondinho shadow" class="auth-form" method="POST" action="<?= BASE_URL ?>/logar">
         <div class="banner flex h-center">
             <img src="<?php echo ASSETS_URL?>banner.png" alt="banner">

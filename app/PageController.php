@@ -118,7 +118,7 @@ class PageController
 
     public function usuarios()
     {
-        error_log("Exibindo usuarios");
+        error_log("Exibindo usuarios");    
         $user  = $this->getUsuario();
 
         $this->render('usuarios', [

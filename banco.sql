@@ -1,4 +1,4 @@
--- drop database pi;
+drop database pi;
 
 create database pi;
 use pi;
