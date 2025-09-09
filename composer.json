@@ -1,0 +1,19 @@
+{
+    "name": "totonha/pontocerto",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Maria Antonia",
+            "email": "totonha@gmail.com"
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "^6.10",
+        "tecnickcom/tcpdf": "^6.10",
+        "pusher/pusher-php-server": "^7.2"
+    }
+}

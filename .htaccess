@@ -1,10 +1,17 @@
 RewriteEngine On
 RewriteBase /pi/
 
-# Front Controller para outras requisições
+# Redirecionar para public se acessar a raiz
+RewriteRule ^$ public/ [L]
+
+# Permitir solicitações AJAX
+RewriteCond %{HTTP:X-Requested-With} XMLHttpRequest
+RewriteRule ^ - [L]
+    
+# Redirecionar tudo para public/index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [L,QSA]
+RewriteRule ^(.*)$ public/index.php?url=$1 [L,QSA]
 
 php_value display_errors On
 php_value date.timezone America/Belem

@@ -1,4 +1,9 @@
 <?php
+namespace App\Core;
+
+use App\Core\Database;
+use PDO;
+
 class Container
 {
     private $instances = [];

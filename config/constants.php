@@ -1,31 +1,35 @@
 <?php
-// Configurações globais
-define('BASE_PATH', '/pi');
-define('APP_PATH', __DIR__. '/app/');
-define('VIEWS_PATH', __DIR__ . '/views/');
-define('BASE_URL', 'https://localhost/pi');
-define('ASSETS_URL', BASE_URL . '/public/');
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'pi');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+// constants.php
+ 
+// URLs absolutas (para navegador)
+define('BASE_URL', 'http://localhost/pi/');
+define('PUBLIC_URL', BASE_URL . 'public/');
+define('ASSETS_URL', PUBLIC_URL . 'assets/');
 
+// Caminhos físicos (para servidor)
+define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
+define('APP_PATH', ROOT_PATH . 'app/');
+define('PUBLIC_PATH', ROOT_PATH . 'public/');
+define('VIEWS_PATH', ROOT_PATH . 'views/');
+define('BACKUP_PATH', ROOT_PATH . 'backups/');
 
-// Inicia a sessão de forma segura
-if (session_status() === PHP_SESSION_NONE) {
-    session_start([
-        'cookie_secure' => false, 
-        'cookie_httponly' => true,
-        'use_strict_mode' => true
-    ]);
-}
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_USER', 'hudsonrb@gmail.com');
+define('SMTP_PASS', 'ykrs rdsu zugz tnaz');
+define('SMTP_PORT', 587);
+define('SMTP_FROM', 'hudsonrb@gmail.com');
 
-// Funções úteis
-function redirect($url) {
-    header("Location: " . BASE_URL . $url);
-    exit();
-}
+ // Configurações de ambiente
+ define('DB_HOST', 'localhost');
+ define('DB_NAME', 'pi');
+ define('DB_USER', 'root');
+ define('DB_PASS', '');
+ 
+ // Configurações de sessão
+ini_set('session.cookie_lifetime', 0); 
 
-function sanitize($data) {
-    return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
-}
+// Configurações do Pusher
+define('PUSHER_APP_ID', '00');
+define('PUSHER_APP_KEY', '00');
+define('PUSHER_APP_SECRET', '00');
+define('PUSHER_APP_CLUSTER', 'sa1');

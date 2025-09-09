@@ -1,4 +1,6 @@
 <?php
+namespace App\Middlewares;
+
 class RoleMiddleware
 {
     private $requiredRole;

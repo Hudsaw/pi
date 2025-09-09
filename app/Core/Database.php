@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__.'/../constants.php';
+namespace App\Core;
+
+use PDO;
 
 class Database {
     private static $instance = null;

@@ -1,11 +1,41 @@
 <?php
+
+namespace App\Controllers;
+
+use App\Core\Database;
+use App\Models\NotificacaoModel;
+use App\Models\UserModel;
+
 class PageController
 {
+    private $notificacaoModel;
     private $userModel;
 
-    public function __construct(UserModel $userModel)
+    public function __construct()
     {
-        $this->userModel = $userModel;
+        $this->notificacaoModel = new NotificacaoModel(Database::getInstance());
+        $this->userModel = new UserModel(Database::getInstance());
+    }
+
+    public function header()
+    {
+        $tempo_sessao = $this->userModel->loadSecuritySettings();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $data = [
+            'usuarioLogado' => isset($_SESSION['user_id']),
+            'nomeUsuario' => $_SESSION['usuario_nome'] ?? 'Visitante',
+            'tipoUsuario' => $_SESSION['tipo_usuario'] ?? null,
+            'BASE_URL' => BASE_URL,
+            'notificacoesNaoLidas' => $this->getUnreadNotificationsCount(),
+            'dashboardLink' => $this->getDashboardLink(),
+            'tempo_sessao' => $tempo_sessao['tempo_sessao'],
+            'ultima_atividade' => $_SESSION['data_ultima_atividade'] ?? time()
+        ];
+
+        return $data;
     }
 
     public function home()
@@ -27,35 +57,22 @@ class PageController
         ]);
     }
 
-    public function mostrarCadastro()
+    public function politica()
     {
-        error_log("Exibindo tela de cadastro");
-        $user  = $this->getUsuario();
-
-        $data = [
-            'errors'        => $_SESSION['registrar_erros'] ?? [],
-            'old'           => $_SESSION['registrar_data'] ?? [],
-            'title'         => 'PontoCerto',
-            'user'          => $user,
-            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
-            'usuarioLogado' => $this->estaLogado(),
-            'usuario'   => [
-                'nome'           => $_POST['nome'] ?? '',
-                'telefone'       => $_POST['telefone'] ?? '',
-                'email'          => $_POST['email'] ?? '',
-                'cpf'            => $_POST['cpf'] ?? '',
-                'cep'            => $_POST['cep'] ?? '',
-                'logradouro'     => $_POST['logradouro'] ?? '',
-                'complemento'    => $_POST['complemento'] ?? '',
-                'cidade'         => $_POST['cidade'] ?? '',
-                'tipo_chave_pix' => $_POST['tipo_chave_pix'] ?? '',
-                'chave_pix'      => $_POST['chave_pix'] ?? '',
-            ]
-        ];
-
-        $this->render('criar-usuario', $data);
-        unset($_SESSION['registrar_erros'], $_SESSION['registrar_data']);
+        require VIEWS_PATH . 'auth/politica.php';
     }
+
+    public function termos()
+    {
+        require VIEWS_PATH . 'auth/termos.php';
+    }
+
+    public function somosnos()
+    {
+        require VIEWS_PATH . 'auth/somosnos.php';
+    }
+
+    
 
     // Métodos auxiliares
 
@@ -70,95 +87,5 @@ class PageController
     return $user;
 }
 
-    private function estaLogado()
-    {
-        return isset($_SESSION['user_id']);
-    }
-
-
-    private function render($view, $data = [])
-    {
-        extract($data);
-        require VIEWS_PATH . 'header.php';
-        require VIEWS_PATH . $view . '.php';
-        require VIEWS_PATH . 'footer.php';
-    }
-
-    private function renderError($message)
-    {
-        $this->render('error', [
-            'title'         => 'Erro',
-            'message'       => $message,
-            'user'          => $this->getUsuario(),
-            'nomeUsuario'   => $this->getUsuario() ? $this->getUsuario()['nome'] : 'Visitante',
-            'usuarioLogado' => $this->estaLogado(),
-        ]);
-    }
-
-    private function redirect($url)
-    {
-        $baseUrl = rtrim(BASE_URL, '/') . '/';
-        $path = ltrim($url, '/');
-        header("Location: " . $baseUrl . $path);
-        exit();
-    }
-
-    public function painel()
-    {
-        error_log("Exibindo painel");
-        $user  = $this->getUsuario();
-
-        $this->render('painel', [
-            'title'         => 'PontoCerto',
-            'user'          => $user,
-            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
-            'usuarioLogado' => $this->estaLogado(),
-        ]);
-    }
-
-    public function usuarios()
-    {
-        error_log("Exibindo usuarios");    
-        $user  = $this->getUsuario();
-
-        $this->render('usuarios', [
-            'title'         => 'PontoCerto',
-            'user'          => $user,
-            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
-            'usuarioLogado' => $this->estaLogado(),
-            'listaUsuarios' => $this->userModel->getTodosUser(), 
-        ]);
-    }
-
-    public function visualizarUsuario()
-    {
-        error_log("Exibindo usuarios");
-        $user  = $this->getUsuario();
-        
-        $id = $_GET['id'];
-
-        $this->render('visualizar-usuario', [
-            'title'         => 'PontoCerto',
-            'user'          => $user,
-            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
-            'usuarioLogado' => $this->estaLogado(),
-            'usuario'       => $this->userModel->getUserPeloId($id),
-        ]);
-    }
-
-    public function editarUsuario()
-    {
-        error_log("Editando usuario");
-        $user  = $this->getUsuario();
-        
-        $id = $_GET['id'];
-
-        $this->render('editar-usuario', [
-            'title'         => 'PontoCerto',
-            'user'          => $user,
-            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
-            'usuarioLogado' => $this->estaLogado(),
-            'usuario'       => $this->userModel->getUserPeloId($id),
-        ]);
-    }
+    
 }
