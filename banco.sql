@@ -99,3 +99,14 @@ INSERT INTO servicos (lote_id, descricao, especialidade, quantidade, valor, valo
 (1, 'Serviço de costura reta', 2, 300, 33.00, 0.11, 0.22,'2025-08-30', '2025-09-30'),
 (1, 'Serviço de costura lateral', 3, 300, 30.00, 0.10, 0.2,'2025-08-30', '2025-09-30'),
 (1, 'Serviço de costura gola', 4, 300, 36.00, 0.12, 0.24,'2025-08-30', '2025-09-30');
+
+-- Tabela de Reset de Senha
+CREATE TABLE password_resets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    INDEX (token)
+);

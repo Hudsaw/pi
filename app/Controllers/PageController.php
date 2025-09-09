@@ -19,7 +19,6 @@ class PageController
 
     public function header()
     {
-        $tempo_sessao = $this->userModel->loadSecuritySettings();
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -31,8 +30,6 @@ class PageController
             'BASE_URL' => BASE_URL,
             'notificacoesNaoLidas' => $this->getUnreadNotificationsCount(),
             'dashboardLink' => $this->getDashboardLink(),
-            'tempo_sessao' => $tempo_sessao['tempo_sessao'],
-            'ultima_atividade' => $_SESSION['data_ultima_atividade'] ?? time()
         ];
 
         return $data;
@@ -65,14 +62,7 @@ class PageController
     public function termos()
     {
         require VIEWS_PATH . 'auth/termos.php';
-    }
-
-    public function somosnos()
-    {
-        require VIEWS_PATH . 'auth/somosnos.php';
-    }
-
-    
+    }    
 
     // Métodos auxiliares
 
@@ -87,5 +77,17 @@ class PageController
     return $user;
 }
 
+private function getDashboardLink(): string
+{
+    if (!isset($_SESSION['tipo_usuario'])) {
+        return BASE_URL;
+    }
+
+    return match ($_SESSION['tipo_usuario']) {
+        'admin' => BASE_URL . 'admin',
+        'costureira' => BASE_URL . 'costureira',
+        default => BASE_URL
+    };
+}
     
 }

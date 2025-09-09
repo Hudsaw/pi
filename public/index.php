@@ -11,11 +11,17 @@ $router = new Router(Database::getInstance());
 
 // Rotas principais
 $router->get('/', 'PageController@home');
+$router->get('/politica', 'PageController@politica');
+$router->get('/termos', 'PageController@termos');
 
 // Rotas de autenticação
 $router->get('/login', 'AuthController@mostrarLogin');
 $router->post('/logar', 'AuthController@logar');
 $router->get('/logout', 'AuthController@logout');
+$router->get('/resetar-senha', 'AuthController@showResetPassword');
+$router->post('/resetar-senha', 'AuthController@handleResetRequest');
+$router->get('/resetar-senha/confirmar', 'AuthController@showResetPasswordForm');
+$router->post('/resetar-senha/confirmar', 'AuthController@handlePasswordReset');
 
 //Rotas do Administrador
 $router->get('/painel', 'AdminController@painel', ['AuthMiddleware', 'RoleMiddleware::admin']);

@@ -110,6 +110,163 @@ class AuthController
         $this->redirect('/');
     }
 
+    public function showResetPassword()
+    {
+        if ($this->estaLogado()) {
+            $this->redirecionaPainel();
+        }
+
+        $dados = [
+            'title'   => 'Resetar Senha',
+            'error'   => $_SESSION['erro_reset'] ?? null,
+            'success' => $_SESSION['sucesso_reset'] ?? null,
+        ];
+
+        unset($_SESSION['erro_reset']);
+        unset($_SESSION['sucesso_reset']);
+
+        extract($dados);
+        require VIEWS_PATH . 'auth/resetar-senha.php';
+    }
+
+    public function handleResetRequest()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $_SESSION['erro_reset'] = 'Método inválido';
+            header('Location: ' . BASE_URL . 'resetar-senha');
+            exit();
+        }
+
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+
+        if (empty($email)) {
+            $_SESSION['erro_reset'] = 'E-mail é obrigatório';
+            header('Location: ' . BASE_URL . 'resetar-senha');
+            exit();
+        }
+
+        $user = $this->userModel->getUserByEmail($email);
+
+        if (! $user) {
+            $_SESSION['erro_reset'] = 'E-mail não encontrado em nosso sistema';
+            header('Location: ' . BASE_URL . 'resetar-senha');
+            exit();
+        }
+
+        $token  = bin2hex(random_bytes(32));
+        $expiry = date('Y-m-d H:i:s', time() + 3600);
+
+        if ($this->userModel->createPasswordResetToken($user['id'], $token, $expiry)) {
+            // URL deve ser absoluta para o formulário de reset
+            $resetUrl = BASE_URL . 'resetar-senha/confirmar?token=' . urlencode($token);
+            $enviado  = $this->notificacaoModel->enviarEmailResetSenha($email, $resetUrl);
+
+            if ($enviado) {
+                $_SESSION['sucesso_reset'] = 'Um e-mail com instruções foi enviado para ' . $email;
+            } else {
+                $_SESSION['erro_reset'] = 'Erro ao enviar e-mail. Tente novamente mais tarde.';
+            }
+        } else {
+            $_SESSION['erro_reset'] = 'Erro ao processar solicitação';
+        }
+
+        header('Location: ' . BASE_URL . 'resetar-senha');
+        exit();
+    }
+
+    
+    public function showResetPasswordForm($token = null)
+{
+    if ($this->estaLogado()) {
+        $this->redirecionaPainel();
+    }
+
+    // Verificar se o token está vindo via GET
+    $token = $token ?? ($_GET['token'] ?? null);
+
+    if (!$token) {
+        $_SESSION['erro_reset'] = 'Token não fornecido';
+        header('Location: ' . BASE_URL . 'resetar-senha');
+        exit();
+    }
+
+    // Verificar se o token é válido e obter o ID do usuário
+    $userId = $this->userModel->getUserIdByResetToken($token);
+
+    if (!$userId) {
+        $_SESSION['erro_reset'] = 'Token inválido ou expirado';
+        header('Location: ' . BASE_URL . 'resetar-senha');
+        exit();
+    }
+
+    $dados = [
+        'title' => 'Nova Senha',
+        'token' => $token,
+        'error' => $_SESSION['erro_reset'] ?? null,
+    ];
+
+    unset($_SESSION['erro_reset']);
+
+    extract($dados);
+    require VIEWS_PATH . 'auth/nova-senha.php';
+}
+
+    public function handlePasswordReset()
+    {
+        // Inicia a sessão se não estiver ativa
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Verifica o método HTTP
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $_SESSION['erro_reset'] = 'Método inválido';
+            $this->redirect(BASE_URL . 'resetar-senha');
+            return;
+        }
+
+        // Validações básicas
+        $token           = $_POST['token'] ?? '';
+        $password        = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+
+        if (empty($token) || empty($password) || empty($confirmPassword)) {
+            $_SESSION['erro_reset'] = 'Todos os campos são obrigatórios';
+            $this->redirect(BASE_URL . 'resetar-senha/confirmar?token=' . urlencode($token));
+            return;
+        }
+
+        if ($password !== $confirmPassword) {
+            $_SESSION['erro_reset'] = 'As senhas não coincidem';
+            $this->redirect(BASE_URL . 'resetar-senha/confirmar?token=' . urlencode($token));
+            return;
+        }
+
+        if (strlen($password) < 8) {
+            $_SESSION['erro_reset'] = 'A senha deve ter pelo menos 8 caracteres';
+            $this->redirect(BASE_URL . 'resetar-senha/confirmar?token=' . urlencode($token));
+            return;
+        }
+
+        // Processa o token e atualiza a senha
+        $userId = $this->userModel->getUserIdByResetToken($token);
+        if (! $userId) {
+            $_SESSION['erro_reset'] = 'Token inválido ou expirado';
+            $this->redirect(BASE_URL . 'resetar-senha');
+            return;
+        }
+
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        if ($this->userModel->updatePassword($userId, $passwordHash)) {
+            $this->userModel->invalidateResetToken($token);
+            $_SESSION['sucesso_reset'] = 'Senha alterada com sucesso! Faça login com sua nova senha.';
+            $this->redirect(BASE_URL . 'login');
+        } else {
+            $_SESSION['erro_reset'] = 'Erro ao atualizar senha';
+            $this->redirect(BASE_URL . 'resetar-senha/confirmar?token=' . urlencode($token));
+        }
+    }
+
     private function redirect($url)
     {
         $baseUrl = rtrim(BASE_URL, '/') . '/';

@@ -172,4 +172,90 @@ class UserModel
     private function password_verify($senha, $senhaInformada) {
         return $senha === $senhaInformada;
     }
+
+    public function createPasswordResetToken($userId, $token, $expiry)
+{
+    try {
+        // Limpa tokens antigos primeiro
+        $this->pdo->prepare("DELETE FROM password_resets WHERE user_id = ?")
+                 ->execute([$userId]);
+        
+        // Insere o novo token com timestamp correto
+        $stmt = $this->pdo->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)");
+        return $stmt->execute([$userId, $token, $expiry]);
+    } catch (PDOException $e) {
+        error_log("Erro ao criar token: " . $e->getMessage());
+        return false;
+    }
+}
+
+public function verifyPasswordResetToken($token)
+{
+    try {
+        $stmt = $this->pdo->prepare("
+            SELECT user_id, expires_at 
+            FROM password_resets 
+            WHERE token = ? 
+            LIMIT 1
+        ");
+        $stmt->execute([$token]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$result) {
+            return false;
+        }
+
+        $valido = strtotime($result['expires_at']) > time();
+
+        return $valido;
+    } catch (PDOException $e) {
+        error_log("Erro na verificação: " . $e->getMessage());
+        return false;
+    }
+}
+
+public function getUserIdByResetToken($token)
+{
+    try {
+        $stmt = $this->pdo->prepare("
+            SELECT user_id 
+            FROM password_resets 
+            WHERE token = ? AND expires_at > NOW()
+            LIMIT 1
+        ");
+        $stmt->execute([$token]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$result) {
+            return false;
+        }
+        
+        return (int)$result['user_id'];
+    } catch (PDOException $e) {
+        error_log("Erro ao buscar ID por token: " . $e->getMessage());
+        return false;
+    }
+}
+
+public function invalidateResetToken($token)
+{
+    try {
+        $stmt = $this->pdo->prepare("DELETE FROM password_resets WHERE token = ?");
+        return $stmt->execute([$token]);
+    } catch (PDOException $e) {
+        error_log("Erro ao invalidar token: " . $e->getMessage());
+        return false;
+    }
+}
+
+public function updatePassword($userId, $passwordHash)
+{
+    try {
+        $stmt = $this->pdo->prepare("UPDATE usuarios SET senha = ? WHERE id = ?");
+        return $stmt->execute([$passwordHash, $userId]);
+    } catch (PDOException $e) {
+        error_log("Erro ao atualizar senha: " . $e->getMessage());
+        return false;
+    }
+}
 }

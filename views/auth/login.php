@@ -20,7 +20,8 @@
         </div>
         <hr>
         <div class="flex center">
-            <a class="botao">Esqueci minha senha</a>
+            <a class="botao" href="<?= BASE_URL ?>resetar-senha">
+            Esqueceu sua senha?</a>
         </div>
     </form>
 </div>
