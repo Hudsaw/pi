@@ -2,7 +2,7 @@
     <a href="<?= BASE_URL ?>" class="voltar">Voltar</a>
     <form class="formulario-login flex vertical redondinho shadow" class="auth-form" method="POST" action="<?= BASE_URL ?>/logar">
         <div class="banner flex h-center">
-            <img src="<?php echo ASSETS_URL?>banner.png" alt="banner">
+            <img src="<?php echo ASSETS_URL?>img/banner.png" alt="banner">
         </div>
         <h3 class="bem-vindo">Seja bem-vindo!</h3>
         <span class="inputs flex space-between">

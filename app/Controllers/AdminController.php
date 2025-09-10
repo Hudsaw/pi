@@ -6,25 +6,15 @@ use App\Models\UserModel;
 use Exception;
 use PDO;
 
-class AdminController
+class AdminController extends BaseController
 {
-    protected $adminModel;
-    protected $userModel;
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->adminModel       = new AdminModel($this->pdo);
-        $this->userModel        = new UserModel($this->pdo);
-    }
 
     public function painel()
     {
         error_log("Exibindo painel");
         $user  = $this->getUsuario();
 
-        $this->render('painel', [
+        $this->render('admin/painel', [
             'title'         => 'PontoCerto',
             'user'          => $user,
             'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
@@ -37,7 +27,7 @@ class AdminController
         error_log("Exibindo usuarios");    
         $user  = $this->getUsuario();
 
-        $this->render('usuarios', [
+        $this->render('admin/usuarios', [
             'title'         => 'PontoCerto',
             'user'          => $user,
             'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
@@ -72,7 +62,7 @@ class AdminController
             ]
         ];
 
-        $this->render('criar-usuario', $data);
+        $this->render('admin/criar-usuario', $data);
         unset($_SESSION['registrar_erros'], $_SESSION['registrar_data']);
     }
     public function visualizarUsuario()
@@ -98,7 +88,7 @@ class AdminController
         
         $id = $_GET['id'];
 
-        $this->render('editar-usuario', [
+        $this->render('admin/editar-usuario', [
             'title'         => 'PontoCerto',
             'user'          => $user,
             'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',

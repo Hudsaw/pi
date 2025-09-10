@@ -3,7 +3,7 @@
         'name' => 'totonha/pontocerto',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'aff9b731fa673c430b2f7b386f1efc7ea16f1a08',
+        'reference' => '410affeabe87889d7abe5621d9f7879c1ad0ccd0',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -148,7 +148,7 @@
         'totonha/pontocerto' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'aff9b731fa673c430b2f7b386f1efc7ea16f1a08',
+            'reference' => '410affeabe87889d7abe5621d9f7879c1ad0ccd0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

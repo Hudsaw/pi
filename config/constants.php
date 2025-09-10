@@ -15,10 +15,10 @@ define('VIEWS_PATH', ROOT_PATH . 'views/');
 define('BACKUP_PATH', ROOT_PATH . 'backups/');
 
 define('SMTP_HOST', 'smtp.gmail.com');
-define('SMTP_USER', 'hudsonrb@gmail.com');
-define('SMTP_PASS', 'ykrs rdsu zugz tnaz');
+define('SMTP_USER', 'totonha@gmail.com');
+define('SMTP_PASS', 'tnaz');
 define('SMTP_PORT', 587);
-define('SMTP_FROM', 'hudsonrb@gmail.com');
+define('SMTP_FROM', 'totonha@gmail.com');
 
  // Configurações de ambiente
  define('DB_HOST', 'localhost');

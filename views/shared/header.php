@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title><?= $title ?? 'PontoCerto' ?></title>
-    <link rel="stylesheet" href="<?php echo ASSETS_URL?>ajuda.css">
-    <link rel="stylesheet" href="<?php echo ASSETS_URL?>style.css">
-    <link rel="icon" type="image/png" href="<?php echo ASSETS_URL?>icon.png">
+    <link rel="stylesheet" href="<?php echo ASSETS_URL?>css/ajuda.css">
+    <link rel="stylesheet" href="<?php echo ASSETS_URL?>css/style.css">
+    <link rel="icon" type="image/png" href="<?php echo ASSETS_URL?>img/icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
@@ -18,7 +18,7 @@
             <?php if ($usuarioLogado ?? false): ?>
                 <div class="topo flex h-center shadow">
                     <a class="imagem-topo" href="<?= BASE_URL ?>/painel">
-                        <img src="<?php echo ASSETS_URL?>banner.png" alt="banner">
+                        <img src="<?php echo ASSETS_URL?>img/banner.png" alt="banner">
                     </a>
                     <span class="flex l-gap v-center">
                         <span class="nome-usuario"><?= htmlspecialchars($nomeUsuario) ?></span>
@@ -27,7 +27,7 @@
                 </div>
                 <?php else: ?>        
                     <div class="topo flex space-between shadow">
-                        <img src="<?php echo ASSETS_URL?>banner.png" alt="banner">
+                        <img src="<?php echo ASSETS_URL?>img/banner.png" alt="banner">
                         <span class="flex l-gap v-center">
                             <span class="bold">OLÁ, VISITANTE!</span>
                             <a href="<?= BASE_URL ?>/login" class="botao-grande">LOGIN</a>

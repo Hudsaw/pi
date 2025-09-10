@@ -4,7 +4,7 @@
             <h1><?= $dados['titulo'] ?></h1>
             <h4><?= $dados['descricao'] ?></h2>
         </span>
-        <img src="public/malharia.png" alt="maquina">
+        <img src="<?php echo ASSETS_URL?>img/malharia.png" alt="maquina">
     </div>
     <div class="flex v-center vertical">
         <span class="titulo-cards">Com ele você:</span>

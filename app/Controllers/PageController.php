@@ -4,41 +4,18 @@ namespace App\Controllers;
 
 use App\Core\Database;
 use App\Models\UserModel;
+require_once __DIR__ . '/BaseController.php';
 
-class PageController
+
+class PageController extends BaseController
 {
-    private $userModel;
-
-    public function __construct()
-    {
-        $this->userModel = new UserModel(Database::getInstance());
-    }
-
-    public function header()
-    {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        $data = [
-            'usuarioLogado' => isset($_SESSION['user_id']),
-            'nomeUsuario' => $_SESSION['usuario_nome'] ?? 'Visitante',
-            'tipoUsuario' => $_SESSION['tipo_usuario'] ?? null,
-            'BASE_URL' => BASE_URL,
-            'notificacoesNaoLidas' => $this->getUnreadNotificationsCount(),
-            'dashboardLink' => $this->getDashboardLink(),
-        ];
-
-        return $data;
-    }
-
     public function home()
     {
         error_log("Exibindo pagina inicial");
-        $user  = $this->getUsuario();
+        $user = $this->getUsuario();
         $especialidade = $this->userModel->getEspecialidade();
 
-        $this->render('home', [
+        $this->render('shared/home', [
             'title'         => 'PontoCerto',
             'user'          => $user,
             'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
@@ -53,38 +30,29 @@ class PageController
 
     public function politica()
     {
-        require VIEWS_PATH . 'auth/politica.php';
+        $this->render('auth/politica', [
+            'title' => 'Política de Privacidade',
+            'usuarioLogado' => $this->estaLogado(),
+            'nomeUsuario' => $_SESSION['usuario_nome'] ?? 'Visitante',
+        ]);
     }
 
     public function termos()
     {
-        require VIEWS_PATH . 'auth/termos.php';
-    }    
+        $this->render('auth/termos', [
+            'title' => 'Termos de Uso',
+            'usuarioLogado' => $this->estaLogado(),
+            'nomeUsuario' => $_SESSION['usuario_nome'] ?? 'Visitante',
+        ]);
+    }
 
     // Métodos auxiliares
-
     private function getUsuario()
-{
-    if (!isset($_SESSION['user_id'])) {
-        return null;
+    {
+        if (!isset($_SESSION['user_id'])) {
+            return null;
+        }
+        
+        return $this->userModel->getUserPeloId($_SESSION['user_id']);
     }
-    
-    $user = $this->userModel->getUserPeloId($_SESSION['user_id']);
-    
-    return $user;
-}
-
-private function getDashboardLink(): string
-{
-    if (!isset($_SESSION['tipo_usuario'])) {
-        return BASE_URL;
-    }
-
-    return match ($_SESSION['tipo_usuario']) {
-        'admin' => BASE_URL . 'admin',
-        'costureira' => BASE_URL . 'costureira',
-        default => BASE_URL
-    };
-}
-    
 }

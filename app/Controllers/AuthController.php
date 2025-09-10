@@ -6,16 +6,8 @@ use App\Core\Database;
 use App\Models\UserModel;
 use PDO;
 
-class AuthController
+class AuthController extends BaseController
 {
-    private $userModel;
-
-    public function __construct()
-    {
-        $this->userModel        = new UserModel(Database::getInstance());
-    }
-
-    //Login
 
     public function mostrarLogin()
     {
@@ -29,7 +21,7 @@ class AuthController
             'login' => true
         ];
 
-        $this->render('login', $data);
+        $this->render('auth/login', $data);
         unset($_SESSION['login_error']);
     }
 
@@ -98,11 +90,6 @@ class AuthController
             exit();
         }
     }
-    
-    private function estaLogado()
-    {
-        return (isset($_SESSION['user_id']), $_SESSION['logged_in']);
-    }
 
     public function logout()
     {
@@ -116,7 +103,7 @@ class AuthController
             $this->redirecionaPainel();
         }
 
-        $dados = [
+        $data = [
             'title'   => 'Resetar Senha',
             'error'   => $_SESSION['erro_reset'] ?? null,
             'success' => $_SESSION['sucesso_reset'] ?? null,
@@ -125,8 +112,7 @@ class AuthController
         unset($_SESSION['erro_reset']);
         unset($_SESSION['sucesso_reset']);
 
-        extract($dados);
-        require VIEWS_PATH . 'auth/resetar-senha.php';
+        $this->render('auth/resetar-senha', $data);
     }
 
     public function handleResetRequest()
@@ -199,7 +185,7 @@ class AuthController
         exit();
     }
 
-    $dados = [
+    $data = [
         'title' => 'Nova Senha',
         'token' => $token,
         'error' => $_SESSION['erro_reset'] ?? null,
@@ -207,8 +193,7 @@ class AuthController
 
     unset($_SESSION['erro_reset']);
 
-    extract($dados);
-    require VIEWS_PATH . 'auth/nova-senha.php';
+    $this->render('auth/nova-senha', $data);
 }
 
     public function handlePasswordReset()

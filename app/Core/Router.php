@@ -72,6 +72,6 @@ class Router
         }
 
         http_response_code(404);
-        require VIEWS_PATH . '404.php';
+        require VIEWS_PATH . 'shared/404.php';
     }
 }
