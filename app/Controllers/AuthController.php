@@ -38,7 +38,7 @@ class AuthController extends BaseController
         $cpf      = $_POST['cpf'];
         $password = $_POST['senha'];
         
-        if (empty($cpf) || empty($senha)) {
+        if (empty($cpf) || empty($password)) {
             $this->redirectcomErro('CPF e senha são obrigatórios');
             return;
         }
@@ -58,22 +58,22 @@ class AuthController extends BaseController
             $redirect = $_SESSION['redirect_url'] ?? '/painel';
             unset($_SESSION['redirect_url']);
             
-            $this->redirectPainel();
+            $this->redirecionaPainel();
         }
     }
 
     private function redirecionaPainel()
     {
         error_log("Redirecionado ao Painel");
-        $painel = match ($_SESSION['tipo_usuario']) {
+        $tipo = match ($_SESSION['user_role']) {
             'admin' => 'admin',
-            'costureira' => 'costureira',
+            'costura' => 'costura',
             default => ''
         };
         if (! headers_sent()) {
-            header('Location: ' . BASE_URL . $painel);
+            header('Location: ' . BASE_URL . $tipo. '/painel');
         } else {
-            echo '<script>window.location.href="' . BASE_URL . $painel . '";</script>';
+            echo '<script>window.location.href="' . BASE_URL . $tipo. '/painel";</script>';
         }
         exit();
     }

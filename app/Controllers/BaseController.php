@@ -16,6 +16,7 @@ class BaseController
     
     protected function render($view, $data = [])
     {
+        $data['BASE_URL'] = BASE_URL;
         extract($data);
         
         $headerData = $this->header();
@@ -60,4 +61,17 @@ class BaseController
         }
         return isset($_SESSION['user_id']);
     }
+
+    protected function getUsuario()
+{
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    if (isset($_SESSION['user_id'])) {
+        return $this->userModel->getUserPeloId($_SESSION['user_id']);
+    }
+    
+    return null;
+}
 }

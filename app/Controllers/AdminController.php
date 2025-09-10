@@ -72,7 +72,7 @@ class AdminController extends BaseController
         
         $id = $_GET['id'];
 
-        $this->render('visualizar-usuario', [
+        $this->render('admin/visualizar-usuario', [
             'title'         => 'PontoCerto',
             'user'          => $user,
             'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
