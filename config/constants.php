@@ -7,6 +7,7 @@ define('PUBLIC_URL', BASE_URL . 'public/');
 define('ASSETS_URL', PUBLIC_URL . 'assets/');
 
 // Caminhos físicos (para servidor)
+define('BASE_PATH', '/pi/');
 define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
 define('APP_PATH', ROOT_PATH . 'app/');
 define('PUBLIC_PATH', ROOT_PATH . 'public/');

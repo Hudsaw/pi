@@ -1,6 +1,8 @@
 <?php
 namespace App\Core;
 
+use App\Core\Container;
+
 class Router
 {
     private $routes = [

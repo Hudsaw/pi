@@ -3,17 +3,14 @@
 namespace App\Controllers;
 
 use App\Core\Database;
-use App\Models\NotificacaoModel;
 use App\Models\UserModel;
 
 class PageController
 {
-    private $notificacaoModel;
     private $userModel;
 
     public function __construct()
     {
-        $this->notificacaoModel = new NotificacaoModel(Database::getInstance());
         $this->userModel = new UserModel(Database::getInstance());
     }
 

@@ -1,17 +1,15 @@
 <?php
 namespace App\Core;
 
-use App\Core\Database;
-use PDO;
+use App\Controllers\AuthController;
+use App\Controllers\PageController;
+use App\Models\UserModel;
+use App\Middlewares\AuthMiddleware;
+use Exception;
 
 class Container
 {
     private $instances = [];
-
-    public function __construct()
-    {
-        $this->instances[Database::class] = Database::getInstance();
-    }
 
     public function get($className)
     {
@@ -25,15 +23,17 @@ class Container
     {
         switch ($className) {
             case 'AuthController':
-                return new AuthController($this->get(UserModel::class));
+                return new AuthController();
+            
             case 'PageController':
-                return new PageController(
-                    $this->get(UserModel::class)
-                );
+                return new PageController();
+            
             case 'UserModel':
-                return new UserModel($this->get(Database::class));
+                return new UserModel(Database::getInstance());
+            
             case 'AuthMiddleware':
-                return new AuthMiddleware($this->get(UserModel::class));
+                return new AuthMiddleware();
+            
             default:
                 if (class_exists($className)) {
                     return new $className();

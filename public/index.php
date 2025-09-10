@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../constants.php';
+require_once __DIR__ . '/../config/constants.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Controllers\PageController;
@@ -7,7 +7,8 @@ use App\Core\Database;
 use App\Core\Router;
 use App\Core\Container;
 
-$router = new Router(Database::getInstance());
+$container = new Container();
+$router = new Router($container);
 
 // Rotas principais
 $router->get('/', 'PageController@home');
