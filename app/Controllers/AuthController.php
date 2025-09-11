@@ -18,7 +18,10 @@ class AuthController extends BaseController
 
         $data = [
             'erro' => $_SESSION['login_error'] ?? null,
-            'login' => true
+            'login' => true,
+            'title' => 'Login - PontoCerto',
+            'usuarioLogado' => false,
+            'nomeUsuario' => 'Visitante'
         ];
 
         $this->render('auth/login', $data);
@@ -28,6 +31,12 @@ class AuthController extends BaseController
     public function logar()
     {
         error_log("Tentativa de login");
+
+        if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    error_log("Tentativa de login - SESSION: " . print_r($_SESSION, true));
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirectcomErro('Método inválido');
             return;
@@ -35,8 +44,8 @@ class AuthController extends BaseController
 
         sleep(2);
         
-        $cpf      = $_POST['cpf'];
-        $password = $_POST['senha'];
+        $cpf = trim($_POST['cpf'] ?? '');
+        $password = trim($_POST['senha'] ?? '');
         
         if (empty($cpf) || empty($password)) {
             $this->redirectcomErro('CPF e senha são obrigatórios');
@@ -50,30 +59,43 @@ class AuthController extends BaseController
             return;
         }
         
-        if ($user) {
-            $_SESSION['user_id']   = $user['id'];
-            $_SESSION['user_name'] = $user['nome'];
-            $_SESSION['user_role'] = $user['tipo'];
-            
-            $redirect = $_SESSION['redirect_url'] ?? '/painel';
-            unset($_SESSION['redirect_url']);
-            
-            $this->redirecionaPainel();
-        }
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['usuario_nome'] = $user['nome'];
+        $_SESSION['tipo_usuario'] = $user['tipo'];
+        $_SESSION['user_role'] = $user['tipo']; 
+        
+        error_log("Login bem-sucedido para usuario ID: " . $user['id'] . ", Tipo: " . $user['tipo']);
+        
+        // Redirecionar para o painel baseado no tipo de usuário
+        $dashboard = match($user['tipo']) {
+            'admin' => '/admin/painel',
+            'costureira' => '/costura/painel',
+            default => '/'
+        };
+        
+        $redirectUrl = BASE_URL . ltrim($dashboard, '/');
+error_log("Redirecionando para: " . $redirectUrl . " - SESSION: " . print_r($_SESSION, true));
+session_regenerate_id(true);
+header('Location: ' . $redirectUrl);
+        exit;
     }
+    
 
     private function redirecionaPainel()
     {
         error_log("Redirecionado ao Painel");
-        $tipo = match ($_SESSION['user_role']) {
-            'admin' => 'admin',
-            'costura' => 'costura',
-            default => ''
+        $tipo = $_SESSION['tipo_usuario'] ?? '';
+        
+        $dashboard = match ($tipo) {
+            'admin' => '/admin/painel',
+            'costureira' => '/costura/painel',
+            default => '/'
         };
-        if (! headers_sent()) {
-            header('Location: ' . BASE_URL . $tipo. '/painel');
+
+        if (!headers_sent()) {
+            header('Location: ' . BASE_URL . ltrim($dashboard, '/'));
         } else {
-            echo '<script>window.location.href="' . BASE_URL . $tipo. '/painel";</script>';
+            echo '<script>window.location.href="' . BASE_URL . ltrim($dashboard, '/') . '";</script>';
         }
         exit();
     }
@@ -81,8 +103,9 @@ class AuthController extends BaseController
     private function redirectcomErro($message)
     {
         error_log("Redirecionado com erro");
-        if (! headers_sent()) {
-            $_SESSION['login_error'] = $message;
+        $_SESSION['login_error'] = $message;
+        
+        if (!headers_sent()) {
             header('Location: ' . BASE_URL . 'login');
             exit();
         } else {
@@ -94,7 +117,10 @@ class AuthController extends BaseController
     public function logout()
     {
         session_destroy();
-        $this->redirect('/');
+        session_unset();
+        
+        header('Location: ' . BASE_URL);
+        exit;
     }
 
     public function showResetPassword()

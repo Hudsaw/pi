@@ -3,7 +3,7 @@
         <a class="item bold">Usuários</a>
         <a href="<?= BASE_URL ?>/" class="sair">Sair</a>
     </div>
-    <form class="formulario-cadastro" class="auth-form" method="POST" action="<?= BASE_URL ?>/cadastrar-usuario">
+    <form class="formulario-cadastro" class="auth-form" method="POST" action="<?= BASE_URL ?>admin/cadastrar-usuario">
         <div class="titulo">Cadastro de usuário</div>
         <hr class="shadow">
         <span class="inputs flex center">
@@ -45,7 +45,7 @@
         <br>
         <hr>
         <div class="flex h-center l-gap">
-            <a href="<?= BASE_URL ?>/usuarios" class="botao">Voltar</a>
+            <a href="<?= BASE_URL ?>admin/usuarios" class="botao">Voltar</a>
             <input type="submit" class="botao" value="Salvar">
         </div>
     </form>

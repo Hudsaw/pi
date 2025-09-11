@@ -35,9 +35,9 @@
         <br>
         <hr>
         <div class="flex h-center l-gap">
-            <a href="<?= BASE_URL ?>/usuarios" class="botao">Voltar</a>
-            <a href="<?= BASE_URL ?>/editar-usuario?id=<?= $usuario['id'] ?>" class="botao">Editar usuario</a>
-            <a href="<?= BASE_URL ?>/remover-usuario?id=<?= $usuario['id'] ?>" class="botao-remover">Remover usuário</a>
+            <a href="<?= BASE_URL ?>admin/usuarios" class="botao">Voltar</a>
+            <a href="<?= BASE_URL ?>admin/editar-usuario?id=<?= $usuario['id'] ?>" class="botao">Editar usuario</a>
+            <a href="<?= BASE_URL ?>admin/remover-usuario?id=<?= $usuario['id'] ?>" class="botao-remover">Remover usuário</a>
         </div>
     </form>
 </div>

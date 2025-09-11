@@ -3,7 +3,7 @@
         <a class="item bold">Usuários</a>
         <a href="<?= BASE_URL ?>/" class="sair">Sair</a>
     </div>
-    <form class="formulario-cadastro" class="auth-form" method="POST" action="<?= BASE_URL ?>/salvar-usuario">
+    <form class="formulario-cadastro" class="auth-form" method="POST" action="<?= BASE_URL ?>admin/salvar-usuario">
         <div class="titulo">Edição de usuário</div>
         <hr class="shadow">
         <span class="inputs flex center">
@@ -41,7 +41,7 @@
         <br>
         <hr>
         <div class="flex h-center l-gap">
-            <a href="<?= BASE_URL ?>/visualizar-usuario?id=<?= $usuario['id'] ?>" class="botao">Voltar</a>
+            <a href="<?= BASE_URL ?>admin/visualizar-usuario?id=<?= $usuario['id'] ?>" class="botao">Voltar</a>
             <input type="submit" class="botao" value="Salvar">
             <input type="hidden" name="id" value="<?= $usuario['id'] ?>">
         </div>

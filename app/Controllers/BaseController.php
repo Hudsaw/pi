@@ -42,24 +42,27 @@ class BaseController
     }
     
     protected function getDashboardLink(): string
-    {
-        if (!isset($_SESSION['tipo_usuario'])) {
-            return BASE_URL;
-        }
-
-        return match ($_SESSION['tipo_usuario']) {
-            'admin' => BASE_URL . 'admin',
-            'costureira' => BASE_URL . 'costureira',
-            default => BASE_URL
-        };
+{
+    if (!isset($_SESSION['tipo_usuario'])) {
+        return BASE_URL;
     }
+
+    return match ($_SESSION['tipo_usuario']) {
+        'admin' => BASE_URL . 'admin/painel', 
+        'costureira' => BASE_URL . 'costura/painel', 
+        default => BASE_URL
+    };
+}
     
     protected function estaLogado()
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        return isset($_SESSION['user_id']);
+        $logado = isset($_SESSION['user_id']);
+    error_log("Verificando login - User ID: " . ($_SESSION['user_id'] ?? 'null') . ", Logado: " . ($logado ? 'sim' : 'não'));
+    
+    return $logado;
     }
 
     protected function getUsuario()

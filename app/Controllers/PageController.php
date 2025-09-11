@@ -47,7 +47,7 @@ class PageController extends BaseController
     }
 
     // Métodos auxiliares
-    private function getUsuario()
+    protected function getUsuario()
     {
         if (!isset($_SESSION['user_id'])) {
             return null;

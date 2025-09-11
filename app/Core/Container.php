@@ -2,9 +2,12 @@
 namespace App\Core;
 
 use App\Controllers\AuthController;
+use App\Controllers\AdminController;
+use App\Controllers\CosturaController;
 use App\Controllers\PageController;
 use App\Models\UserModel;
 use App\Middlewares\AuthMiddleware;
+use App\Middlewares\RoleMiddleware;
 use Exception;
 
 class Container
@@ -27,12 +30,21 @@ class Container
             
             case 'PageController':
                 return new PageController();
+
+            case 'AdminController':
+                return new AdminController();
             
+            case 'CosturaController':
+                return new CosturaController();
+
             case 'UserModel':
                 return new UserModel(Database::getInstance());
             
             case 'AuthMiddleware':
                 return new AuthMiddleware();
+
+            case 'RoleMiddleware':
+                return new RoleMiddleware();
             
             default:
                 if (class_exists($className)) {

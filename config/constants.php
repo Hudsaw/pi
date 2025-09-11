@@ -15,16 +15,16 @@ define('VIEWS_PATH', ROOT_PATH . 'views/');
 define('BACKUP_PATH', ROOT_PATH . 'backups/');
 
 define('SMTP_HOST', 'smtp.gmail.com');
-define('SMTP_USER', 'totonha@gmail.com');
+define('SMTP_USER', 'tonhapaiano25@gmail.com');
 define('SMTP_PASS', 'tnaz');
 define('SMTP_PORT', 587);
-define('SMTP_FROM', 'totonha@gmail.com');
+define('SMTP_FROM', 'tonhapaiano25@gmail.com');
 
  // Configurações de ambiente
  define('DB_HOST', 'localhost');
  define('DB_NAME', 'pi');
  define('DB_USER', 'root');
- define('DB_PASS', '');
+ define('DB_PASS', 'aluno');
  
  // Configurações de sessão
 ini_set('session.cookie_lifetime', 0); 
