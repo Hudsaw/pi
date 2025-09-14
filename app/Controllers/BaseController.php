@@ -25,6 +25,12 @@ class BaseController
         require VIEWS_PATH . $view . '.php';
         require VIEWS_PATH . 'shared/footer.php';
     }
+
+    protected function redirect($url, $statusCode = 303)
+    {
+        header('Location: ' . BASE_URL . $url, true, $statusCode);
+        exit();
+    }
     
     protected function header()
     {

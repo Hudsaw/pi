@@ -103,7 +103,7 @@ class AdminController extends BaseController
     {
         error_log("Tentativa de cadastro");
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('/criar-usuario');
+            $this->redirect('admin/criar-usuario');
         }
 
         $data = $this->validarUser($_POST, false);
@@ -112,7 +112,7 @@ class AdminController extends BaseController
             error_log("Erros de validacao: " . print_r($data['errors'], true));
             $_SESSION['registrar_erros'] = $data['errors'];
             $_SESSION['registrar_data']  = $_POST;
-            $this->redirect('/criar-usuario');
+            $this->redirect('admin/criar-usuario');
         }
 
         $userId = $this->userModel->criarUser($data);
@@ -124,7 +124,7 @@ class AdminController extends BaseController
         }
 
         $_SESSION['registrar_erros'] = ['Falha ao criar usuário'];
-        $this->redirect('/criar-usuario');
+        $this->redirect('admin/criar-usuario');
     }
 
     
@@ -133,7 +133,7 @@ class AdminController extends BaseController
     {
         error_log("Tentativa de atualizacao de curriculo");
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('/editar-usuario');
+            $this->redirect('admin/editar-usuario');
         }
 
         $userId = $_POST['id'];
@@ -141,18 +141,18 @@ class AdminController extends BaseController
 
         if (isset($data['errors'])) {
             $_SESSION['registrar_erros'] = $data['errors'];
-            $this->redirect('/editar-usuario');
+            $this->redirect('admin/editar-usuario');
         }
 
         $success = $this->userModel->atualizarUser($userId, $data);
 
         if ($success) {
             $_SESSION['success_message'] = 'Currículo atualizado com sucesso!';
-            $this->redirect('/visualizar-usuario?id=' . $userId);
+            $this->redirect('admin/visualizar-usuario?id=' . $userId);
         }
 
         $_SESSION['registrar_erros'] = ['Erro ao atualizar o currículo'];
-        $this->redirect('/editar-usuario');
+        $this->redirect('admin/editar-usuario');
     }
 
     public function removerUsuario() 
@@ -162,18 +162,18 @@ class AdminController extends BaseController
 
         if (empty($userId) || !is_numeric($userId)) {
             $_SESSION['error_message'] = 'ID de usuário inválido';
-            $this->redirect('/usuarios');
+            $this->redirect('admin/usuarios');
         }
 
         $success = $this->userModel->removerUser($userId);
 
         if ($success) {
             $_SESSION['success_message'] = 'Usuário removido com sucesso!';
-            $this->redirect('/usuarios');
+            $this->redirect('admin/usuarios');
         }
 
         $_SESSION['error_message'] = 'Erro ao remover o usuário';
-        $this->redirect('/usuarios');
+        $this->redirect('admin/usuarios');
     }
 
     
