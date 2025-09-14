@@ -6,6 +6,7 @@
     <title><?= $title ?? 'PontoCerto' ?></title>
     <link rel="stylesheet" href="<?php echo ASSETS_URL?>css/ajuda.css">
     <link rel="stylesheet" href="<?php echo ASSETS_URL?>css/style.css">
+    <script src="<?php echo ASSETS_URL?>js/utils.js"></script>
     <link rel="icon" type="image/png" href="<?php echo ASSETS_URL?>img/icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -17,12 +18,12 @@
         <div class="principal">
             <?php if ($usuarioLogado ?? false): ?>
                 <div class="topo flex h-center shadow">
-                    <a class="imagem-topo" href="<?= BASE_URL ?>/painel">
+                    <a class="imagem-topo" href="<?= BASE_URL ?>admin/painel">
                         <img src="<?php echo ASSETS_URL?>img/banner.png" alt="banner">
                     </a>
                     <span class="flex l-gap v-center">
                         <span class="nome-usuario"><?= htmlspecialchars($nomeUsuario) ?></span>
-                        <a href="<?= BASE_URL ?>/logout" class="botao-grande">LOGOUT</a>
+                        <a href="<?= BASE_URL ?>logout" class="botao-grande">LOGOUT</a>
                     </span>
                 </div>
                 <?php else: ?>        
@@ -30,7 +31,7 @@
                         <img src="<?php echo ASSETS_URL?>img/banner.png" alt="banner">
                         <span class="flex l-gap v-center">
                             <span class="bold">OLÁ, VISITANTE!</span>
-                            <a href="<?= BASE_URL ?>/login" class="botao-grande">LOGIN</a>
+                            <a href="<?= BASE_URL ?>login" class="botao-grande">LOGIN</a>
                         </span>
                     </div>
             <?php endif; ?>

@@ -1,6 +1,6 @@
 <div class="principal azul flex center">
     <a href="<?= BASE_URL ?>" class="voltar">Voltar</a>
-    <form class="formulario-login flex vertical redondinho shadow" class="auth-form" method="POST" action="<?= BASE_URL ?>/logar">
+    <form class="formulario-login flex vertical redondinho shadow" class="auth-form" method="POST" action="<?= BASE_URL ?>logar">
         <div class="banner flex h-center">
             <img src="<?php echo ASSETS_URL?>img/banner.png" alt="banner">
         </div>
@@ -11,7 +11,7 @@
                 <label class="flex v-center" for="senha">Senha</label>
             </span>
             <span class="input flex vertical">
-                <input type="text" name="cpf" id="cpf" autocomplete="off" placeholder="CPF">
+                <input type="text" name="cpf" id="cpf" autocomplete="off" placeholder="CPF" oninput='mascaraCPF(this)' maxlength='14'>
                 <input type="password" name="senha" id="senha" placeholder="Senha">
             </span>
         </span>
@@ -26,5 +26,8 @@
     </form>
 </div>
 <?php if (!empty($erro)): ?>
-    <script>setTimeout(() => alert('<?= htmlspecialchars($erro) ?>'), 10)</script>
+    <div class="alerta erro redondinho shadow flex space-between l-gap">
+        <span class="flex center"><?= htmlspecialchars($erro) ?></span>
+        <span class="fechar-alerta flex center" onclick='fecharAlerta(this)'><b>X</b></span>
+    </div>
 <?php endif; ?>

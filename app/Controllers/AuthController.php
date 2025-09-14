@@ -44,7 +44,7 @@ class AuthController extends BaseController
 
         sleep(2);
         
-        $cpf = trim($_POST['cpf'] ?? '');
+        $cpf = preg_replace('/\D/', '', trim($_POST['cpf'] ?? ''));
         $password = trim($_POST['senha'] ?? '');
         
         if (empty($cpf) || empty($password)) {

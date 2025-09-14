@@ -84,3 +84,29 @@
 .azul {
     background: var(--azul-medio);
 }
+
+.alerta {
+    position: absolute;
+    top: 50px;
+    padding: 1rem;
+}
+
+.erro {
+    background: var(--vermelho);
+}
+
+.fechar-alerta {
+    cursor: pointer;
+    border-radius: 50%;
+    height: 2rem;
+    width: 2rem;
+    color: white;
+}
+
+.fechar-alerta:hover {
+    background: var(--vermelho-escuro);
+}
+
+.escondido {
+    display: none;
+}
