@@ -14,6 +14,14 @@
     align-items: center;
 }
 
+.s-gap {
+    gap: 1rem;
+}
+
+.m-gap {
+    gap: 2rem;
+}
+
 .l-gap {
     gap: 3rem;
 }
@@ -68,10 +76,10 @@
 }
 
 .botao-remover {
-    border: 2px solid red;
+    border: 2px solid var(--vermelho);
     border-radius: 8px;
     background: white;
-    color: red;
+    color: var(--vermelho);
     padding: 0.5rem 1rem;
     box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
     text-align: center;
@@ -109,4 +117,12 @@
 
 .escondido {
     display: none;
+}
+
+.icone:hover {
+    scale: 1.5;
+}
+
+.icone {
+    transition: scale 0.2s ease;
 }

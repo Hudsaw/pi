@@ -194,32 +194,6 @@ label {
     font-weight: bold;;
 }
 
-.cards {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, 500px);
-    gap: 2rem;
-    padding: 3rem;
-    overflow: auto;
-}
-
-.card {
-    font-size: 1.5rem;
-    display: grid;
-    border: 2px solid var(--azul);
-    padding: 3rem;
-    text-align: center;
-    border-radius: 8px;
-    height: 250px;
-    color: var(--azul);
-    font-weight: bold;
-}
-
-.novo-usuario {
-    border: 2px solid green;
-    color: green;
-}
-
 .formulario-cadastro {
     width: 100%;
 }
@@ -242,4 +216,49 @@ label {
 
 .lista-informacoes-coluna {
     gap: 1.5rem;
+}
+
+.tabela {
+    width: 100%;
+}
+
+table {
+    width: 100%;
+}
+
+th, td {
+    padding: 12px;
+}
+
+th {
+    background: var(--azul-escuro);
+    color: white;
+}
+
+tr:nth-child(odd) {
+    background: var(--azul-clarissimo);
+}
+
+tr:nth-child(even) {
+    background: var(--azul-claro);
+}
+
+tr:hover {
+    background: var(--azul);
+}
+
+.ae {
+    text-align: left;
+}
+
+.ac {
+    text-align: center;
+}
+
+.conteudo-tabela {
+    width: 100%;
+}
+
+.filtro {
+    padding: 1rem;
 }

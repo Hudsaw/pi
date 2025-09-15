@@ -3,38 +3,49 @@
         <a class="item bold">Usuários</a>
         <a href="<?= BASE_URL ?>/" class="sair">Sair</a>
     </div>
-    <!-- <div class="cards">
-        <a href="<?= BASE_URL ?>admin/criar-usuario" class="card novo-usuario">Criar usuário</a>
-        <?php foreach ($listaUsuarios as $usuario): ?>
-            <a href="<?= BASE_URL ?>admin/visualizar-usuario?id=<?= $usuario['id'] ?>" class="card"><?= htmlspecialchars($usuario['nome']) ?><br><br><?= htmlspecialchars($usuario['especialidade']) ?></a>
-        <?php endforeach; ?>
-    </div> -->
-    <div class="tabela">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Telefone</th>
-                    <th>CPF</th>
-                    <th>Cidade</th>
-                    <th>Visualizar</th>
-                    <th>Editar</th>
-                    <th>Remover</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($listaUsuarios as $usuario): ?>
+    <div class="conteudo-tabela">
+        <div class="filtro flex s-gap">
+            <input type="text" id="filtro" placeholder="Digite sua busca">
+        </div>
+        <div class="tabela">
+            <table cellspacing='0'>
+                <thead>
                     <tr>
-                        <td><?= htmlspecialchars($usuario['nome']) ?></td>
-                        <td><?= htmlspecialchars($usuario['telefone']) ?></td>
-                        <td><?= htmlspecialchars($usuario['cpf']) ?></td>
-                        <td><?= htmlspecialchars($usuario['cidade']) ?></td>
-                        <td><a href="<?= BASE_URL ?>admin/visualizar-usuario?id=<?= $usuario['id'] ?>">Visualizar</a></td>
-                        <td>Editar</td>
-                        <td>Remover</td>
+                        <th class="ae">Nome</th>
+                        <th class="ae">Telefone</th>
+                        <th class="ae">CPF</th>
+                        <th class="ae">Cidade</th>
+                        <th class="ac">Visualizar</th>
+                        <th class="ac">Editar</th>
+                        <th class="ac">Remover</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($listaUsuarios as $usuario): ?>
+                        <tr>
+                            <td class="ae"><?= htmlspecialchars($usuario['nome']) ?></td>
+                            <td class="ae"><?= htmlspecialchars($usuario['telefone']) ?></td>
+                            <td class="ae"><?= htmlspecialchars($usuario['cpf']) ?></td>
+                            <td class="ae"><?= htmlspecialchars($usuario['cidade']) ?></td>
+                            <td class="ac">
+                                <a href="<?= BASE_URL ?>admin/visualizar-usuario?id=<?= $usuario['id'] ?>">
+                                    <img class="icone" src="<?php echo ASSETS_URL?>icones/visualizar.svg" alt="visualizar">
+                                </a>
+                            </td>
+                            <td class="ac">
+                                <a href="<?= BASE_URL ?>admin/editar-usuario?id=<?= $usuario['id'] ?>">
+                                    <img class="icone" src="<?php echo ASSETS_URL?>icones/editar.svg" alt="editar">
+                                </a>
+                            </td>
+                            <td class="ac">
+                                <a href="<?= BASE_URL ?>admin/remover-usuario?id=<?= $usuario['id'] ?>">
+                                    <img class="icone" src="<?php echo ASSETS_URL?>icones/remover.svg" alt="remover">
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
