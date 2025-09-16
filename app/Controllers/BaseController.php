@@ -44,7 +44,7 @@ class BaseController
         return [
             'usuarioLogado' => isset($_SESSION['user_id']),
             'nomeUsuario' => $_SESSION['usuario_nome'] ?? 'Visitante',
-            'tipoUsuario' => $_SESSION['tipo_usuario'] ?? null,
+            'tipoUsuario' => $_SESSION['user_role'] ?? null,
             'BASE_URL' => BASE_URL,
             'dashboardLink' => $this->getDashboardLink(),
         ];
@@ -52,13 +52,13 @@ class BaseController
     
     protected function getDashboardLink(): string
 {
-    if (!isset($_SESSION['tipo_usuario'])) {
+    if (!isset($_SESSION['user_role'])) {
         return BASE_URL;
     }
 
-    return match ($_SESSION['tipo_usuario']) {
+    return match ($_SESSION['user_role']) {
         'admin' => BASE_URL . 'admin/painel', 
-        'costureira' => BASE_URL . 'costura/painel', 
+        'costura' => BASE_URL . 'costura/painel', 
         default => BASE_URL
     };
 }

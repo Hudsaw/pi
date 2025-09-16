@@ -137,6 +137,26 @@ class UserModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function buscarUsuarios($termo)
+{
+    try {
+        $termo = '%' . $termo . '%';
+        $stmt = $this->pdo->prepare("
+            SELECT u.*, e.nome as especialidade
+            FROM usuarios u
+            LEFT JOIN especialidade e ON u.especialidade_id = e.id
+            WHERE u.ativo = 1 
+            AND (u.nome LIKE ? OR e.nome LIKE ?)
+            ORDER BY u.nome
+        ");
+        $stmt->execute([$termo, $termo]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Erro na busca de usuários: " . $e->getMessage());
+        return [];
+    }
+}
+
     public function getUserPeloEmail($email)
     {
         $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE email = ?");

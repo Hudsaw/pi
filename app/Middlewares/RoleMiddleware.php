@@ -15,6 +15,11 @@ class RoleMiddleware
         return new self('admin');
     }
 
+    public static function costura()
+    {
+        return new self('costura');
+    }
+
     public function handle()
     {
         if (session_status() === PHP_SESSION_NONE) {

@@ -23,18 +23,30 @@ class AdminController extends BaseController
     }
 
     public function usuarios()
-    {
-        error_log("Exibindo usuarios");    
-        $user  = $this->getUsuario();
-
-        $this->render('admin/usuarios', [
-            'title'         => 'PontoCerto',
-            'user'          => $user,
-            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
-            'usuarioLogado' => $this->estaLogado(),
-            'listaUsuarios' => $this->userModel->getTodosUser(), 
-        ]);
+{
+    error_log("Exibindo usuarios");    
+    $user  = $this->getUsuario();
+    
+    // Adicione suporte para busca
+    $termoBusca = $_GET['search'] ?? '';
+    
+    if (!empty($termoBusca)) {
+        // Se houver termo de busca, use o método de busca
+        $listaUsuarios = $this->userModel->buscarUsuarios($termoBusca);
+    } else {
+        // Caso contrário, busque todos os usuários
+        $listaUsuarios = $this->userModel->getTodosUser(); 
     }
+
+    $this->render('admin/usuarios', [
+        'title'         => 'PontoCerto',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'listaUsuarios' => $listaUsuarios,
+        'termoBusca'    => $termoBusca 
+    ]);
+}
 
     public function mostrarCadastro()
     {

@@ -1,7 +1,7 @@
 <?php
 namespace App\Controllers;
 
-use App\Core\BaseController;
+use App\Controllers\BaseController;
 use App\Models\CosturaModel;
 use App\Models\UserModel;
 use Exception;

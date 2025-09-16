@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title><?= $title ?? 'PontoCerto' ?></title>
-    <link rel="stylesheet" href="<?php echo ASSETS_URL?>css/ajuda.css">
     <link rel="stylesheet" href="<?php echo ASSETS_URL?>css/style.css">
     <script src="<?php echo ASSETS_URL?>js/utils.js"></script>
     <link rel="icon" type="image/png" href="<?php echo ASSETS_URL?>img/icon.png">
@@ -18,7 +17,7 @@
         <div class="principal">
             <?php if ($usuarioLogado ?? false): ?>
                 <div class="topo flex h-center shadow">
-                    <a class="imagem-topo" href="<?= BASE_URL ?>admin/painel">
+                    <a class="imagem-topo" href="<?= $dashboardLink ?>">
                         <img src="<?php echo ASSETS_URL?>img/banner.png" alt="banner">
                     </a>
                     <span class="flex l-gap v-center">

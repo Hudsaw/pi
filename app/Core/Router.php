@@ -59,22 +59,27 @@ if ($uri[0] !== '/') {
         $route = $this->routes[$method][$uri];
 
         // Execute middlewares
-        foreach ($route['middlewares'] as $middleware) {
-            
-            if (strpos($middleware, '::') !== false) {
-                [$middlewareClass, $method] = explode('::', $middleware);
-                
-                $middlewareInstance = $this->container->get($middlewareClass);
-                if (!$middlewareInstance->$method()) {
-                    return; 
-                }
-            } else {
-                $middlewareInstance = $this->container->get($middleware);
-                if (!$middlewareInstance->handle()) {
-                    return; 
-                }
-            }
+foreach ($route['middlewares'] as $middleware) {
+    
+    if (strpos($middleware, '::') !== false) {
+        [$middlewareClass, $method] = explode('::', $middleware);
+        
+        // Use o container para obter a instância da classe
+        $middlewareInstance = $this->container->get($middlewareClass);
+        
+        // Chame o método estático na instância
+        $configuredMiddleware = $middlewareInstance->$method();
+        
+        if (!$configuredMiddleware->handle()) {
+            return; 
         }
+    } else {
+        $middlewareInstance = $this->container->get($middleware);
+        if (!$middlewareInstance->handle()) {
+            return; 
+        }
+    }
+}
 
         [$controllerName, $action] = explode('@', $route['handler']);
         

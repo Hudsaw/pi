@@ -37,6 +37,6 @@ $router->get('/admin/criar-usuario', 'AdminController@mostrarCadastro', ['AuthMi
 $router->post('/admin/cadastrar-usuario', 'AdminController@cadastrarUsuario', ['AuthMiddleware', 'RoleMiddleware::admin']);
 
 // Rotas da Costureira
-$router->get('/costura/painel', 'CostureiraController@painel', ['AuthMiddleware', 'RoleMiddleware::costura']);
+$router->get('/costura/painel', 'CosturaController@painel', ['AuthMiddleware', 'RoleMiddleware::costura']);
 
 $router->dispatch();
