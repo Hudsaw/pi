@@ -21,10 +21,10 @@
             </span>
             <span class="lista-informacoes-coluna flex vertical">
                 <span class="flex v-center" style="min-height:20px"><?= $usuario['nome'] ?></span>
-                <span class="flex v-center" style="min-height:20px"><?= $usuario['telefone'] ?></span>
+                <span class="flex v-center" style="min-height:20px" id="telefone"><?= $usuario['telefone'] ?></span>
                 <span class="flex v-center" style="min-height:20px"><?= $usuario['email'] ?></span>
-                <span class="flex v-center" style="min-height:20px"><?= $usuario['cpf'] ?></span>
-                <span class="flex v-center" style="min-height:20px"><?= $usuario['cep'] ?></span>
+                <span class="flex v-center" style="min-height:20px" id="cpf"><?= $usuario['cpf'] ?></span>
+                <span class="flex v-center" style="min-height:20px" id="cep"><?= $usuario['cep'] ?></span>
                 <span class="flex v-center" style="min-height:20px"><?= $usuario['logradouro'] ?></span>
                 <span class="flex v-center" style="min-height:20px"><?= $usuario['complemento'] ?></span>
                 <span class="flex v-center" style="min-height:20px"><?= $usuario['cidade'] ?></span>
@@ -41,3 +41,9 @@
         </div>
     </form>
 </div>
+<script src="<?= ASSETS_URL ?>js/utils.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    formatarDadosExibidos();
+});
+</script>

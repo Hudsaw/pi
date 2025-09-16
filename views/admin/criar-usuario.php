@@ -23,12 +23,12 @@
             </span>
             <span class="input flex vertical">
                 <input type="text" name="nome" id="nome" placeholder="Nome Completo" value="<?= $usuario['nome'] ?>">
-                <input type="text" name="telefone" id="telefone" placeholder="Telefone" oninput='somenteNumeros(this)' value="<?= $usuario['telefone'] ?>">
+                <input type="text" name="telefone" id="telefone" placeholder="Telefone" value="<?= $usuario['telefone'] ?>">
                 <input type="text" name="email" id="email" placeholder="Email" value="<?= $usuario['email'] ?>">
-                <input type="text" name="cpf" id="cpf" placeholder="CPF" oninput='mascaraCPF(this)' maxlength='14' value="<?= $usuario['cpf'] ?>">
+                <input type="text" name="cpf" id="cpf" placeholder="CPF" maxlength='14' value="<?= $usuario['cpf'] ?>">
                 <input type="password" name="senha" id="senha" placeholder="Senha">
                 <input type="password" name="csenha" id="csenha" placeholder="Confirmar Senha">
-                <input type="text" name="cep" id="cep" oninput='somenteNumeros(this)' placeholder="CEP" value="<?= $usuario['cep'] ?>">
+                <input type="text" name="cep" id="cep" placeholder="CEP" value="<?= $usuario['cep'] ?>">
                 <input type="text" name="logradouro" id="logradouro" placeholder="Logradouro" value="<?= $usuario['logradouro'] ?>">
                 <input type="text" name="complemento" id="complemento" placeholder="Complemento" value="<?= $usuario['complemento'] ?>">
                 <input type="text" name="cidade" id="cidade" placeholder="Cidade" value="<?= $usuario['cidade'] ?>">
@@ -50,3 +50,9 @@
         </div>
     </form>
 </div>
+<script src="<?= ASSETS_URL ?>js/utils.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setupMasks();
+});
+</script>

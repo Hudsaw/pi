@@ -270,3 +270,132 @@ tr:hover {
 .filtro input {
     width: 50%;
 }
+
+.flex {
+    display: flex;
+}
+
+.vertical {
+    flex-direction: column;
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
+.v-center {
+    align-items: center;
+}
+
+.s-gap {
+    gap: 1rem;
+}
+
+.m-gap {
+    gap: 2rem;
+}
+
+.l-gap {
+    gap: 3rem;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.h-center {
+    justify-content: center;
+}
+
+.center {
+    align-items: center; 
+    justify-content: center;
+}
+
+.shadow {
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.botao-grande {
+    border: 2px solid var(--azul);
+    border-radius: 8px;
+    background: white;
+    color: var(--azul);
+    padding: 1rem 2rem;
+    font-weight: bold;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.botao-azul {
+    border: 0;
+    border-radius: 8px;
+    background: var(--azul-medio);
+    color: white;
+    padding: 0.5rem 1rem;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.botao {
+    border: 2px solid var(--azul);
+    border-radius: 8px;
+    background: white;
+    padding: 0.5rem 1rem;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: black;
+}
+
+.botao-remover {
+    border: 2px solid var(--vermelho);
+    border-radius: 8px;
+    background: white;
+    color: var(--vermelho);
+    padding: 0.5rem 1rem;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.redondinho {
+    border-radius: 8px;
+}
+
+.azul {
+    background: var(--azul-medio);
+}
+
+.alerta {
+    position: absolute;
+    top: 50px;
+    padding: 1rem;
+}
+
+.erro {
+    background: var(--vermelho);
+}
+
+.fechar-alerta {
+    cursor: pointer;
+    border-radius: 50%;
+    height: 2rem;
+    width: 2rem;
+    color: white;
+}
+
+.fechar-alerta:hover {
+    background: var(--vermelho-escuro);
+}
+
+.escondido {
+    display: none;
+}
+
+.icone:hover {
+    scale: 1.5;
+}
+
+.icone {
+    transition: scale 0.2s ease;
+}

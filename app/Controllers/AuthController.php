@@ -278,12 +278,6 @@ header('Location: ' . $redirectUrl);
         }
     }
 
-    private function redirect($url)
-    {
-        $baseUrl = rtrim(BASE_URL, '/') . '/';
-        $path    = ltrim($url, '/');
-        header("Location: " . $baseUrl . $path);
-        exit();
-    }
+    
 
 }
