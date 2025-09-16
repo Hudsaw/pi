@@ -6,9 +6,10 @@
     <div class="conteudo-tabela">
         <div class="filtro flex s-gap">
             <input type="text" id="filtro" placeholder="Digite sua busca">
+            <a href="<?= BASE_URL ?>admin/criar-usuario" class="botao-azul">Criar usuario</a>
         </div>
         <div class="tabela">
-            <table cellspacing='0'>
+            <table cellspacing='0' class="redondinho shadow">
                 <thead>
                     <tr>
                         <th class="ae">Nome</th>

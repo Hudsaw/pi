@@ -15,6 +15,7 @@
     --fundo: #EDF2FB;
     --vermelho: #ED4A4A;
     --vermelho-escuro: #AB4040;
+    --cinza: #DEE3E9;
 }
 
 body {
@@ -129,13 +130,13 @@ hr {
 
 input {
     padding: calc(0.5rem - 1px);
-    border: 1px solid gray;
+    border: 1px solid var(--cinza);
     border-radius: 4px;
 }
 
 select {
     padding: calc(0.5rem - 1px);
-    border: 1px solid gray;
+    border: 1px solid var(--cinza);
     border-radius: 4px;
     height: 31px;
 }
@@ -224,6 +225,7 @@ label {
 
 table {
     width: 100%;
+    overflow: hidden;
 }
 
 th, td {
@@ -231,7 +233,7 @@ th, td {
 }
 
 th {
-    background: var(--azul-escuro);
+    background: var(--azul-medio);
     color: white;
 }
 
@@ -244,7 +246,7 @@ tr:nth-child(even) {
 }
 
 tr:hover {
-    background: var(--azul);
+    background: var(--cinza);
 }
 
 .ae {
@@ -256,9 +258,15 @@ tr:hover {
 }
 
 .conteudo-tabela {
+    padding: 20px;
     width: 100%;
 }
 
 .filtro {
-    padding: 1rem;
+    width: 100%;
+    padding-bottom: 20px;
+}
+
+.filtro input {
+    width: 50%;
 }

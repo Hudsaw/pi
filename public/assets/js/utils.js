@@ -11,3 +11,7 @@ function mascaraCPF(elemento) {
     
     elemento.value = valor;
 }
+
+function somenteNumeros(elemento) {
+    elemento.value = elemento.value.replace(/\D/g, '');
+}
