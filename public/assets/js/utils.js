@@ -55,6 +55,14 @@ function setupMasks() {
             
             this.value = value;
         });
+
+        cpfInput.addEventListener('blur', function() {
+        const cleaned = this.value.replace(/\D/g, '');
+        if (cleaned.length === 11 && !validarCPF(cleaned)) {
+            alert('CPF inválido! Por favor, verifique o número.');
+            this.focus();
+        }
+    });
     }
 
     // Máscara para CEP 99999-999
@@ -79,6 +87,38 @@ function setupMasks() {
             this.value = value;
         });
     }
+}
+
+// Valida CPF
+function validarCPF(cpf) {
+    cpf = cpf.replace(/\D/g, '');
+    
+    if (cpf.length !== 11) return false;
+    
+    // Verifica se todos os dígitos são iguais (CPF inválido)
+    if (/^(\d)\1{10}$/.test(cpf)) return false;
+    
+    // Validação do primeiro dígito verificador
+    let soma = 0;
+    for (let i = 0; i < 9; i++) {
+        soma += parseInt(cpf.charAt(i)) * (10 - i);
+    }
+    
+    let resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.charAt(9))) return false;
+    
+    // Validação do segundo dígito verificador
+    soma = 0;
+    for (let i = 0; i < 10; i++) {
+        soma += parseInt(cpf.charAt(i)) * (11 - i);
+    }
+    
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.charAt(10))) return false;
+    
+    return true;
 }
 
 // Funções auxiliares para uso inline
@@ -128,3 +168,76 @@ function formatarDadosExibidos() {
         }
     });
 }
+
+function validarCPFInput(input) {
+    const cleaned = input.value.replace(/\D/g, '');
+    if (cleaned.length === 11 && !validarCPF(cleaned)) {
+        alert('CPF inválido! Por favor, verifique o número.');
+        input.focus();
+        return false;
+    }
+    return true;
+}
+
+// Adicionar esta função para exibir erros de campo
+function displayFieldError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const errorElement = field.nextElementSibling || document.createElement('span');
+    
+    if (!field.nextElementSibling) {
+        errorElement.className = 'field-error';
+        field.parentNode.insertBefore(errorElement, field.nextSibling);
+    }
+    
+    errorElement.textContent = message;
+    errorElement.style.color = 'var(--erro)';
+    field.classList.add('campo-invalido');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const cepInput = document.getElementById('cep');
+    if (cepInput) {
+        cepInput.addEventListener('blur', async function () {
+            const cep = this.value.replace(/\D/g, '');
+            const logradouroInput = document.getElementById('logradouro');
+            const cidadeInput = document.getElementById('cidade');
+
+            // Limpa estados anteriores
+            this.classList.remove('campo-invalido');
+            const errorElement = this.nextElementSibling;
+            if (errorElement && errorElement.className === 'field-error') {
+                errorElement.textContent = '';
+            }
+
+            // Validação básica
+            if (cep.length !== 8) {
+                if (cep.length > 0) {
+                    displayFieldError('cep', 'CEP deve ter 8 dígitos');
+                }
+                return;
+            }
+
+            try {
+                // Mostrar loading
+                this.setAttribute('disabled', 'true');
+                
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+
+                if (data.erro) {
+                    throw new Error('CEP não encontrado');
+                }
+
+                // Preenche automaticamente os campos
+                if (logradouroInput) logradouroInput.value = data.logradouro || '';
+                if (cidadeInput) cidadeInput.value = data.localidade || '';
+
+            } catch (error) {
+                displayFieldError('cep', error.message || 'Erro ao buscar CEP');
+                console.error('Erro na busca do CEP:', error);
+            } finally {
+                this.removeAttribute('disabled');
+            }
+        });
+    }
+});

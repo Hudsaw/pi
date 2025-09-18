@@ -32,8 +32,11 @@ pi/
 │   └── Models/
 │       ├── AdminModel.php
 │       ├── CosturaModel.php
+│       ├── LoteModel.php
 │       ├── NotificacaoModel.php
+│       ├── OperacaoModel.php
 │       ├── PageModel.php
+│       ├── PecaModel.php
 │       └── UserModel.php
 ├── config/
 │   └── constants.php
@@ -43,6 +46,12 @@ pi/
 │   │   │   └── style.php
 │   │   ├── fonts/
 │   │   │   └── SchibstedGrotesk.ttf
+│   │   ├── icones/
+│   │   │   ├── adicionar.svg
+│   │   │   ├── download.svg
+│   │   │   ├── editar.svg
+│   │   │   ├── remover.svg
+│   │   │   └── visualizar.svg
 │   │   ├── img/
 │   │   │   ├── banner.png
 │   │   │   ├── icon.png
@@ -56,10 +65,16 @@ pi/
 ├── vendor/
 ├── views/
 │   ├── admin/
+│   │   ├── asicionar-peca.php
+│   │   ├── criar-lote.php
+│   │   ├── criar-operacao.php
 │   │   ├── criar-usuario.php
 │   │   ├── editar-usuario.php
+│   │   ├── lotes.php
+│   │   ├── operacoes.php
 │   │   ├── painel.php
 │   │   ├── usuarios.php
+│   │   ├── visualizar-lote.php
 │   │   └── visualizar-usuario.php
 │   ├── auth/
 │   │   ├── login.php
@@ -101,7 +116,7 @@ Botões de ações
 Tratamento de exceção
 Máscaras
 
-    Sprint 3
+    ✅ Sprint 3
 Cadastro de Operações e Peças
 Estruturar base de produção
 Cadastro de peças por lote

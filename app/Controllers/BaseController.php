@@ -3,14 +3,26 @@
 namespace App\Controllers;
 
 use App\Core\Database;
+use App\Models\AdminModel;
 use App\Models\UserModel;
+use App\Models\LoteModel;
+use App\Models\OperacaoModel;
+use App\Models\PecaModel;
 
 class BaseController
 {
+    protected $adminModel;
+    protected $loteModel;
+    protected $operacaoModel;
+    protected $pecaModel;
     protected $userModel;
 
     public function __construct()
     {
+        $this->adminModel = new AdminModel(Database::getInstance());
+        $this->loteModel = new LoteModel(Database::getInstance());
+        $this->operacaoModel = new OperacaoModel(Database::getInstance());
+        $this->pecaModel = new PecaModel(Database::getInstance());
         $this->userModel = new UserModel(Database::getInstance());
     }
     

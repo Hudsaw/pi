@@ -100,6 +100,33 @@ INSERT INTO servicos (lote_id, descricao, especialidade, quantidade, valor, valo
 (1, 'Serviço de costura lateral', 3, 300, 30.00, 0.10, 0.2,'2025-08-30', '2025-09-30'),
 (1, 'Serviço de costura gola', 4, 300, 36.00, 0.12, 0.24,'2025-08-30', '2025-09-30');
 
+-- Tabela de operações
+CREATE TABLE operacoes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(255) NOT NULL,
+    descricao TEXT NOT NULL,
+    valor DECIMAL(10, 2) NOT NULL,
+    tempo_estimado INT NOT NULL,
+    ativo TINYINT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Tabela de peças
+CREATE TABLE pecas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    lote_id INT NOT NULL,
+    operacao_id INT NOT NULL,
+    quantidade INT NOT NULL,
+    valor_unitario DECIMAL(10, 2) NOT NULL,
+    observacao TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (lote_id) REFERENCES lotes(id),
+    FOREIGN KEY (operacao_id) REFERENCES operacoes(id)
+);
+
+
 -- Tabela de Reset de Senha
 CREATE TABLE password_resets (
     id INT AUTO_INCREMENT PRIMARY KEY,

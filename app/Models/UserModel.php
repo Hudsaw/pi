@@ -31,10 +31,23 @@ class UserModel
     public function criarUser(array $data)
 {
     try {
+        // Verificar se CPF já existe
+        if ($this->cpfExiste($data['cpf'])) {
+            throw new Exception('CPF já cadastrado');
+        }
+
+        // Verificar se email já existe
+        if ($this->emailExiste($data['email'])) {
+            throw new Exception('Email já cadastrado');
+        }
+
+        // Hash da senha
+        $senhaHash = password_hash($data['senha'], PASSWORD_DEFAULT);
+
         $stmt = $this->pdo->prepare("
             INSERT INTO usuarios
             (nome, cpf, email, telefone, cep, logradouro, complemento, cidade, tipo_chave_pix, chave_pix, senha, especialidade_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         $success = $stmt->execute([
@@ -48,15 +61,17 @@ class UserModel
             $data['cidade'],
             $data['tipo_chave_pix'],
             $data['chave_pix'],
-            $data['senha'],
+            $senhaHash, 
+            $data['especialidade_id']
         ]);
 
         return $success ? $this->pdo->lastInsertId() : false;
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         error_log("Error creating user: " . $e->getMessage());
-        return false;
+        throw $e; 
     }
 }
+
 
     public function atualizarUser($userId, $data)
 {
