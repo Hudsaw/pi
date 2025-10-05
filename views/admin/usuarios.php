@@ -9,6 +9,10 @@
     <div class="conteudo-tabela">
         <div class="filtro flex s-gap">
             <input type="text" id="filtro" placeholder="Digite sua busca (nome ou especialidade)" onkeyup="filtrarUsuarios()">
+            <span class="flex v-center">
+                <input type="checkbox" id="inativos" onchange="filtrarUsuariosInativos(this)">
+                <label for="inativos">Mostrar Inativos</label>
+            </span>
             <a href="<?= BASE_URL ?>admin/criar-usuario" class="botao-azul">Criar usuario</a>
         </div>
         <div class="tabela">
@@ -25,7 +29,7 @@
                 </thead>
                 <tbody>
                     <?php foreach ($listaUsuarios as $usuario): ?>
-                        <tr class="linha-usuario">
+                        <tr class="linha-usuario" data-ativo="<?= $usuario['ativo'] ? '1' : '0' ?>">
                             <td class="ae"><?= htmlspecialchars($usuario['nome']) ?></td>
                             <td class="ae" id="telefone"><?= htmlspecialchars($usuario['telefone']) ?></td>
                             <td class="ae" id="cpf"><?= htmlspecialchars($usuario['cpf']) ?></td>
@@ -38,9 +42,15 @@
                                 <a href="<?= BASE_URL ?>admin/editar-usuario?id=<?= $usuario['id'] ?>">
                                     <img class="icone" src="<?php echo ASSETS_URL?>icones/editar.svg" alt="editar">
                                 </a>
-                                <a href="<?= BASE_URL ?>admin/remover-usuario?id=<?= $usuario['id'] ?>">
-                                    <img class="icone" src="<?php echo ASSETS_URL?>icones/remover.svg" alt="remover">
-                                </a>
+                                <?php if ($usuario['ativo']): ?>
+                                    <a href="<?= BASE_URL ?>admin/remover-usuario?id=<?= $usuario['id'] ?>">
+                                        <img class="icone" src="<?php echo ASSETS_URL?>icones/remover.svg" alt="remover">
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= BASE_URL ?>admin/reativar-usuario?id=<?= $usuario['id'] ?>">
+                                        <img class="icone" src="<?php echo ASSETS_URL?>icones/reativar.svg" alt="reativar"> 
+                                    </a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -53,6 +63,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     formatarDadosExibidos();
+    esconderUsuariosInativos();
 });
 
 function filtrarUsuarios() {
@@ -69,4 +80,34 @@ function filtrarUsuarios() {
         row.style.display = match ? '' : 'none';
     });
 }
+
+
+function filtrarUsuariosInativos(elemento) {
+    if (elemento.checked) {
+        listarUsuariosInativos(); 
+    } else {
+        esconderUsuariosInativos();
+    } 
+}
+
+function esconderUsuariosInativos() {
+    const table = document.getElementById('tabelaUsuarios');
+    const rows = table.querySelectorAll('.linha-usuario');
+    
+    rows.forEach(row => {
+        const ativo = row.getAttribute('data-ativo');
+        row.style.display = ativo === '1' ? '' : 'none';
+    });
+}
+
+function listarUsuariosInativos() {
+    const table = document.getElementById('tabelaUsuarios');
+    const rows = table.querySelectorAll('.linha-usuario');
+    
+    rows.forEach(row => {
+        row.style.display = "";
+    });
+}
+
+
 </script>

@@ -128,6 +128,17 @@ class UserModel
         }
     }
 
+    public function reativarUser($userId)
+    {
+        try {
+            $stmt = $this->pdo->prepare("UPDATE usuarios SET ativo = 1 WHERE id = ?");
+            return $stmt->execute([$userId]);
+        } catch (PDOException $e) {
+            error_log("Error deleting user: " . $e->getMessage());
+            return false;
+        }
+    }
+
     public function getUserPeloId($id)
     {
         $stmt = $this->pdo->prepare("
@@ -146,7 +157,6 @@ class UserModel
             SELECT u.*, e.nome as especialidade
             FROM usuarios u
             LEFT JOIN especialidade e ON u.especialidade_id = e.id
-            WHERE u.ativo = 1
         ");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -160,8 +170,7 @@ class UserModel
             SELECT u.*, e.nome as especialidade
             FROM usuarios u
             LEFT JOIN especialidade e ON u.especialidade_id = e.id
-            WHERE u.ativo = 1 
-            AND (u.nome LIKE ? OR e.nome LIKE ?)
+            WHERE (u.nome LIKE ? OR e.nome LIKE ?)
             ORDER BY u.nome
         ");
         $stmt->execute([$termo, $termo]);

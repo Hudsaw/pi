@@ -29,16 +29,9 @@ class OperacaoModel
         return $this->pdo->lastInsertId();
     }
 
-    public function getOperacoes($filtro = 'ativos')
+    public function getOperacoes()
     {
-        $where = '';
-        if ($filtro === 'ativos') {
-            $where = 'WHERE ativo = 1';
-        } elseif ($filtro === 'inativos') {
-            $where = 'WHERE ativo = 0';
-        }
-
-        $sql = "SELECT * FROM operacoes $where ORDER BY nome";
+        $sql = "SELECT * FROM operacoes ORDER BY nome";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
 
@@ -76,6 +69,13 @@ class OperacaoModel
     public function desativarOperacao($id)
     {
         $sql = "UPDATE operacoes SET ativo = 0 WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([':id' => $id]);
+    }
+
+    public function reativarOperacao($id)
+    {
+        $sql = "UPDATE operacoes SET ativo = 1 WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([':id' => $id]);
     }

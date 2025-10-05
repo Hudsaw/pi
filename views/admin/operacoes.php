@@ -8,37 +8,37 @@
     </div>
     <div class="conteudo-tabela">
         <div class="filtro flex s-gap">
-            <div class="filtros flex">
-                <a href="<?= BASE_URL ?>admin/operacoes?filtro=ativos" class="<?= ($filtro === 'ativos') ? 'ativo' : '' ?>">Ativas</a>
-                <a href="<?= BASE_URL ?>admin/operacoes?filtro=inativos" class="<?= ($filtro === 'inativos') ? 'ativo' : '' ?>">Inativas</a>
-                <a href="<?= BASE_URL ?>admin/operacoes?filtro=todos" class="<?= ($filtro === 'todos') ? 'ativo' : '' ?>">Todas</a>
-            </div>
+            <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarOperacoes()">
+            <span class="flex v-center">
+                <input type="checkbox" id="inativos" onchange="filtrarOperacoesInativas(this)">
+                <label for="inativos">Mostrar Inativos</label>
+            </span>
             <a href="<?= BASE_URL ?>admin/criar-operacao" class="botao-azul">Criar Operação</a>
         </div>
         <div class="tabela">
             <table cellspacing='0' class="redondinho shadow" id="tabelaOperacoes">
                 <thead>
                     <tr>
-                        <th class="ae">ID</th>
-                        <th class="ae">Nome</th>
-                        <th class="ae">Descrição</th>
+                        <th class="ae">Operação</th>
                         <th class="ae">Valor (R$)</th>
-                        <th class="ae">Tempo Estimado</th>
                         <th class="ac">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($listaOperacoes as $operacao): ?>
-                        <tr class="linha-operacao">
-                            <td class="ae"><?= htmlspecialchars($operacao['id']) ?></td>
+                        <tr class="linha-operacao" data-ativo="<?= $operacao['ativo'] ? '1' : '0' ?>">
                             <td class="ae"><?= htmlspecialchars($operacao['nome']) ?></td>
-                            <td class="ae"><?= htmlspecialchars($operacao['descricao']) ?></td>
                             <td class="ae">R$ <?= number_format($operacao['valor'], 2, ',', '.') ?></td>
-                            <td class="ae"><?= htmlspecialchars($operacao['tempo_estimado']) ?> min</td>
                             <td class="ac">
-                                <a href="<?= BASE_URL ?>admin/remover-operacao?id=<?= $operacao['id'] ?>" onclick="return confirm('Tem certeza que deseja remover esta operação?')">
-                                    <img class="icone" src="<?= ASSETS_URL ?>icones/remover.svg" alt="remover">
-                                </a>
+                                <?php if ($operacao['ativo']): ?>
+                                    <a href="<?= BASE_URL ?>admin/remover-operacao?id=<?= $operacao['id'] ?>" onclick="return confirm('Tem certeza que deseja remover esta operação?')">
+                                        <img class="icone" src="<?php echo ASSETS_URL?>icones/remover.svg" alt="remover">
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= BASE_URL ?>admin/reativar-operacao?id=<?= $operacao['id'] ?>">
+                                        <img class="icone" src="<?php echo ASSETS_URL?>icones/reativar.svg" alt="reativar"> 
+                                    </a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -47,3 +47,52 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    esconderOperacoesInativas();
+});
+
+function filtrarOperacoes() {
+    const input = document.getElementById('filtro');
+    const filter = input.value.trim().toUpperCase();
+    const table = document.getElementById('tabelaOperacoes');
+    const rows = table.querySelectorAll('.linha-operacao');
+    
+    rows.forEach(row => {
+        const nome = row.cells[0].textContent.toUpperCase();
+        
+        const match = nome.includes(filter);
+        row.style.display = match ? '' : 'none';
+    });
+}
+
+
+function filtrarOperacoesInativas(elemento) {
+    if (elemento.checked) {
+        listarOperacoesInativas(); 
+    } else {
+        esconderOperacoesInativas();
+    } 
+}
+
+function esconderOperacoesInativas() {
+    const table = document.getElementById('tabelaOperacoes');
+    const rows = table.querySelectorAll('.linha-operacao');
+    
+    rows.forEach(row => {
+        const ativo = row.getAttribute('data-ativo');
+        row.style.display = ativo === '1' ? '' : 'none';
+    });
+}
+
+function listarOperacoesInativas() {
+    const table = document.getElementById('tabelaOperacoes');
+    const rows = table.querySelectorAll('.linha-operacao');
+    
+    rows.forEach(row => {
+        row.style.display = "";
+    });
+}
+
+
+</script>

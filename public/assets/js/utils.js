@@ -87,6 +87,25 @@ function setupMasks() {
             this.value = value;
         });
     }
+
+    const valorInput = document.getElementById('valor');
+    console.log(valorInput);
+    valorInput.style.textAlign = 'right';
+    console.log(valorInput.style);
+    if (valorInput) {
+        // Formata valor inicial
+        if (valorInput.value) {
+            const cleaned = valorInput.value.replace(/\D/g, '');
+            valorInput.value = (cleaned / 100).toLocalString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        valorInput.addEventListener('input', function (e) {
+            let value = this.value.replace(/\D/g, '');
+
+            value = (value / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            this.value = value;
+        });
+    }
 }
 
 // Valida CPF

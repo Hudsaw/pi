@@ -267,7 +267,7 @@ tr:hover {
     padding-bottom: 20px;
 }
 
-.filtro input {
+.filtro input[type="text"] {
     width: 50%;
 }
 

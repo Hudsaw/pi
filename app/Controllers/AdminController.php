@@ -183,6 +183,27 @@ class AdminController extends BaseController
         $this->redirect('admin/usuarios');
     }
 
+    public function reativarUsuario() 
+    {
+        $userId = $_GET['id'];
+
+        if (empty($userId) || !is_numeric($userId)) {
+            $_SESSION['error_message'] = 'ID de usuário inválido';
+            $this->redirect('admin/usuarios');
+        }
+
+        $success = $this->userModel->reativarUser($userId);
+
+        if ($success) {
+            $_SESSION['success_message'] = 'Usuário reativado com sucesso!';
+            $this->redirect('admin/usuarios');
+        }
+
+        $_SESSION['error_message'] = 'Erro ao reativar o usuário';
+        $this->redirect('admin/usuarios');
+    }
+
+
     // Lotes
     public function lotes()
     {
@@ -271,7 +292,7 @@ class AdminController extends BaseController
         $user = $this->getUsuario();
         $filtro = $_GET['filtro'] ?? 'ativos';
         
-        $listaOperacoes = $this->operacaoModel->getOperacoes($filtro);
+        $listaOperacoes = $this->operacaoModel->getOperacoes();
 
         $this->render('admin/operacoes', [
             'title'           => 'PontoCerto - Operações',
@@ -334,7 +355,7 @@ class AdminController extends BaseController
         $loteId = $_GET['lote_id'];
         
         $lote = $this->loteModel->getLotePorId($loteId);
-        $operacoes = $this->operacaoModel->getOperacoes('ativos');
+        $operacoes = $this->operacaoModel->getOperacoes();
 
         $this->render('admin/adicionar-peca', [
             'title'         => 'PontoCerto - Adicionar Peça',
@@ -429,6 +450,32 @@ class AdminController extends BaseController
         $this->redirect('admin/operacoes');
     }
 
+    public function reativarOperacao()
+    {
+        error_log("Tentativa de reativação de operação");
+        $operacaoId = $_GET['id'];
+
+        if (empty($operacaoId) || !is_numeric($operacaoId)) {
+            $_SESSION['error_message'] = 'ID de operação inválido';
+            $this->redirect('admin/operacoes');
+        }
+
+        try {
+            $success = $this->operacaoModel->reativarOperacao($operacaoId);
+
+            if ($success) {
+                $_SESSION['success_message'] = 'Operação reativada com sucesso!';
+            } else {
+                $_SESSION['error_message'] = 'Erro ao reativar a operação';
+            }
+        } catch (Exception $e) {
+            error_log("Erro ao reativar operação: " . $e->getMessage());
+            $_SESSION['error_message'] = 'Erro ao reativar a operação: ' . $e->getMessage();
+        }
+
+        $this->redirect('admin/operacoes');
+    }
+
     public function removerPeca()
     {
         error_log("Tentativa de remoção de peça");
@@ -507,27 +554,18 @@ class AdminController extends BaseController
         $errors = [];
         $data = [
             'nome' => trim($post['nome'] ?? ''),
-            'descricao' => trim($post['descricao'] ?? ''),
             'valor' => trim($post['valor'] ?? ''),
-            'tempo_estimado' => trim($post['tempo_estimado'] ?? '')
         ];
 
         if (empty($data['nome'])) {
             $errors['nome'] = 'Nome é obrigatório';
         }
-
-        if (empty($data['descricao'])) {
-            $errors['descricao'] = 'Descrição é obrigatória';
-        }
-
+        
+        $data['valor'] = str_replace(['.', ','], ['', '.'], $data['valor']);
         if (empty($data['valor']) || !is_numeric($data['valor']) || $data['valor'] <= 0) {
             $errors['valor'] = 'Valor deve ser um número positivo';
         }
-
-        if (empty($data['tempo_estimado']) || !is_numeric($data['tempo_estimado']) || $data['tempo_estimado'] <= 0) {
-            $errors['tempo_estimado'] = 'Tempo estimado deve ser um número positivo';
-        }
-
+        
         if (!empty($errors)) {
             return ['errors' => $errors];
         }
