@@ -15,15 +15,13 @@ class OperacaoModel
 
     public function criarOperacao($dados)
     {
-        $sql = "INSERT INTO operacoes (nome, descricao, valor, tempo_estimado, ativo) 
-                VALUES (:nome, :descricao, :valor, :tempo_estimado, 1)";
+        $sql = "INSERT INTO operacoes (nome, valor, ativo) 
+                VALUES (:nome, :valor, 1)";
         
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':nome' => $dados['nome'],
-            ':descricao' => $dados['descricao'],
-            ':valor' => $dados['valor'],
-            ':tempo_estimado' => $dados['tempo_estimado']
+            ':valor' => $dados['valor']
         ]);
 
         return $this->pdo->lastInsertId();
@@ -50,18 +48,14 @@ class OperacaoModel
     public function atualizarOperacao($id, $dados)
     {
         $sql = "UPDATE operacoes SET 
-                nome = :nome, 
-                descricao = :descricao, 
-                valor = :valor, 
-                tempo_estimado = :tempo_estimado 
+                nome = :nome,  
+                valor = :valor,  
                 WHERE id = :id";
         
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([
             ':nome' => $dados['nome'],
-            ':descricao' => $dados['descricao'],
             ':valor' => $dados['valor'],
-            ':tempo_estimado' => $dados['tempo_estimado'],
             ':id' => $id
         ]);
     }

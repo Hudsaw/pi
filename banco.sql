@@ -104,9 +104,7 @@ INSERT INTO servicos (lote_id, descricao, especialidade, quantidade, valor, valo
 CREATE TABLE operacoes (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(255) NOT NULL,
-    descricao TEXT,
     valor DECIMAL(10, 2) NOT NULL,
-    tempo_estimado INT,
     ativo TINYINT DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
