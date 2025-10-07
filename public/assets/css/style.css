@@ -399,3 +399,12 @@ tr:hover {
 .icone {
     transition: scale 0.2s ease;
 }
+
+.tabela-formulario {
+    padding: 20px;
+    width: calc(100% - 40px);
+}
+
+.tabela-formulario td {
+    background: white;
+}

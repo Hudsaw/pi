@@ -18,7 +18,7 @@
             </div>
         <?php endif; ?>
         <hr class="shadow">
-        <span class="inputs flex center">   
+        <span class="inputs flex center">
             <span class="label flex vertical">
                 <label class="flex v-center" for="nome">Operação</label>
                 <label class="flex v-center" for="valor">Valor (R$)</label>

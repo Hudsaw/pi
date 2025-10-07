@@ -8,12 +8,14 @@
     </div>
     <div class="conteudo-tabela">
         <div class="filtro flex s-gap">
-            <div class="filtros flex">
-                <a href="<?= BASE_URL ?>admin/lotes?filtro=ativos" class="<?= ($filtro === 'ativos') ? 'ativo' : '' ?>">Ativos</a>
-                <a href="<?= BASE_URL ?>admin/lotes?filtro=inativos" class="<?= ($filtro === 'inativos') ? 'ativo' : '' ?>">Inativos</a>
-                <a href="<?= BASE_URL ?>admin/lotes?filtro=todos" class="<?= ($filtro === 'todos') ? 'ativo' : '' ?>">Todos</a>
+            <div class="filtro flex s-gap">
+                <input type="text" id="filtro" placeholder="Digite sua busca (nome ou coleção)" onkeyup="filtrarLotes()">
+                <span class="flex v-center">
+                    <input type="checkbox" id="inativos" onchange="filtrarLotesInativos(this)">
+                    <label for="inativos">Mostrar Inativos</label>
+                </span>
+                <a href="<?= BASE_URL ?>admin/criar-lote" class="botao-azul">Criar Lote</a>
             </div>
-            <a href="<?= BASE_URL ?>admin/criar-lote" class="botao-azul">Criar Lote</a>
         </div>
         <div class="tabela">
             <table cellspacing='0' class="redondinho shadow" id="tabelaLotes">
@@ -30,7 +32,7 @@
                 </thead>
                 <tbody>
                     <?php foreach ($listaLotes as $lote): ?>
-                        <tr class="linha-lote">
+                        <tr class="linha-lote" data-ativo="<?= $lote['ativo'] ? '1' : '0' ?>">
                             <td class="ae"><?= htmlspecialchars($lote['id']) ?></td>
                             <td class="ae"><?= htmlspecialchars($lote['descricao']) ?></td>
                             <td class="ae"><?= htmlspecialchars($lote['quantidade']) ?></td>
@@ -42,7 +44,7 @@
                                     <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
                                 </a>
                                 <a href="<?= BASE_URL ?>admin/adicionar-peca?lote_id=<?= $lote['id'] ?>">
-                                    <img class="icone" src="<?= ASSETS_URL ?>icones/adicionar.svg" alt="adicionar peça">
+                                    <img class="icone" src="<?= ASSETS_URL ?>icones/editar.svg" alt="adicionar peça">
                                 </a>
                                 <a href="<?= BASE_URL ?>admin/remover-lote?id=<?= $lote['id'] ?>" onclick="return confirm('Tem certeza que deseja remover este lote?')">
                                     <img class="icone" src="<?= ASSETS_URL ?>icones/remover.svg" alt="remover">
@@ -55,3 +57,50 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    esconderLotesInativas();
+});
+
+function filtrarLotes() {
+    const input = document.getElementById('filtro');
+    const filter = input.value.trim().toUpperCase();
+    const table = document.getElementById('tabelaLotes');
+    const rows = table.querySelectorAll('.linha-lote');
+    
+    rows.forEach(row => {
+        const nome = row.cells[1].textContent.toUpperCase();
+        
+        const match = nome.includes(filter);
+        row.style.display = match ? '' : 'none';
+    });
+}
+
+
+function filtrarLotesInativas(elemento) {
+    if (elemento.checked) {
+        listarLotesInativas(); 
+    } else {
+        esconderLotesInativas();
+    } 
+}
+
+function esconderLotesInativas() {
+    const table = document.getElementById('tabelaLotes');
+    const rows = table.querySelectorAll('.linha-lote');
+    
+    rows.forEach(row => {
+        const ativo = row.getAttribute('data-ativo');
+        row.style.display = ativo === '1' ? '' : 'none';
+    });
+}
+
+function listarLotesInativas() {
+    const table = document.getElementById('tabelaLotes');
+    const rows = table.querySelectorAll('.linha-lote');
+    
+    rows.forEach(row => {
+        row.style.display = "";
+    });
+}
+</script>

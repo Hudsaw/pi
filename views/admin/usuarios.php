@@ -108,6 +108,4 @@ function listarUsuariosInativos() {
         row.style.display = "";
     });
 }
-
-
 </script>

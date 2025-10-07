@@ -89,9 +89,7 @@ function setupMasks() {
     }
 
     const valorInput = document.getElementById('valor');
-    console.log(valorInput);
     valorInput.style.textAlign = 'right';
-    console.log(valorInput.style);
     if (valorInput) {
         // Formata valor inicial
         if (valorInput.value) {
