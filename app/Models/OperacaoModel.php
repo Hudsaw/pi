@@ -36,20 +36,42 @@ class OperacaoModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getOperacaoPorId($id)
-    {
-        $sql = "SELECT * FROM operacoes WHERE id = :id";
+    public function getOperacoesAtivas()
+{
+    try {
+        $sql = "SELECT * FROM operacoes WHERE ativo = 1 ORDER BY nome";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':id' => $id]);
-
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Erro ao buscar operações ativas: " . $e->getMessage());
+        return [];
     }
+}
+
+/**
+ * Obter operação por ID
+ */
+public function getOperacaoPorId($id)
+{
+    try {
+        $sql = "SELECT * FROM operacoes WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id]);
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Erro ao buscar operação por ID: " . $e->getMessage());
+        return null;
+    }
+}
 
     public function atualizarOperacao($id, $dados)
     {
         $sql = "UPDATE operacoes SET 
                 nome = :nome,  
-                valor = :valor,  
+                valor = :valor  
                 WHERE id = :id";
         
         $stmt = $this->pdo->prepare($sql);

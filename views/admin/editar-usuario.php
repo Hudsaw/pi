@@ -1,8 +1,5 @@
 <div class="conteudo flex">
-    <div class="menu flex vertical shadow">
-        <a class="item bold">Usuários</a>
-        <a href="<?= BASE_URL ?>/" class="sair">Sair</a>
-    </div>
+<?php require VIEWS_PATH . 'shared/sidebar-admin.php'; ?>
     <form class="formulario-cadastro" class="auth-form" method="POST" action="<?= BASE_URL ?>admin/salvar-usuario">
         <div class="titulo">Edição de usuário</div>
         <hr class="shadow">

@@ -204,6 +204,291 @@ class AdminController extends BaseController
     }
 
 
+    //Empresas
+    public function empresas()
+{
+    error_log("Exibindo empresas");
+    $user = $this->getUsuario();
+    $filtro = $_GET['filtro'] ?? 'ativos';
+    $termoBusca = $_GET['search'] ?? '';
+    
+    if (!empty($termoBusca)) {
+        $listaEmpresas = $this->empresaModel->buscarEmpresas($termoBusca);
+    } else {
+        $listaEmpresas = $this->empresaModel->getEmpresas($filtro);
+    }
+
+    $this->render('admin/empresas', [
+        'title'         => 'PontoCerto - Empresas',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'listaEmpresas' => $listaEmpresas,
+        'filtro'        => $filtro,
+        'termoBusca'    => $termoBusca
+    ]);
+}
+
+public function mostrarCriarEmpresa()
+{
+    error_log("Exibindo tela de criação de empresa");
+    $user = $this->getUsuario();
+
+    $this->render('admin/criar-empresa', [
+        'title'         => 'PontoCerto - Criar Empresa',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'errors'        => $_SESSION['empresa_erros'] ?? [],
+        'old'           => $_SESSION['empresa_data'] ?? []
+    ]);
+    
+    unset($_SESSION['empresa_erros'], $_SESSION['empresa_data']);
+}
+
+public function criarEmpresa()
+{
+    error_log("Tentativa de criação de empresa");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/criar-empresa');
+    }
+
+    $data = $this->validarEmpresa($_POST);
+
+    if (isset($data['errors'])) {
+        error_log("Erros de validação: " . print_r($data['errors'], true));
+        $_SESSION['empresa_erros'] = $data['errors'];
+        $_SESSION['empresa_data'] = $_POST;
+        $this->redirect('admin/criar-empresa');
+    }
+
+    try {
+        $empresaId = $this->empresaModel->criarEmpresa($data);
+        $_SESSION['success_message'] = 'Empresa criada com sucesso!';
+        $this->redirect('admin/empresas');
+    } catch (Exception $e) {
+        error_log("Erro ao criar empresa: " . $e->getMessage());
+        $_SESSION['empresa_erros'] = ['Falha ao criar empresa: ' . $e->getMessage()];
+        $this->redirect('admin/criar-empresa');
+    }
+}
+
+public function mostrarEmpresa()
+{
+    error_log("Exibindo detalhes da empresa");
+    $user = $this->getUsuario();
+    $id = $_GET['id'];
+    
+    $empresa = $this->empresaModel->getEmpresaPorId($id);
+
+    $this->render('admin/mostrar-empresa', [
+        'title'         => 'PontoCerto - Visualizar Empresa',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'empresa'       => $empresa
+    ]);
+}
+
+public function mostrarEditarEmpresa()
+{
+    error_log("Exibindo tela de edição de empresa");
+    $user = $this->getUsuario();
+    $id = $_GET['id'];
+
+    $empresa = $this->empresaModel->getEmpresaPorId($id);
+
+    $this->render('admin/editar-empresa', [
+        'title'         => 'PontoCerto - Editar Empresa',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'empresa'       => $empresa,
+        'errors'        => $_SESSION['empresa_erros'] ?? [],
+        'old'           => $_SESSION['empresa_data'] ?? []
+    ]);
+    
+    unset($_SESSION['empresa_erros'], $_SESSION['empresa_data']);
+}
+
+public function atualizarEmpresa()
+{
+    error_log("Tentativa de atualização de empresa");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/empresas');
+    }
+
+    $empresaId = $_POST['id'];
+    $data = $this->validarEmpresa($_POST, true);
+
+    if (isset($data['errors'])) {
+        $_SESSION['empresa_erros'] = $data['errors'];
+        $_SESSION['empresa_data'] = $_POST;
+        $this->redirect('admin/editar-empresa?id=' . $empresaId);
+    }
+
+    try {
+        $success = $this->empresaModel->atualizarEmpresa($empresaId, $data);
+        
+        if ($success) {
+            $_SESSION['success_message'] = 'Empresa atualizada com sucesso!';
+            $this->redirect('admin/mostrar-empresa?id=' . $empresaId);
+        } else {
+            $_SESSION['error_message'] = 'Erro ao atualizar a empresa';
+            $this->redirect('admin/editar-empresa?id=' . $empresaId);
+        }
+    } catch (Exception $e) {
+        error_log("Erro ao atualizar empresa: " . $e->getMessage());
+        $_SESSION['error_message'] = 'Erro ao atualizar a empresa: ' . $e->getMessage();
+        $this->redirect('admin/editar-empresa?id=' . $empresaId);
+    }
+}
+
+public function removerEmpresa()
+{
+    error_log("Tentativa de remoção de empresa");
+    $empresaId = $_GET['id'];
+
+    if (empty($empresaId) || !is_numeric($empresaId)) {
+        $_SESSION['error_message'] = 'ID de empresa inválido';
+        $this->redirect('admin/empresas');
+    }
+
+    try {
+        $success = $this->empresaModel->desativarEmpresa($empresaId);
+
+        if ($success) {
+            $_SESSION['success_message'] = 'Empresa removida com sucesso!';
+        } else {
+            $_SESSION['error_message'] = 'Erro ao remover a empresa';
+        }
+    } catch (Exception $e) {
+        error_log("Erro ao remover empresa: " . $e->getMessage());
+        $_SESSION['error_message'] = 'Erro ao remover a empresa: ' . $e->getMessage();
+    }
+
+    $this->redirect('admin/empresas');
+}
+
+public function reativarEmpresa()
+{
+    error_log("Tentativa de reativação de empresa");
+    $empresaId = $_GET['id'];
+
+    if (empty($empresaId) || !is_numeric($empresaId)) {
+        $_SESSION['error_message'] = 'ID de empresa inválido';
+        $this->redirect('admin/empresas');
+    }
+
+    try {
+        $success = $this->empresaModel->reativarEmpresa($empresaId);
+
+        if ($success) {
+            $_SESSION['success_message'] = 'Empresa reativada com sucesso!';
+        } else {
+            $_SESSION['error_message'] = 'Erro ao reativar a empresa';
+        }
+    } catch (Exception $e) {
+        error_log("Erro ao reativar empresa: " . $e->getMessage());
+        $_SESSION['error_message'] = 'Erro ao reativar a empresa: ' . $e->getMessage();
+    }
+
+    $this->redirect('admin/empresas');
+}
+
+// Método de validação para empresa
+private function validarEmpresa($post, $isUpdate = false)
+{
+    $errors = [];
+    $data = [
+        'nome' => trim($post['nome'] ?? ''),
+        'cnpj' => trim($post['cnpj'] ?? ''),
+        'email' => trim($post['email'] ?? ''),
+        'telefone' => trim($post['telefone'] ?? ''),
+        'endereco' => trim($post['endereco'] ?? ''),
+        'cidade' => trim($post['cidade'] ?? ''),
+        'estado' => trim($post['estado'] ?? ''),
+        'cep' => trim($post['cep'] ?? ''),
+        'observacao' => trim($post['observacao'] ?? '')
+    ];
+
+    // Validações
+    if (empty($data['nome'])) {
+        $errors['nome'] = 'Nome é obrigatório';
+    }
+
+    if (empty($data['cnpj'])) {
+        $errors['cnpj'] = 'CNPJ é obrigatório';
+    } elseif (!$this->validarCNPJ($data['cnpj'])) {
+        $errors['cnpj'] = 'CNPJ inválido';
+    } elseif (!$isUpdate && $this->empresaModel->getEmpresaPorCnpj($data['cnpj'])) {
+        $errors['cnpj'] = 'CNPJ já cadastrado';
+    }
+
+    if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = 'Email inválido';
+    }
+
+    if (empty($data['telefone'])) {
+        $errors['telefone'] = 'Telefone é obrigatório';
+    }
+
+    // Limpar números
+    $data['cnpj'] = preg_replace('/\D/', '', $data['cnpj']);
+    $data['telefone'] = preg_replace('/\D/', '', $data['telefone']);
+    $data['cep'] = preg_replace('/\D/', '', $data['cep']);
+
+    if (!empty($errors)) {
+        return ['errors' => $errors];
+    }
+
+    return $data;
+}
+
+// Método para validar CNPJ
+private function validarCNPJ($cnpj)
+{
+    $cnpj = preg_replace('/[^0-9]/', '', $cnpj);
+    
+    if (strlen($cnpj) != 14) {
+        return false;
+    }
+    
+    if (preg_match('/(\d)\1{13}/', $cnpj)) {
+        return false;
+    }
+    
+    // Validação do primeiro dígito verificador
+    $pesos = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    $soma = 0;
+    for ($i = 0; $i < 12; $i++) {
+        $soma += $cnpj[$i] * $pesos[$i];
+    }
+    
+    $resto = $soma % 11;
+    $digito1 = ($resto < 2) ? 0 : 11 - $resto;
+    
+    if ($cnpj[12] != $digito1) {
+        return false;
+    }
+    
+    // Validação do segundo dígito verificador
+    $pesos = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    $soma = 0;
+    for ($i = 0; $i < 13; $i++) {
+        $soma += $cnpj[$i] * $pesos[$i];
+    }
+    
+    $resto = $soma % 11;
+    $digito2 = ($resto < 2) ? 0 : 11 - $resto;
+    
+    if ($cnpj[13] != $digito2) {
+        return false;
+    }
+    
+    return true;
+}
+
     // Lotes
     public function lotes()
     {
@@ -224,67 +509,172 @@ class AdminController extends BaseController
     }
 
     public function mostrarCriarLote()
-    {
-        error_log("Exibindo tela de criação de lote");
-        $user = $this->getUsuario();
+{
+    error_log("Exibindo tela de criação de lote");
+    $user = $this->getUsuario();
 
-        $this->render('admin/criar-lote', [
-            'title'         => 'PontoCerto - Criar Lote',
-            'user'          => $user,
-            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
-            'usuarioLogado' => $this->estaLogado(),
-            'errors'        => $_SESSION['lote_erros'] ?? [],
-            'old'           => $_SESSION['lote_data'] ?? []
-        ]);
-        
-        unset($_SESSION['lote_erros'], $_SESSION['lote_data']);
+    // Buscar todos os dados do banco
+    $tiposPeca = $this->pecaModel->getTiposAtivos();
+    $cores = $this->pecaModel->getCoresAtivas();
+    $tamanhos = $this->pecaModel->getTamanhosAtivos();
+    $operacoes = $this->operacaoModel->getOperacoes();
+
+    $this->render('admin/criar-lote', [
+        'title'         => 'PontoCerto - Criar Lote',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'errors'        => $_SESSION['lote_erros'] ?? [],
+        'old'           => $_SESSION['lote_data'] ?? [],
+        'tiposPeca'     => $tiposPeca,
+        'cores'         => $cores,        
+        'tamanhos'      => $tamanhos
+    ]);
+    
+    unset($_SESSION['lote_erros'], $_SESSION['lote_data']);
+}
+
+public function criarLote()
+{
+    error_log("Tentativa de criação de lote");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/criar-lote');
     }
 
-    public function criarLote()
-    {
-        error_log("Tentativa de criação de lote");
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('admin/criar-lote');
-        }
+    $data = $this->validarLoteComPecas($_POST);
 
-        $data = $this->validarLote($_POST);
+    if (isset($data['errors'])) {
+        error_log("Erros de validação: " . print_r($data['errors'], true));
+        $_SESSION['lote_erros'] = $data['errors'];
+        $_SESSION['lote_data'] = $_POST;
+        $this->redirect('admin/criar-lote');
+    }
 
-        if (isset($data['errors'])) {
-            error_log("Erros de validação: " . print_r($data['errors'], true));
-            $_SESSION['lote_erros'] = $data['errors'];
-            $_SESSION['lote_data'] = $_POST;
-            $this->redirect('admin/criar-lote');
-        }
+    try {
+        $loteId = $this->loteModel->criarLote($data);
+        $_SESSION['success_message'] = 'Lote criado com sucesso!';
+        $this->redirect('admin/visualizar-lote?id=' . $loteId);
+    } catch (Exception $e) {
+        error_log("Erro ao criar lote: " . $e->getMessage());
+        $_SESSION['lote_erros'] = ['Falha ao criar lote: ' . $e->getMessage()];
+        $this->redirect('admin/criar-lote');
+    }
+}
 
-        try {
-            $loteId = $this->loteModel->criarLote($data);
-            $_SESSION['success_message'] = 'Lote criado com sucesso!';
-            $this->redirect('admin/lotes');
-        } catch (Exception $e) {
-            error_log("Erro ao criar lote: " . $e->getMessage());
-            $_SESSION['lote_erros'] = ['Falha ao criar lote: ' . $e->getMessage()];
-            $this->redirect('admin/criar-lote');
+private function validarLoteComPecas($post)
+{
+    $errors = [];
+    $data = [
+        'empresa_id' => trim($post['empresa_id'] ?? ''),
+        'colecao' => trim($post['colecao'] ?? ''),
+        'nome' => trim($post['nome'] ?? ''),
+        'observacao' => trim($post['observacao'] ?? ''),
+        'data_entrada' => trim($post['data_entrada'] ?? ''),
+        'pecas' => []
+    ];
+
+    // Validações do lote // Validações do lote
+    if (empty($data['empresa_id'])) {
+        $errors['empresa_id'] = 'ID da empresa é obrigatório';
+    }
+
+    if (empty($data['colecao'])) {
+        $errors['colecao'] = 'Coleção é obrigatória';
+    }
+
+    if (empty($data['nome'])) {
+        $errors['nome'] = 'Nome do lote é obrigatório';
+    }
+
+    if (empty($data['data_entrada'])) {
+        $errors['data_entrada'] = 'Data de entrada é obrigatória';
+    }
+
+    // Validações das peças
+    if (isset($post['pecas']) && is_array($post['pecas'])) {
+        foreach ($post['pecas'] as $index => $pecaData) {
+            $peca = [
+                'tipo_peca_id' => trim($pecaData['tipo_peca_id'] ?? ''),
+                'cor_id' => trim($pecaData['cor_id'] ?? ''),        // ← Agora é ID
+                'tamanho_id' => trim($pecaData['tamanho_id'] ?? ''), // ← Agora é ID
+                'quantidade' => trim($pecaData['quantidade'] ?? ''),
+                'valor_unitario' => trim($pecaData['valor_unitario'] ?? ''),
+                'operacao_id' => trim($pecaData['operacao_id'] ?? '')
+            ];
+
+            // Validar cada peça
+            if (empty($peca['tipo_peca_id'])) {
+                $errors['pecas'][$index]['tipo_peca_id'] = 'Tipo da peça é obrigatório';
+            }
+
+            if (empty($peca['cor_id'])) {
+                $errors['pecas'][$index]['cor_id'] = 'Cor é obrigatória';
+            }
+
+            if (empty($peca['tamanho_id'])) {
+                $errors['pecas'][$index]['tamanho_id'] = 'Tamanho é obrigatório';
+            }
+
+            if (empty($peca['quantidade'])) {
+                $errors['pecas'][$index]['quantidade'] = 'Quantidade é obrigatório';
+            }
+
+            if (empty($peca['valor_unitario'])) {
+                $errors['pecas'][$index]['valor_unitario'] = 'Valor unitário é obrigatório';
+            }
+
+            $data['pecas'][] = $peca;
         }
     }
 
-    public function visualizarLote()
-    {
-        error_log("Exibindo detalhes do lote");
-        $user = $this->getUsuario();
-        $id = $_GET['id'];
-        
-        $lote = $this->loteModel->getLotePorId($id);
-        $pecas = $this->pecaModel->getPecasPorLote($id);
-
-        $this->render('admin/visualizar-lote', [
-            'title'         => 'PontoCerto - Visualizar Lote',
-            'user'          => $user,
-            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
-            'usuarioLogado' => $this->estaLogado(),
-            'lote'          => $lote,
-            'pecas'         => $pecas
-        ]);
+    if (!empty($errors)) {
+        return ['errors' => $errors];
     }
+
+    return $data;
+}
+
+public function visualizarLote()
+{
+    error_log("Exibindo detalhes do lote");
+    $user = $this->getUsuario();
+    $id = $_GET['id'];
+    
+    // Configuração da paginação
+    $itensPorPagina = 10;
+    $paginaAtual = $_GET['page'] ?? 1;
+    $offset = ($paginaAtual - 1) * $itensPorPagina;
+    
+    // Busca
+    $search = $_GET['search'] ?? '';
+    
+    $lote = $this->loteModel->getLotePorId($id);
+    
+    // Buscar peças com paginação
+    $pecasData = $this->pecaModel->getPecasPorLoteComPaginacao($id, $itensPorPagina, $offset, $search);
+    $pecas = $pecasData['pecas'];
+    $totalPecas = $pecasData['total'];
+    
+    // Calcular totais
+    $totalPaginas = ceil($totalPecas / $itensPorPagina);
+    $inicio = $offset + 1;
+    $fim = min($offset + $itensPorPagina, $totalPecas);
+    
+    $this->render('admin/visualizar-lote', [
+        'title'         => 'PontoCerto - Visualizar Lote',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'lote'          => $lote,
+        'pecas'         => $pecas,
+        'totalPecas'    => $totalPecas,
+        'paginaAtual'   => $paginaAtual,
+        'totalPaginas'  => $totalPaginas,
+        'inicio'        => $inicio,
+        'fim'           => $fim,
+        'search'        => $search
+    ]);
+}
 
     public function operacoes()
     {
@@ -348,7 +738,61 @@ class AdminController extends BaseController
         }
     }
 
-    public function adicionarPecaLote()
+    public function mostrarEditarOperacao()
+{
+    error_log("Exibindo tela de edição de operação");
+    $user = $this->getUsuario();
+    $id = $_GET['id'];
+
+    $operacao = $this->operacaoModel->getOperacaoPorId($id);
+
+    $this->render('admin/editar-operacao', [
+        'title'         => 'PontoCerto - Editar Operação',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'operacao'      => $operacao,
+        'errors'        => $_SESSION['operacao_erros'] ?? [],
+        'old'           => $_SESSION['operacao_data'] ?? []
+    ]);
+    
+    unset($_SESSION['operacao_erros'], $_SESSION['operacao_data']);
+}
+
+public function atualizarOperacao()
+{
+    error_log("Tentativa de atualização de operação");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/operacoes');
+    }
+
+    $operacaoId = $_POST['id'];
+    $data = $this->validarOperacao($_POST);
+
+    if (isset($data['errors'])) {
+        $_SESSION['operacao_erros'] = $data['errors'];
+        $_SESSION['operacao_data'] = $_POST;
+        $this->redirect('admin/editar-operacao?id=' . $operacaoId);
+    }
+
+    try {
+        $success = $this->operacaoModel->atualizarOperacao($operacaoId, $data);
+        
+        if ($success) {
+            $_SESSION['success_message'] = 'Operação atualizada com sucesso!';
+            $this->redirect('admin/operacoes');
+        } else {
+            $_SESSION['error_message'] = 'Erro ao atualizar a operação';
+            $this->redirect('admin/editar-operacao?id=' . $operacaoId);
+        }
+    } catch (Exception $e) {
+        error_log("Erro ao atualizar operação: " . $e->getMessage());
+        $_SESSION['error_message'] = 'Erro ao atualizar a operação: ' . $e->getMessage();
+        $this->redirect('admin/editar-operacao?id=' . $operacaoId);
+    }
+}
+
+public function adicionarPecaLote()
     {
         error_log("Adicionando peça ao lote");
         $user = $this->getUsuario();
@@ -732,6 +1176,233 @@ private function validarCPF($cpf)
     return true;
 }      
 
+// Listar serviços
+public function servicos()
+{
+    error_log("Exibindo serviços");
+    $user = $this->getUsuario();
+    $filtro = $_GET['filtro'] ?? 'ativos';
+    $termoBusca = $_GET['search'] ?? '';
+    
+    if (!empty($termoBusca)) {
+        $listaServicos = $this->servicoModel->buscarServicos($termoBusca);
+    } else {
+        $listaServicos = $this->servicoModel->getServicos($filtro);
+    }
 
+    $this->render('admin/servicos', [
+        'title'         => 'PontoCerto - Serviços',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'listaServicos' => $listaServicos,
+        'filtro'        => $filtro,
+        'termoBusca'    => $termoBusca
+    ]);
+}
+
+// Mostrar formulário de criação de serviço
+public function mostrarCriarServico()
+{
+    error_log("Exibindo tela de criação de serviço");
+    $user = $this->getUsuario();
+
+    // Buscar dados necessários
+    $lotes = $this->servicoModel->getLotesAtivos(); // Usar servicoModel
+    $costureiras = $this->userModel->getCostureirasAtivas();
+    $operacoes = $this->operacaoModel->getOperacoesAtivas();
+
+    $this->render('admin/criar-servico', [
+        'title'         => 'PontoCerto - Criar Serviço',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'lotes'         => $lotes,
+        'costureiras'   => $costureiras,
+        'operacoes'     => $operacoes,
+        'errors'        => $_SESSION['servico_erros'] ?? [],
+        'old'           => $_SESSION['servico_data'] ?? []
+    ]);
+    
+    unset($_SESSION['servico_erros'], $_SESSION['servico_data']);
+}
+
+// Criar serviço
+public function criarServico()
+{
+    error_log("Tentativa de criação de serviço");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/criar-servico');
+    }
+
+    $data = $this->validarServico($_POST);
+
+    if (isset($data['errors'])) {
+        error_log("Erros de validação: " . print_r($data['errors'], true));
+        $_SESSION['servico_erros'] = $data['errors'];
+        $_SESSION['servico_data'] = $_POST;
+        $this->redirect('admin/criar-servico');
+    }
+
+    try {
+        $servicoId = $this->servicoModel->criarServico($data);
+        $_SESSION['success_message'] = 'Serviço criado com sucesso!';
+        $this->redirect('admin/visualizar-servico?id=' . $servicoId);
+    } catch (Exception $e) {
+        error_log("Erro ao criar serviço: " . $e->getMessage());
+        $_SESSION['servico_erros'] = ['Falha ao criar serviço: ' . $e->getMessage()];
+        $this->redirect('admin/criar-servico');
+    }
+}
+
+// Visualizar serviço
+public function visualizarServico()
+{
+    error_log("Exibindo detalhes do serviço");
+    $user = $this->getUsuario();
+    $id = $_GET['id'];
+    
+    $servico = $this->servicoModel->getServicoPorId($id);
+    
+    if (!$servico) {
+        $_SESSION['error_message'] = 'Serviço não encontrado';
+        $this->redirect('admin/servicos');
+    }
+
+    $this->render('admin/visualizar-servico', [
+        'title'         => 'PontoCerto - Visualizar Serviço',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'servico'       => $servico
+    ]);
+}
+
+// Vincular costureira a serviço
+public function vincularCostureira()
+{
+    error_log("Vinculando costureira a serviço");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/servicos');
+    }
+
+    $servicoId = $_POST['servico_id'];
+    $costureiraId = $_POST['costureira_id'];
+    $dataInicio = $_POST['data_inicio'];
+    $dataEntrega = $_POST['data_entrega'];
+
+    // Validar se costureira pode ser vinculada (limite de 2 serviços)
+    $servicosAtivos = $this->servicoModel->getServicosAtivosPorCostureira($costureiraId);
+    if (count($servicosAtivos) >= 2) {
+        $_SESSION['error_message'] = 'Costureira já possui 2 serviços ativos. Limite máximo atingido.';
+        $this->redirect('admin/visualizar-servico?id=' . $servicoId);
+    }
+
+    try {
+        $success = $this->servicoModel->vincularCostureira($servicoId, $costureiraId, $dataInicio, $dataEntrega);
+        
+        if ($success) {
+            $_SESSION['success_message'] = 'Costureira vinculada com sucesso!';
+        } else {
+            $_SESSION['error_message'] = 'Erro ao vincular costureira';
+        }
+    } catch (Exception $e) {
+        error_log("Erro ao vincular costureira: " . $e->getMessage());
+        $_SESSION['error_message'] = 'Erro ao vincular costureira: ' . $e->getMessage();
+    }
+
+    $this->redirect('admin/visualizar-servico?id=' . $servicoId);
+}
+
+// Finalizar serviço
+public function finalizarServico()
+{
+    error_log("Finalizando serviço");
+    $servicoId = $_GET['id'];
+    $dataFinalizacao = $_POST['data_finalizacao'] ?? date('Y-m-d');
+
+    try {
+        $success = $this->servicoModel->finalizarServico($servicoId, $dataFinalizacao);
+        
+        if ($success) {
+            $_SESSION['success_message'] = 'Serviço finalizado com sucesso!';
+        } else {
+            $_SESSION['error_message'] = 'Erro ao finalizar serviço';
+        }
+    } catch (Exception $e) {
+        error_log("Erro ao finalizar serviço: " . $e->getMessage());
+        $_SESSION['error_message'] = 'Erro ao finalizar serviço: ' . $e->getMessage();
+    }
+
+    $this->redirect('admin/visualizar-servico?id=' . $servicoId);
+}
+
+// Remover serviço
+public function removerServico()
+{
+    error_log("Tentativa de remoção de serviço");
+    $servicoId = $_GET['id'];
+
+    if (empty($servicoId) || !is_numeric($servicoId)) {
+        $_SESSION['error_message'] = 'ID de serviço inválido';
+        $this->redirect('admin/servicos');
+    }
+
+    try {
+        $success = $this->servicoModel->desativarServico($servicoId);
+
+        if ($success) {
+            $_SESSION['success_message'] = 'Serviço removido com sucesso!';
+        } else {
+            $_SESSION['error_message'] = 'Erro ao remover o serviço';
+        }
+    } catch (Exception $e) {
+        error_log("Erro ao remover serviço: " . $e->getMessage());
+        $_SESSION['error_message'] = 'Erro ao remover o serviço: ' . $e->getMessage();
+    }
+
+    $this->redirect('admin/servicos');
+}
+
+// Validação de serviço
+private function validarServico($post)
+{
+    $errors = [];
+    $data = [
+        'lote_id' => trim($post['lote_id'] ?? ''),
+        'operacao_id' => trim($post['operacao_id'] ?? ''),
+        'quantidade_pecas' => trim($post['quantidade_pecas'] ?? ''),
+        'valor_operacao' => trim($post['valor_operacao'] ?? ''),
+        'data_envio' => trim($post['data_envio'] ?? ''),
+        'observacao' => trim($post['observacao'] ?? '')
+    ];
+
+    // Validações
+    if (empty($data['lote_id']) || !is_numeric($data['lote_id'])) {
+        $errors['lote_id'] = 'Lote é obrigatório';
+    }
+
+    if (empty($data['operacao_id']) || !is_numeric($data['operacao_id'])) {
+        $errors['operacao_id'] = 'Operação é obrigatória';
+    }
+
+    if (empty($data['quantidade_pecas']) || !is_numeric($data['quantidade_pecas']) || $data['quantidade_pecas'] <= 0) {
+        $errors['quantidade_pecas'] = 'Quantidade de peças deve ser um número positivo';
+    }
+
+    if (empty($data['valor_operacao']) || !is_numeric($data['valor_operacao']) || $data['valor_operacao'] <= 0) {
+        $errors['valor_operacao'] = 'Valor da operação deve ser um número positivo';
+    }
+
+    if (empty($data['data_envio'])) {
+        $errors['data_envio'] = 'Data de envio é obrigatória';
+    }
+
+    if (!empty($errors)) {
+        return ['errors' => $errors];
+    }
+
+    return $data;
+}
 
 }

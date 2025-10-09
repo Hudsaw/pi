@@ -1,98 +1,68 @@
 <div class="conteudo flex">
-    <div class="menu flex vertical shadow">
-        <a href="<?= BASE_URL ?>admin/painel" class="item">Painel</a>
-        <a href="<?= BASE_URL ?>admin/usuarios" class="item">Usuários</a>
-        <a href="<?= BASE_URL ?>admin/lotes" class="item">Lotes</a>
-        <a href="<?= BASE_URL ?>admin/operacoes" class="item bold">Operações</a>
-        <a href="<?= BASE_URL ?>/" class="sair">Sair</a>
-    </div>
+<?php require VIEWS_PATH . 'shared/sidebar-admin.php'; ?>
     <div class="conteudo-tabela">
         <div class="filtro flex s-gap">
-            <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarOperacoes()">
-            <span class="flex v-center">
-                <input type="checkbox" id="inativos" onchange="filtrarOperacoesInativas(this)">
-                <label for="inativos">Mostrar Inativos</label>
-            </span>
+            <h2>Operações</h2>
             <a href="<?= BASE_URL ?>admin/criar-operacao" class="botao-azul">Criar Operação</a>
         </div>
+        
+        <!-- Filtros -->
+        <div class="filtro flex s-gap v-center">
+            <a href="?filtro=ativos" class="<?= ($filtro === 'ativos') ? 'botao-azul' : 'botao-cinza' ?>">Ativas</a>
+            <a href="?filtro=inativos" class="<?= ($filtro === 'inativos') ? 'botao-azul' : 'botao-cinza' ?>">Inativas</a>
+            <a href="?filtro=todos" class="<?= ($filtro === 'todos') ? 'botao-azul' : 'botao-cinza' ?>">Todas</a>
+        </div>
+        
         <div class="tabela">
-            <table cellspacing='0' class="redondinho shadow" id="tabelaOperacoes">
+            <table cellspacing='0' class="redondinho shadow">
                 <thead>
                     <tr>
-                        <th class="ae">Operação</th>
+                        <th class="ae">ID</th>
+                        <th class="ae">Nome</th>
                         <th class="ae">Valor (R$)</th>
+                        <th class="ae">Status</th>
                         <th class="ac">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($listaOperacoes as $operacao): ?>
-                        <tr class="linha-operacao" data-ativo="<?= $operacao['ativo'] ? '1' : '0' ?>">
-                            <td class="ae"><?= htmlspecialchars($operacao['nome']) ?></td>
-                            <td class="ae">R$ <?= number_format($operacao['valor'], 2, ',', '.') ?></td>
-                            <td class="ac">
-                                <?php if ($operacao['ativo']): ?>
-                                    <a href="<?= BASE_URL ?>admin/remover-operacao?id=<?= $operacao['id'] ?>" onclick="return confirm('Tem certeza que deseja remover esta operação?')">
-                                        <img class="icone" src="<?php echo ASSETS_URL?>icones/remover.svg" alt="remover">
-                                    </a>
-                                <?php else: ?>
-                                    <a href="<?= BASE_URL ?>admin/reativar-operacao?id=<?= $operacao['id'] ?>">
-                                        <img class="icone" src="<?php echo ASSETS_URL?>icones/reativar.svg" alt="reativar"> 
-                                    </a>
-                                <?php endif; ?>
-                            </td>
+                    <?php if (empty($listaOperacoes)): ?>
+                        <tr>
+                            <td colspan="5" class="ac">Nenhuma operação encontrada</td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php else: ?>
+                        <?php foreach ($listaOperacoes as $operacao): ?>
+                            <tr>
+                                <td class="ae"><?= htmlspecialchars($operacao['id']) ?></td>
+                                <td class="ae"><?= htmlspecialchars($operacao['nome']) ?></td>
+                                <td class="ae">R$ <?= number_format($operacao['valor'], 2, ',', '.') ?></td>
+                                <td class="ae">
+                                    <span class="status-<?= $operacao['ativo'] ? 'ativo' : 'inativo' ?>">
+                                        <?= $operacao['ativo'] ? 'Ativa' : 'Inativa' ?>
+                                    </span>
+                                </td>
+                                <td class="ac">
+                                    <a href="<?= BASE_URL ?>admin/editar-operacao?id=<?= $operacao['id'] ?>" title="Editar Operação">
+                                        <img class="icone" src="<?= ASSETS_URL ?>icones/editar.svg" alt="editar">
+                                    </a>
+                                    <?php if ($operacao['ativo']): ?>
+                                        <a href="<?= BASE_URL ?>admin/remover-operacao?id=<?= $operacao['id'] ?>" 
+                                           onclick="return confirm('Tem certeza que deseja desativar esta operação?')"
+                                           title="Desativar Operação">
+                                            <img class="icone" src="<?= ASSETS_URL ?>icones/remover.svg" alt="desativar">
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?= BASE_URL ?>admin/reativar-operacao?id=<?= $operacao['id'] ?>" 
+                                           onclick="return confirm('Tem certeza que deseja reativar esta operação?')"
+                                           title="Reativar Operação">
+                                            <img class="icone" src="<?= ASSETS_URL ?>icones/reativar.svg" alt="reativar">
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    esconderOperacoesInativas();
-});
-
-function filtrarOperacoes() {
-    const input = document.getElementById('filtro');
-    const filter = input.value.trim().toUpperCase();
-    const table = document.getElementById('tabelaOperacoes');
-    const rows = table.querySelectorAll('.linha-operacao');
-    
-    rows.forEach(row => {
-        const nome = row.cells[0].textContent.toUpperCase();
-        
-        const match = nome.includes(filter);
-        row.style.display = match ? '' : 'none';
-    });
-}
-
-
-function filtrarOperacoesInativas(elemento) {
-    if (elemento.checked) {
-        listarOperacoesInativas(); 
-    } else {
-        esconderOperacoesInativas();
-    } 
-}
-
-function esconderOperacoesInativas() {
-    const table = document.getElementById('tabelaOperacoes');
-    const rows = table.querySelectorAll('.linha-operacao');
-    
-    rows.forEach(row => {
-        const ativo = row.getAttribute('data-ativo');
-        row.style.display = ativo === '1' ? '' : 'none';
-    });
-}
-
-function listarOperacoesInativas() {
-    const table = document.getElementById('tabelaOperacoes');
-    const rows = table.querySelectorAll('.linha-operacao');
-    
-    rows.forEach(row => {
-        row.style.display = "";
-    });
-}
-
-
-</script>

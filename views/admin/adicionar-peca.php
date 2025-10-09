@@ -1,11 +1,5 @@
 <div class="conteudo flex">
-    <div class="menu flex vertical shadow">
-        <a href="<?= BASE_URL ?>admin/painel" class="item">Painel</a>
-        <a href="<?= BASE_URL ?>admin/usuarios" class="item">Usuários</a>
-        <a href="<?= BASE_URL ?>admin/lotes" class="item bold">Lotes</a>
-        <a href="<?= BASE_URL ?>admin/operacoes" class="item">Operações</a>
-        <a href="<?= BASE_URL ?>/" class="sair">Sair</a>
-    </div>
+<?php require VIEWS_PATH . 'shared/sidebar-admin.php'; ?>
     <div class="conteudo-formulario">
         <h2>Adicionar Peça ao Lote #<?= htmlspecialchars($lote['id']) ?></h2>
         

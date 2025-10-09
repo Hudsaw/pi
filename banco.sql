@@ -14,7 +14,7 @@ INSERT INTO especialidade (nome) VALUES
 ('Costura overlock'), 
 ('Costura reta'), 
 ('Costura lateral'), 
-('Costura gola'); 
+('Costura gola');
 
 -- Tabela de níveis
 CREATE TABLE nivel (
@@ -47,60 +47,73 @@ CREATE TABLE usuarios (
     banco int NULL DEFAULT 0,
     agencia INT NULL DEFAULT 0,
     conta INT NULL DEFAULT 0,
-    /*saldo DECIMAL(10, 2) DEFAULT 0.00,*/
     especialidade_id INT NOT NULL DEFAULT 2,
-    /*nivel INT NOT NULL DEFAULT 1,*/
-    ativo TINYINT DEFAULT 1
+    ativo TINYINT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
  );
 
- INSERT INTO usuarios (tipo, nome, cpf, email, telefone, cep, logradouro, complemento, cidade, tipo_chave_pix, chave_pix, senha, banco, agencia, conta, especialidade_id, ativo) VALUES
-('admin'     , 'Administrador' , '12345678901', 'admin@pi.com'  , '11987654321', '12345678', 'Rua Botuverá'    , 'Apto 101', 'Gaspar'   , 'cpf'     , '12345678901'   , '123'  , 123, 456, 789, 3, 1),
-('costureira', 'Maria da Silva', '98765432100', 'costura@pi.com', '11912345678', '87654321', 'Rua São Paulo'   , 'Casa 2'  , 'Blumenau' , 'email'   , 'costura@pi.com', 'teste', 321, 654, 987, 2, 1),
-('costureira', 'Janaina'       , '87439287245', 'catu@piri.com' , '73737373737', '2313'    , 'Av. Das Alegrias', 'Casa 3'  , 'São Paulo', 'telefone', '73737373737'   , '321'  , 321, 654, 987, 1, 1);
+INSERT INTO usuarios (tipo, nome, cpf, email, telefone, cep, logradouro, complemento, cidade, tipo_chave_pix, chave_pix, senha, banco, agencia, conta, especialidade_id, ativo) VALUES
+('admin'     , 'Administrador' , '12345678901', 'admin@pi.com'  , '11987654321', '12345678', 'Rua Botuverá'    , 'Apto 101', 'Gaspar'   , 'cpf'     , '12345678901'   , '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'  , 123, 456, 789, 3, 1),
+('costureira', 'Maria da Silva', '98765432100', 'costura@pi.com', '11912345678', '87654321', 'Rua São Paulo'   , 'Casa 2'  , 'Blumenau' , 'email'   , 'costura@pi.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 321, 654, 987, 2, 1),
+('costureira', 'Janaina'       , '87439287245', 'catu@piri.com' , '73737373737', '2313'    , 'Av. Das Alegrias', 'Casa 3'  , 'São Paulo', 'telefone', '73737373737'   , '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'  , 321, 654, 987, 1, 1);
 
--- Tabela de Lotes
-CREATE TABLE lotes (
+-- Tabela de empresas
+CREATE TABLE empresas (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    empresa_id VARCHAR(50) NOT NULL,
-    descricao TEXT NOT NULL,
-    quantidade INT NOT NULL,
-    valor DECIMAL(10, 2) NOT NULL,
-    data_inicio DATE NOT NULL,
-    data_prazo DATE NOT NULL,
-    ativo TINYINT DEFAULT 1
+    nome VARCHAR(255) NOT NULL,
+    cnpj VARCHAR(14) NOT NULL UNIQUE,
+    email VARCHAR(255),
+    telefone VARCHAR(20),
+    endereco TEXT,
+    cidade VARCHAR(100),
+    estado VARCHAR(2),
+    cep VARCHAR(8),
+    observacao TEXT,
+    ativo TINYINT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Inserção de lotes
-INSERT INTO lotes (empresa_id, descricao, quantidade, valor, data_inicio, data_prazo) VALUES 
-(1, 'Lote de roupas femininas', 1000, 1500.00, '2025-08-30', '2025-09-30'),
-(2, 'Lote de roupas masculinas', 2000, 2500.00, '2025-08-30', '2025-09-30');
+-- Índices para empresas
+CREATE INDEX idx_empresas_nome ON empresas(nome);
+CREATE INDEX idx_empresas_cnpj ON empresas(cnpj);
+CREATE INDEX idx_empresas_ativo ON empresas(ativo);
 
--- Tabela de serviços
-CREATE TABLE servicos (
+-- Inserir algumas empresas de exemplo
+INSERT INTO empresas (nome, cnpj, email, telefone, endereco, cidade, estado, cep) VALUES 
+('Moda Fashion Ltda', '12345678000195', 'contato@modafashion.com', '4733334444', 'Rua das Flores, 123', 'Blumenau', 'SC', '89010000'),
+('Confecções Estilo SA', '98765432000187', 'vendas@estiloconfec.com', '4732223333', 'Av. Brasil, 456', 'Gaspar', 'SC', '89110000'),
+('Têxtil Qualidade ME', '45678912000134', 'qualidade@textil.com', '4734445555', 'Rua Industrial, 789', 'Indaial', 'SC', '89080000');
+
+-- Tabela de Tipos de Peça (DEVE VIR ANTES DOS LOTES)
+CREATE TABLE tipos_peca (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    lote_id INT REFERENCES lotes(id),
-    descricao TEXT NOT NULL,
-    especialidade INT REFERENCES especialidade(id),
-    quantidade INT NOT NULL,
-    valor DECIMAL(10, 2) NOT NULL,
-    valor_pecas DECIMAL(10, 2) NOT NULL,
-    valor_falhas DECIMAL(10, 2) NOT NULL,
-    pecas_entregue INT DEFAULT 0,
-    falhas_entregue INT DEFAULT 0,
-    valor_total DECIMAL(10, 2) DEFAULT 0.00,
-    data_inicio DATE NOT NULL,
-    data_prazo DATE NOT NULL,
-    ativo TINYINT DEFAULT 1
+    nome VARCHAR(100) NOT NULL,
+    descricao TEXT,
+    ativo BOOLEAN DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Inserção de serviços
-INSERT INTO servicos (lote_id, descricao, especialidade, quantidade, valor, valor_pecas, valor_falhas, data_inicio, data_prazo) VALUES 
-(1, 'Serviço de costura overlock', 1, 300, 30.00, 0.10, 0.2, '2025-08-30', '2025-09-30'),
-(1, 'Serviço de costura reta', 2, 300, 33.00, 0.11, 0.22,'2025-08-30', '2025-09-30'),
-(1, 'Serviço de costura lateral', 3, 300, 30.00, 0.10, 0.2,'2025-08-30', '2025-09-30'),
-(1, 'Serviço de costura gola', 4, 300, 36.00, 0.12, 0.24,'2025-08-30', '2025-09-30');
+-- Tabela de Cores (DEVE VIR ANTES DOS LOTES)
+CREATE TABLE cores (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(50) NOT NULL,
+    codigo_hex VARCHAR(7),
+    ativo BOOLEAN DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- Tabela de operações
+-- Tabela de Tamanhos (DEVE VIR ANTES DOS LOTES)
+CREATE TABLE tamanhos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(10) NOT NULL,
+    ordem INT DEFAULT 0,
+    ativo BOOLEAN DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de operações (DEVE VIR ANTES DOS LOTES)
 CREATE TABLE operacoes (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(255) NOT NULL,
@@ -110,20 +123,142 @@ CREATE TABLE operacoes (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Tabela de lotes
+CREATE TABLE lotes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    empresa_id VARCHAR(50) NOT NULL,
+    colecao VARCHAR(100) NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    observacao TEXT,
+    data_entrada DATE NOT NULL,
+    data_entrega DATE,
+    valor_total DECIMAL(12, 2) DEFAULT 0.00,
+    status ENUM('Aberto', 'Entregue', 'Cancelado') DEFAULT 'Aberto',
+    anexos VARCHAR(500),
+    ativo TINYINT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Tabela de peças
 CREATE TABLE pecas (
     id INT PRIMARY KEY AUTO_INCREMENT,
     lote_id INT NOT NULL,
+    tipo_peca_id INT NOT NULL,
+    cor_id INT NOT NULL,
+    tamanho_id INT NOT NULL,
     operacao_id INT NOT NULL,
     quantidade INT NOT NULL,
     valor_unitario DECIMAL(10, 2) NOT NULL,
+    valor_total DECIMAL(10, 2) GENERATED ALWAYS AS (quantidade * valor_unitario) STORED,
     observacao TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (lote_id) REFERENCES lotes(id),
+    FOREIGN KEY (lote_id) REFERENCES lotes(id) ON DELETE CASCADE,
+    FOREIGN KEY (tipo_peca_id) REFERENCES tipos_peca(id),
+    FOREIGN KEY (cor_id) REFERENCES cores(id),
+    FOREIGN KEY (tamanho_id) REFERENCES tamanhos(id),
     FOREIGN KEY (operacao_id) REFERENCES operacoes(id)
 );
 
+-- Tabela de serviços
+CREATE TABLE servicos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    lote_id INT NOT NULL,
+    operacao_id INT NOT NULL,
+    quantidade_pecas INT NOT NULL,
+    valor_operacao DECIMAL(10,2) NOT NULL,
+    data_envio DATE NOT NULL,
+    data_finalizacao DATE NULL,
+    observacao TEXT,
+    status ENUM('Em andamento', 'Finalizado', 'Inativo') DEFAULT 'Em andamento',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (lote_id) REFERENCES lotes(id) ON DELETE RESTRICT,
+    FOREIGN KEY (operacao_id) REFERENCES operacoes(id) ON DELETE RESTRICT
+);
+
+-- Índices para melhor performance
+CREATE INDEX idx_servicos_lote_id ON servicos(lote_id);
+CREATE INDEX idx_servicos_operacao_id ON servicos(operacao_id);
+CREATE INDEX idx_servicos_status ON servicos(status);
+CREATE INDEX idx_servicos_data_envio ON servicos(data_envio);
+
+CREATE TABLE servico_costureiras (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    servico_id INT NOT NULL,
+    costureira_id INT NOT NULL,
+    data_inicio DATE NOT NULL,
+    data_entrega DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (servico_id) REFERENCES servicos(id) ON DELETE CASCADE,
+    FOREIGN KEY (costureira_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    
+    -- Garantir que uma costureira não seja vinculada duas vezes ao mesmo serviço
+    UNIQUE KEY unique_servico_costureira (servico_id, costureira_id)
+);
+
+-- Índices para melhor performance
+CREATE INDEX idx_servico_costureiras_servico_id ON servico_costureiras(servico_id);
+CREATE INDEX idx_servico_costureiras_costureira_id ON servico_costureiras(costureira_id);
+CREATE INDEX idx_servico_costureiras_datas ON servico_costureiras(data_inicio, data_entrega)
+
+-- Tabela de pagamentos
+CREATE TABLE pagamentos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    costureira_id INT NOT NULL,
+    periodo_referencia DATE NOT NULL,
+    valor_bruto DECIMAL(10, 2) NOT NULL,
+    valor_desconto DECIMAL(10, 2) DEFAULT 0.00,
+    valor_liquido DECIMAL(10, 2) GENERATED ALWAYS AS (valor_bruto - valor_desconto) STORED,
+    motivo_desconto TEXT,
+    data_pagamento DATE,
+    status ENUM('Pendente', 'Pago', 'Cancelado') DEFAULT 'Pendente',
+    comprovante VARCHAR(500),
+    observacao TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (costureira_id) REFERENCES usuarios(id)
+);
+
+-- Tabela de itens de pagamento (serviços incluídos no pagamento)
+CREATE TABLE pagamento_itens (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    pagamento_id INT NOT NULL,
+    servico_id INT NOT NULL,
+    valor_calculado DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (pagamento_id) REFERENCES pagamentos(id) ON DELETE CASCADE,
+    FOREIGN KEY (servico_id) REFERENCES servicos(id)
+);
+
+-- Tabela de mensagens 
+CREATE TABLE mensagens (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    remetente_id INT NOT NULL,
+    destinatario_id INT,
+    grupo_id INT, -- Para mensagens em grupo (futura implementação)
+    mensagem TEXT NOT NULL,
+    lida TINYINT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (remetente_id) REFERENCES usuarios(id),
+    FOREIGN KEY (destinatario_id) REFERENCES usuarios(id)
+);
+
+-- Tabela de logs do sistema
+CREATE TABLE logs_sistema (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT NOT NULL,
+    acao VARCHAR(100) NOT NULL,
+    entidade VARCHAR(50) NOT NULL,
+    entidade_id INT,
+    dados_anteriores JSON,
+    dados_novos JSON,
+    ip VARCHAR(45),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
 
 -- Tabela de Reset de Senha
 CREATE TABLE password_resets (
@@ -135,3 +270,144 @@ CREATE TABLE password_resets (
     FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     INDEX (token)
 );
+
+-- =============================================
+-- INSERÇÃO DE DADOS INICIAIS
+-- =============================================
+
+-- Inserir cores
+INSERT INTO cores (nome, codigo_hex) VALUES 
+('Branco', '#FFFFFF'),
+('Preto', '#000000'),
+('Azul', '#0000FF'),
+('Vermelho', '#FF0000'),
+('Verde', '#008000'),
+('Amarelo', '#FFFF00'),
+('Cinza', '#808080'),
+('Rosa', '#FFC0CB'),
+('Laranja', '#FFA500'),
+('Roxo', '#800080');
+
+-- Inserir tamanhos
+INSERT INTO tamanhos (nome, ordem) VALUES 
+('PP', 10),
+('P', 20),
+('M', 30),
+('G', 40),
+('GG', 50),
+('XG', 60),
+('XXG', 70);
+
+-- Inserir tipos de peça
+INSERT INTO tipos_peca (nome, descricao) VALUES 
+('Camiseta', 'Camiseta básica'),
+('Moletom', 'Moletom com capuz'),
+('Regata', 'Camiseta sem manga'),
+('Manga Comprida', 'Camiseta de manga longa'),
+('Calça', 'Calça de malha'),
+('Short', 'Short de malha'),
+('Body', 'Body infantil'),
+('Macacão', 'Macacão infantil');
+
+-- Inserir operações
+INSERT INTO operacoes (nome, valor) VALUES 
+('Costura Overlock', 0.50),
+('Costura Reta', 0.45),
+('Costura Lateral', 0.40),
+('Costura Gola', 0.60),
+('Arrematar Manga', 0.35),
+('Arrematar Bainha', 0.30),
+('Costurar Etiqueta', 0.25),
+('Pregar Botão', 0.20);
+
+-- Inserir lotes de exemplo
+INSERT INTO lotes (empresa_id, colecao, nome, observacao, data_entrada, data_entrega, valor_total, status) VALUES 
+('1', 'Coleção Verão 2025', 'Lote Feminino V25', 'Lote de roupas femininas para verão', '2025-08-30', '2025-09-30', 1500.00, 'Aberto'),
+('2', 'Coleção Inverno 2025', 'Lote Masculino I25', 'Lote de roupas masculinas para inverno', '2025-08-30', '2025-10-15', 2500.00, 'Aberto'),
+('1', 'Coleção Primavera 2025', 'Lote Infantil P25', 'Lote de roupas infantis para primavera', '2025-09-01', NULL, 0.00, 'Aberto');
+
+INSERT INTO servicos (lote_id, operacao_id, quantidade_pecas, valor_operacao, data_envio, observacao, status) VALUES
+(1, 1, 100, 2.50, '2024-01-15', 'Serviço de costura de mangas', 'Em andamento'),
+(2, 2, 150, 1.80, '2024-01-10', 'Arremate de bainhas', 'Finalizado'),
+(3, 3, 80, 3.20, '2024-01-20', 'Costura de golas', 'Em andamento');
+
+-- Vincular costureiras aos serviços
+INSERT INTO servico_costureiras (servico_id, costureira_id, data_inicio, data_entrega) VALUES
+(1, 1, '2024-01-16', '2024-01-25'),
+(1, 2, '2024-01-16', '2024-01-23'),
+(2, 3, '2024-01-11', '2024-01-18'),
+(3, 1, '2024-01-21', '2024-01-30');
+
+-- =============================================
+-- ÍNDICES PARA MELHOR PERFORMANCE
+-- =============================================
+
+-- Índices para lotes
+CREATE INDEX idx_lotes_status ON lotes(status);
+CREATE INDEX idx_lotes_empresa ON lotes(empresa_id);
+CREATE INDEX idx_lotes_data_entrada ON lotes(data_entrada);
+
+-- Índices para peças
+CREATE INDEX idx_pecas_lote_id ON pecas(lote_id);
+CREATE INDEX idx_pecas_tipo ON pecas(tipo_peca_id);
+CREATE INDEX idx_pecas_cor ON pecas(cor_id);
+CREATE INDEX idx_pecas_tamanho ON pecas(tamanho_id);
+
+-- Índices para serviços
+CREATE INDEX idx_servicos_lote_id ON servicos(lote_id);
+CREATE INDEX idx_servicos_costureira_id ON servicos(costureira_id);
+CREATE INDEX idx_servicos_status ON servicos(status);
+CREATE INDEX idx_servicos_data_inicio ON servicos(data_inicio);
+
+-- Índices para pagamentos
+CREATE INDEX idx_pagamentos_costureira_id ON pagamentos(costureira_id);
+CREATE INDEX idx_pagamentos_periodo ON pagamentos(periodo_referencia);
+CREATE INDEX idx_pagamentos_status ON pagamentos(status);
+
+-- Índices para mensagens
+CREATE INDEX idx_mensagens_remetente ON mensagens(remetente_id);
+CREATE INDEX idx_mensagens_destinatario ON mensagens(destinatario_id);
+CREATE INDEX idx_mensagens_created_at ON mensagens(created_at);
+
+-- Índices para logs
+CREATE INDEX idx_logs_usuario ON logs_sistema(usuario_id);
+CREATE INDEX idx_logs_entidade ON logs_sistema(entidade, entidade_id);
+CREATE INDEX idx_logs_created_at ON logs_sistema(created_at);
+
+-- =============================================
+-- VIEWS ÚTEIS PARA RELATÓRIOS
+-- =============================================
+
+-- View para relatório de produção por costureira
+CREATE VIEW view_producao_costureira AS
+SELECT 
+    u.nome as costureira,
+    s.descricao,
+    l.nome as lote,
+    o.nome as operacao,
+    s.quantidade,
+    s.quantidade_entregue,
+    s.valor_unitario,
+    s.valor_total,
+    s.data_inicio,
+    s.data_fim,
+    s.status
+FROM servicos s
+JOIN usuarios u ON s.costureira_id = u.id
+JOIN lotes l ON s.lote_id = l.id
+JOIN operacoes o ON s.operacao_id = o.id
+WHERE s.ativo = 1;
+
+-- View para relatório de lucro mensal
+CREATE VIEW view_lucro_mensal AS
+SELECT 
+    DATE_FORMAT(l.data_entrega, '%Y-%m') as mes,
+    SUM(l.valor_total) as receita_lotes,
+    COALESCE(SUM(p.valor_liquido), 0) as despesa_pagamentos,
+    COALESCE(SUM(c.valor_total), 0) as despesa_compras,
+    (SUM(l.valor_total) - COALESCE(SUM(p.valor_liquido), 0) - COALESCE(SUM(c.valor_total), 0)) as lucro
+FROM lotes l
+LEFT JOIN pagamentos p ON DATE_FORMAT(p.periodo_referencia, '%Y-%m') = DATE_FORMAT(l.data_entrega, '%Y-%m') AND p.status = 'Pago'
+LEFT JOIN compras c ON DATE_FORMAT(c.data_compra, '%Y-%m') = DATE_FORMAT(l.data_entrega, '%Y-%m') AND c.ativo = 1
+WHERE l.status = 'Entregue'
+GROUP BY DATE_FORMAT(l.data_entrega, '%Y-%m');

@@ -181,6 +181,99 @@ class UserModel
     }
 }
 
+/**
+ * Obter costureiras ativas
+ */
+public function getCostureirasAtivas()
+{
+    try {
+        $sql = "SELECT u.*, e.nome as especialidade_nome
+                FROM usuarios u 
+                LEFT JOIN especialidades e ON u.especialidade_id = e.id 
+                WHERE u.status = 'ativo' 
+                AND u.especialidade_id IS NOT NULL
+                ORDER BY u.nome";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Erro ao buscar costureiras ativas: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Buscar costureiras por termo
+ */
+public function buscarCostureiras($termo)
+{
+    try {
+        $sql = "SELECT u.*, e.nome as especialidade_nome
+                FROM usuarios u
+                LEFT JOIN especialidades e ON u.especialidade_id = e.id
+                WHERE (u.nome LIKE ? OR e.nome LIKE ?)
+                AND u.status = 'ativo'
+                AND u.especialidade_id IS NOT NULL
+                ORDER BY u.nome";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $termoLike = "%$termo%";
+        $stmt->execute([$termoLike, $termoLike]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Erro na busca de costureiras: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Verificar se usuário é costureira
+ */
+public function isCostureira($usuarioId)
+{
+    try {
+        $sql = "SELECT COUNT(*) as total 
+                FROM usuarios 
+                WHERE id = ? 
+                AND especialidade_id IS NOT NULL
+                AND status = 'ativo'";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$usuarioId]);
+        
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['total'] > 0;
+    } catch (PDOException $e) {
+        error_log("Erro ao verificar se é costureira: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Obter costureira por ID
+ */
+public function getCostureiraPorId($id)
+{
+    try {
+        $sql = "SELECT u.*, e.nome as especialidade_nome
+                FROM usuarios u
+                LEFT JOIN especialidades e ON u.especialidade_id = e.id
+                WHERE u.id = ? 
+                AND u.especialidade_id IS NOT NULL";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id]);
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Erro ao buscar costureira por ID: " . $e->getMessage());
+        return null;
+    }
+}
+
     public function getUserPeloEmail($email)
     {
         $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE email = ?");

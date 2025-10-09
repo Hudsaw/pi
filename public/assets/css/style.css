@@ -16,6 +16,11 @@
     --vermelho: #ED4A4A;
     --vermelho-escuro: #AB4040;
     --cinza: #DEE3E9;
+    --verde: #28a745;
+    
+
+
+
 }
 
 body {
@@ -388,6 +393,12 @@ tr:hover {
     background: var(--vermelho-escuro);
 }
 
+.status-ativo { 
+    color: --verde; font-weight: bold;
+}
+.status-inativo {
+    color: --vermelho; font-weight: bold; 
+}
 .escondido {
     display: none;
 }
