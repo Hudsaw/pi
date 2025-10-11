@@ -2,14 +2,12 @@
 <?php require VIEWS_PATH . 'shared/sidebar-admin.php'; ?>
     <div class="conteudo-tabela">
         <div class="filtro flex s-gap">
-            <div class="filtro flex s-gap v-center">
-                <input type="text" id="filtro" placeholder="Digite sua busca (nome, coleção ou empresa)" onkeyup="filtrarLotes()">
-                <span class="flex v-center">
-                    <input type="checkbox" id="inativos" onchange="filtrarLotesInativos(this)">
-                    <label for="inativos">Mostrar Inativos</label>
-                </span>
-                <a href="<?= BASE_URL ?>admin/criar-lote" class="botao-azul">Criar Lote</a>
-            </div>
+            <input type="text" id="filtro" placeholder="Digite sua busca (nome, coleção ou empresa)" onkeyup="filtrarLotes()">
+            <span class="flex v-center">
+                <input type="checkbox" id="inativos" onchange="filtrarLotesInativos(this)">
+                <label class="flex v-center" for="inativos">Mostrar Inativos</label>
+            </span>
+            <a href="<?= BASE_URL ?>admin/criar-lote" class="botao-azul">Criar Lote</a>
         </div>
         <div class="tabela">
             <table cellspacing='0' class="redondinho shadow" id="tabelaLotes">

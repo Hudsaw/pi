@@ -5,7 +5,7 @@
             <input type="text" id="filtro" placeholder="Digite sua busca (nome ou especialidade)" onkeyup="filtrarUsuarios()">
             <span class="flex v-center">
                 <input type="checkbox" id="inativos" onchange="filtrarUsuariosInativos(this)">
-                <label for="inativos">Mostrar Inativos</label>
+                <label class="flex v-center" for="inativos">Mostrar Inativos</label>
             </span>
             <a href="<?= BASE_URL ?>admin/criar-usuario" class="botao-azul">Criar usuario</a>
         </div>

@@ -2,16 +2,13 @@
 <?php require VIEWS_PATH . 'shared/sidebar-admin.php'; ?>
     <div class="conteudo-tabela">
         <div class="filtro flex s-gap">
-            <h2>Operações</h2>
-            <a href="<?= BASE_URL ?>admin/criar-operacao" class="botao-azul">Criar Operação</a>
-        </div>
-        
-        <!-- Filtros -->
-        <div class="filtro flex s-gap v-center">
-            <a href="?filtro=ativos" class="<?= ($filtro === 'ativos') ? 'botao-azul' : 'botao-cinza' ?>">Ativas</a>
-            <a href="?filtro=inativos" class="<?= ($filtro === 'inativos') ? 'botao-azul' : 'botao-cinza' ?>">Inativas</a>
-            <a href="?filtro=todos" class="<?= ($filtro === 'todos') ? 'botao-azul' : 'botao-cinza' ?>">Todas</a>
-        </div>
+            <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarOperacoes()">
+            <span class="flex v-center">
+                <input type="checkbox" id="inativos" onchange="filtrarOperacoesInativos(this)">
+                <label class="flex v-center" for="inativos">Mostrar Inativos</label>
+            </span>
+            <a href="<?= BASE_URL ?>admin/criar-operacao" class="botao-azul">Criar operação</a>
+        </div>  
         
         <div class="tabela">
             <table cellspacing='0' class="redondinho shadow">
