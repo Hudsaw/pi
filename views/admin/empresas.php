@@ -56,7 +56,7 @@
                                     </span>
                                 </td>
                                 <td class="ac">
-                                    <a href="<?= BASE_URL ?>admin/mostrar-empresa?id=<?= $empresa['id'] ?>" title="Visualizar">
+                                    <a href="<?= BASE_URL ?>admin/visualizar-empresa?id=<?= $empresa['id'] ?>" title="Visualizar">
                                         <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
                                     </a>
                                     <a href="<?= BASE_URL ?>admin/editar-empresa?id=<?= $empresa['id'] ?>" title="Editar">

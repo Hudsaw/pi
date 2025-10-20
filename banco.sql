@@ -54,9 +54,9 @@ CREATE TABLE usuarios (
  );
 
 INSERT INTO usuarios (tipo, nome, cpf, email, telefone, cep, logradouro, complemento, cidade, tipo_chave_pix, chave_pix, senha, banco, agencia, conta, especialidade_id, ativo) VALUES
-('admin'     , 'Administrador' , '12345678901', 'admin@pi.com'  , '11987654321', '12345678', 'Rua Botuverá'    , 'Apto 101', 'Gaspar'   , 'cpf'     , '12345678901'   , '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'  , 123, 456, 789, 3, 1),
-('costureira', 'Maria da Silva', '98765432100', 'costura@pi.com', '11912345678', '87654321', 'Rua São Paulo'   , 'Casa 2'  , 'Blumenau' , 'email'   , 'costura@pi.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 321, 654, 987, 2, 1),
-('costureira', 'Janaina'       , '87439287245', 'catu@piri.com' , '73737373737', '2313'    , 'Av. Das Alegrias', 'Casa 3'  , 'São Paulo', 'telefone', '73737373737'   , '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'  , 321, 654, 987, 1, 1);
+('admin'     , 'Administrador' , '12345678901', 'admin@pi.com'  , '11987654321', '12345678', 'Rua Botuverá'    , 'Apto 101', 'Gaspar'   , 'cpf'     , '12345678901'   , '123'  , 123, 456, 789, 3, 1),
+('costureira', 'Maria da Silva', '98765432100', 'costura@pi.com', '11912345678', '87654321', 'Rua São Paulo'   , 'Casa 2'  , 'Blumenau' , 'email'   , 'costura@pi.com', '123', 321, 654, 987, 2, 1),
+('costureira', 'Janaina'       , '87439287245', 'catu@piri.com' , '73737373737', '2313'    , 'Av. Das Alegrias', 'Casa 3'  , 'São Paulo', 'telefone', '73737373737'   , '123'  , 321, 654, 987, 1, 1);
 
 -- Tabela de empresas
 CREATE TABLE empresas (
@@ -75,11 +75,6 @@ CREATE TABLE empresas (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Índices para empresas
-CREATE INDEX idx_empresas_nome ON empresas(nome);
-CREATE INDEX idx_empresas_cnpj ON empresas(cnpj);
-CREATE INDEX idx_empresas_ativo ON empresas(ativo);
-
 -- Inserir algumas empresas de exemplo
 INSERT INTO empresas (nome, cnpj, email, telefone, endereco, cidade, estado, cep) VALUES 
 ('Moda Fashion Ltda', '12345678000195', 'contato@modafashion.com', '4733334444', 'Rua das Flores, 123', 'Blumenau', 'SC', '89010000'),
@@ -95,7 +90,7 @@ CREATE TABLE tipos_peca (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela de Cores (DEVE VIR ANTES DOS LOTES)
+-- Tabela de Cores 
 CREATE TABLE cores (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(50) NOT NULL,
@@ -104,7 +99,7 @@ CREATE TABLE cores (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela de Tamanhos (DEVE VIR ANTES DOS LOTES)
+-- Tabela de Tamanhos 
 CREATE TABLE tamanhos (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(10) NOT NULL,
@@ -113,7 +108,7 @@ CREATE TABLE tamanhos (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela de operações (DEVE VIR ANTES DOS LOTES)
+-- Tabela de operações
 CREATE TABLE operacoes (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(255) NOT NULL,
@@ -179,12 +174,6 @@ CREATE TABLE servicos (
     FOREIGN KEY (operacao_id) REFERENCES operacoes(id) ON DELETE RESTRICT
 );
 
--- Índices para melhor performance
-CREATE INDEX idx_servicos_lote_id ON servicos(lote_id);
-CREATE INDEX idx_servicos_operacao_id ON servicos(operacao_id);
-CREATE INDEX idx_servicos_status ON servicos(status);
-CREATE INDEX idx_servicos_data_envio ON servicos(data_envio);
-
 CREATE TABLE servico_costureiras (
     id INT PRIMARY KEY AUTO_INCREMENT,
     servico_id INT NOT NULL,
@@ -199,11 +188,6 @@ CREATE TABLE servico_costureiras (
     -- Garantir que uma costureira não seja vinculada duas vezes ao mesmo serviço
     UNIQUE KEY unique_servico_costureira (servico_id, costureira_id)
 );
-
--- Índices para melhor performance
-CREATE INDEX idx_servico_costureiras_servico_id ON servico_costureiras(servico_id);
-CREATE INDEX idx_servico_costureiras_costureira_id ON servico_costureiras(costureira_id);
-CREATE INDEX idx_servico_costureiras_datas ON servico_costureiras(data_inicio, data_entrega)
 
 -- Tabela de pagamentos
 CREATE TABLE pagamentos (
@@ -223,7 +207,7 @@ CREATE TABLE pagamentos (
     FOREIGN KEY (costureira_id) REFERENCES usuarios(id)
 );
 
--- Tabela de itens de pagamento (serviços incluídos no pagamento)
+-- Tabela de itens de pagamento 
 CREATE TABLE pagamento_itens (
     id INT PRIMARY KEY AUTO_INCREMENT,
     pagamento_id INT NOT NULL,
@@ -238,7 +222,6 @@ CREATE TABLE mensagens (
     id INT PRIMARY KEY AUTO_INCREMENT,
     remetente_id INT NOT NULL,
     destinatario_id INT,
-    grupo_id INT, -- Para mensagens em grupo (futura implementação)
     mensagem TEXT NOT NULL,
     lida TINYINT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -342,6 +325,11 @@ INSERT INTO servico_costureiras (servico_id, costureira_id, data_inicio, data_en
 -- ÍNDICES PARA MELHOR PERFORMANCE
 -- =============================================
 
+-- Índices para empresas
+CREATE INDEX idx_empresas_nome ON empresas(nome);
+CREATE INDEX idx_empresas_cnpj ON empresas(cnpj);
+CREATE INDEX idx_empresas_ativo ON empresas(ativo);
+
 -- Índices para lotes
 CREATE INDEX idx_lotes_status ON lotes(status);
 CREATE INDEX idx_lotes_empresa ON lotes(empresa_id);
@@ -358,6 +346,12 @@ CREATE INDEX idx_servicos_lote_id ON servicos(lote_id);
 CREATE INDEX idx_servicos_costureira_id ON servicos(costureira_id);
 CREATE INDEX idx_servicos_status ON servicos(status);
 CREATE INDEX idx_servicos_data_inicio ON servicos(data_inicio);
+CREATE INDEX idx_servicos_operacao_id ON servicos(operacao_id);
+
+-- Índices para serviço_costureira
+CREATE INDEX idx_servico_costureiras_servico_id ON servico_costureiras(servico_id);
+CREATE INDEX idx_servico_costureiras_costureira_id ON servico_costureiras(costureira_id);
+CREATE INDEX idx_servico_costureiras_datas ON servico_costureiras(data_inicio, data_entrega);
 
 -- Índices para pagamentos
 CREATE INDEX idx_pagamentos_costureira_id ON pagamentos(costureira_id);
@@ -373,41 +367,3 @@ CREATE INDEX idx_mensagens_created_at ON mensagens(created_at);
 CREATE INDEX idx_logs_usuario ON logs_sistema(usuario_id);
 CREATE INDEX idx_logs_entidade ON logs_sistema(entidade, entidade_id);
 CREATE INDEX idx_logs_created_at ON logs_sistema(created_at);
-
--- =============================================
--- VIEWS ÚTEIS PARA RELATÓRIOS
--- =============================================
-
--- View para relatório de produção por costureira
-CREATE VIEW view_producao_costureira AS
-SELECT 
-    u.nome as costureira,
-    s.descricao,
-    l.nome as lote,
-    o.nome as operacao,
-    s.quantidade,
-    s.quantidade_entregue,
-    s.valor_unitario,
-    s.valor_total,
-    s.data_inicio,
-    s.data_fim,
-    s.status
-FROM servicos s
-JOIN usuarios u ON s.costureira_id = u.id
-JOIN lotes l ON s.lote_id = l.id
-JOIN operacoes o ON s.operacao_id = o.id
-WHERE s.ativo = 1;
-
--- View para relatório de lucro mensal
-CREATE VIEW view_lucro_mensal AS
-SELECT 
-    DATE_FORMAT(l.data_entrega, '%Y-%m') as mes,
-    SUM(l.valor_total) as receita_lotes,
-    COALESCE(SUM(p.valor_liquido), 0) as despesa_pagamentos,
-    COALESCE(SUM(c.valor_total), 0) as despesa_compras,
-    (SUM(l.valor_total) - COALESCE(SUM(p.valor_liquido), 0) - COALESCE(SUM(c.valor_total), 0)) as lucro
-FROM lotes l
-LEFT JOIN pagamentos p ON DATE_FORMAT(p.periodo_referencia, '%Y-%m') = DATE_FORMAT(l.data_entrega, '%Y-%m') AND p.status = 'Pago'
-LEFT JOIN compras c ON DATE_FORMAT(c.data_compra, '%Y-%m') = DATE_FORMAT(l.data_entrega, '%Y-%m') AND c.ativo = 1
-WHERE l.status = 'Entregue'
-GROUP BY DATE_FORMAT(l.data_entrega, '%Y-%m');

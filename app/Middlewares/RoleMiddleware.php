@@ -15,9 +15,9 @@ class RoleMiddleware
         return new self('admin');
     }
 
-    public static function costura()
+    public static function costureira()
     {
-        return new self('costura');
+        return new self('costureira');
     }
 
     public function handle()

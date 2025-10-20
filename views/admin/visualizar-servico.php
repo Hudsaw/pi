@@ -15,7 +15,7 @@
                 </div>
                 <div class="info-item">
                     <span class="info-label">Operação:</span>
-                    <span class="info-value"><?= htmlspecialchars($servico['operacao_nome']) ?></span>
+                    <span class="info-value"><?= htmlspecialchars($servico['operacao_nome']) ?> (R$ <?= number_format($servico['valor_base_operacao'], 2, ',', '.') ?>)</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Quantidade de Peças:</span>
@@ -65,15 +65,25 @@
                             <th class="ae">Especialidade</th>
                             <th class="ae">Data Início</th>
                             <th class="ae">Data Entrega</th>
+                            <th class="ac">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($servico['costureiras'] as $costureira): ?>
                             <tr>
                                 <td class="ae"><?= htmlspecialchars($costureira['nome']) ?></td>
-                                <td class="ae"><?= htmlspecialchars($costureira['especialidade']) ?></td>
+                                <td class="ae"><?= htmlspecialchars($costureira['especialidade'] ?? 'Não informada') ?></td>
                                 <td class="ae"><?= date('d/m/Y', strtotime($costureira['data_inicio'])) ?></td>
                                 <td class="ae"><?= date('d/m/Y', strtotime($costureira['data_entrega'])) ?></td>
+                                <td class="ac">
+                                    <?php if ($servico['status'] === 'Em andamento'): ?>
+                                    <a href="<?= BASE_URL ?>admin/desvincular-costureira?servico_id=<?= $servico['id'] ?>&costureira_id=<?= $costureira['id'] ?>" 
+                                       onclick="return confirm('Tem certeza que deseja desvincular esta costureira?')"
+                                       class="btn-remover" title="Desvincular">
+                                        <img class="icone" src="<?= ASSETS_URL ?>icones/remover.svg" alt="desvincular">
+                                    </a>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

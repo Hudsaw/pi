@@ -53,7 +53,7 @@
         <br>
         <hr>
         <div class="flex h-center l-gap">
-            <a href="<?= BASE_URL ?>admin/mostrar-empresa?id=<?= $empresa['id'] ?>" class="botao">Cancelar</a>
+            <a href="<?= BASE_URL ?>admin/visualizar-empresa?id=<?= $empresa['id'] ?>" class="botao">Cancelar</a>
             <input type="submit" class="botao" value="Atualizar Empresa">
         </div>
     </form>

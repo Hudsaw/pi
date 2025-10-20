@@ -50,8 +50,7 @@
                                 <td class="ae"><?= htmlspecialchars($servico['id']) ?></td>
                                 <td class="ae"><?= htmlspecialchars($servico['lote_nome']) ?></td>
                                 <td class="ae"><?= htmlspecialchars($servico['operacao_nome']) ?></td>
-                                <td class="ae"><?= htmlspecialchars($servico['costureira_nome'] ?? 'Não vinculada') ?></td>
-                                <td class="ae"><?= htmlspecialchars($servico['quantidade_pecas']) ?></td>
+<td class="ae"><?= htmlspecialchars($servico['costureiras_vinculadas'] ?? 'Não vinculada') ?></td>                                <td class="ae"><?= htmlspecialchars($servico['quantidade_pecas']) ?></td>
                                 <td class="ae">R$ <?= number_format($servico['valor_operacao'], 2, ',', '.') ?></td>
                                 <td class="ae"><?= date('d/m/Y', strtotime($servico['data_envio'])) ?></td>
                                 <td class="ae">

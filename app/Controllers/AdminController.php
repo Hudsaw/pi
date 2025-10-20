@@ -256,7 +256,6 @@ public function criarEmpresa()
     $data = $this->validarEmpresa($_POST);
 
     if (isset($data['errors'])) {
-        error_log("Erros de validação: " . print_r($data['errors'], true));
         $_SESSION['empresa_erros'] = $data['errors'];
         $_SESSION['empresa_data'] = $_POST;
         $this->redirect('admin/criar-empresa');
@@ -267,7 +266,6 @@ public function criarEmpresa()
         $_SESSION['success_message'] = 'Empresa criada com sucesso!';
         $this->redirect('admin/empresas');
     } catch (Exception $e) {
-        error_log("Erro ao criar empresa: " . $e->getMessage());
         $_SESSION['empresa_erros'] = ['Falha ao criar empresa: ' . $e->getMessage()];
         $this->redirect('admin/criar-empresa');
     }
@@ -281,7 +279,7 @@ public function mostrarEmpresa()
     
     $empresa = $this->empresaModel->getEmpresaPorId($id);
 
-    $this->render('admin/mostrar-empresa', [
+    $this->render('admin/visualizar-empresa', [
         'title'         => 'PontoCerto - Visualizar Empresa',
         'user'          => $user,
         'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
@@ -332,13 +330,12 @@ public function atualizarEmpresa()
         
         if ($success) {
             $_SESSION['success_message'] = 'Empresa atualizada com sucesso!';
-            $this->redirect('admin/mostrar-empresa?id=' . $empresaId);
+            $this->redirect('admin/visualizar-empresa?id=' . $empresaId);
         } else {
             $_SESSION['error_message'] = 'Erro ao atualizar a empresa';
             $this->redirect('admin/editar-empresa?id=' . $empresaId);
         }
     } catch (Exception $e) {
-        error_log("Erro ao atualizar empresa: " . $e->getMessage());
         $_SESSION['error_message'] = 'Erro ao atualizar a empresa: ' . $e->getMessage();
         $this->redirect('admin/editar-empresa?id=' . $empresaId);
     }
@@ -363,7 +360,6 @@ public function removerEmpresa()
             $_SESSION['error_message'] = 'Erro ao remover a empresa';
         }
     } catch (Exception $e) {
-        error_log("Erro ao remover empresa: " . $e->getMessage());
         $_SESSION['error_message'] = 'Erro ao remover a empresa: ' . $e->getMessage();
     }
 
@@ -389,7 +385,6 @@ public function reativarEmpresa()
             $_SESSION['error_message'] = 'Erro ao reativar a empresa';
         }
     } catch (Exception $e) {
-        error_log("Erro ao reativar empresa: " . $e->getMessage());
         $_SESSION['error_message'] = 'Erro ao reativar a empresa: ' . $e->getMessage();
     }
 
@@ -544,7 +539,6 @@ public function criarLote()
     $data = $this->validarLoteComPecas($_POST);
 
     if (isset($data['errors'])) {
-        error_log("Erros de validação: " . print_r($data['errors'], true));
         $_SESSION['lote_erros'] = $data['errors'];
         $_SESSION['lote_data'] = $_POST;
         $this->redirect('admin/criar-lote');
@@ -555,7 +549,6 @@ public function criarLote()
         $_SESSION['success_message'] = 'Lote criado com sucesso!';
         $this->redirect('admin/visualizar-lote?id=' . $loteId);
     } catch (Exception $e) {
-        error_log("Erro ao criar lote: " . $e->getMessage());
         $_SESSION['lote_erros'] = ['Falha ao criar lote: ' . $e->getMessage()];
         $this->redirect('admin/criar-lote');
     }
@@ -721,7 +714,6 @@ public function visualizarLote()
         $data = $this->validarOperacao($_POST);
 
         if (isset($data['errors'])) {
-            error_log("Erros de validação: " . print_r($data['errors'], true));
             $_SESSION['operacao_erros'] = $data['errors'];
             $_SESSION['operacao_data'] = $_POST;
             $this->redirect('admin/criar-operacao');
@@ -732,7 +724,6 @@ public function visualizarLote()
             $_SESSION['success_message'] = 'Operação criada com sucesso!';
             $this->redirect('admin/operacoes');
         } catch (Exception $e) {
-            error_log("Erro ao criar operação: " . $e->getMessage());
             $_SESSION['operacao_erros'] = ['Falha ao criar operação: ' . $e->getMessage()];
             $this->redirect('admin/criar-operacao');
         }
@@ -786,7 +777,6 @@ public function atualizarOperacao()
             $this->redirect('admin/editar-operacao?id=' . $operacaoId);
         }
     } catch (Exception $e) {
-        error_log("Erro ao atualizar operação: " . $e->getMessage());
         $_SESSION['error_message'] = 'Erro ao atualizar a operação: ' . $e->getMessage();
         $this->redirect('admin/editar-operacao?id=' . $operacaoId);
     }
@@ -825,7 +815,6 @@ public function adicionarPecaLote()
         $data = $this->validarPeca($_POST);
 
         if (isset($data['errors'])) {
-            error_log("Erros de validação: " . print_r($data['errors'], true));
             $_SESSION['peca_erros'] = $data['errors'];
             $_SESSION['peca_data'] = $_POST;
             $this->redirect('admin/adicionar-peca?lote_id=' . $data['lote_id']);
@@ -836,7 +825,6 @@ public function adicionarPecaLote()
             $_SESSION['success_message'] = 'Peça adicionada com sucesso!';
             $this->redirect('admin/visualizar-lote?id=' . $data['lote_id']);
         } catch (Exception $e) {
-            error_log("Erro ao criar peça: " . $e->getMessage());
             $_SESSION['peca_erros'] = ['Falha ao adicionar peça: ' . $e->getMessage()];
             $this->redirect('admin/adicionar-peca?lote_id=' . $data['lote_id']);
         }
@@ -861,7 +849,6 @@ public function adicionarPecaLote()
                 $_SESSION['error_message'] = 'Erro ao remover o lote';
             }
         } catch (Exception $e) {
-            error_log("Erro ao remover lote: " . $e->getMessage());
             $_SESSION['error_message'] = 'Erro ao remover o lote: ' . $e->getMessage();
         }
 
@@ -887,7 +874,6 @@ public function adicionarPecaLote()
                 $_SESSION['error_message'] = 'Erro ao remover a operação';
             }
         } catch (Exception $e) {
-            error_log("Erro ao remover operação: " . $e->getMessage());
             $_SESSION['error_message'] = 'Erro ao remover a operação: ' . $e->getMessage();
         }
 
@@ -913,7 +899,6 @@ public function adicionarPecaLote()
                 $_SESSION['error_message'] = 'Erro ao reativar a operação';
             }
         } catch (Exception $e) {
-            error_log("Erro ao reativar operação: " . $e->getMessage());
             $_SESSION['error_message'] = 'Erro ao reativar a operação: ' . $e->getMessage();
         }
 
@@ -940,7 +925,6 @@ public function adicionarPecaLote()
                 $_SESSION['error_message'] = 'Erro ao remover a peça';
             }
         } catch (Exception $e) {
-            error_log("Erro ao remover peça: " . $e->getMessage());
             $_SESSION['error_message'] = 'Erro ao remover a peça: ' . $e->getMessage();
         }
 
@@ -1238,7 +1222,6 @@ public function criarServico()
     $data = $this->validarServico($_POST);
 
     if (isset($data['errors'])) {
-        error_log("Erros de validação: " . print_r($data['errors'], true));
         $_SESSION['servico_erros'] = $data['errors'];
         $_SESSION['servico_data'] = $_POST;
         $this->redirect('admin/criar-servico');
@@ -1249,7 +1232,6 @@ public function criarServico()
         $_SESSION['success_message'] = 'Serviço criado com sucesso!';
         $this->redirect('admin/visualizar-servico?id=' . $servicoId);
     } catch (Exception $e) {
-        error_log("Erro ao criar serviço: " . $e->getMessage());
         $_SESSION['servico_erros'] = ['Falha ao criar serviço: ' . $e->getMessage()];
         $this->redirect('admin/criar-servico');
     }
@@ -1269,13 +1251,97 @@ public function visualizarServico()
         $this->redirect('admin/servicos');
     }
 
+    $costureiras = $this->servicoModel->getCostureirasAtivas();
+
     $this->render('admin/visualizar-servico', [
         'title'         => 'PontoCerto - Visualizar Serviço',
         'user'          => $user,
         'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
         'usuarioLogado' => $this->estaLogado(),
-        'servico'       => $servico
+        'servico'       => $servico,
+        'costureiras'   => $costureiras // ADICIONAR ESTA LINHA
     ]);
+}
+
+// Mostrar editar serviço
+public function mostrarEditarServico()
+{
+    error_log("Exibindo tela de edição de serviço");
+    $user = $this->getUsuario();
+    $id = $_GET['id'];
+
+    $servico = $this->servicoModel->getServicoPorId($id);
+    $lotes = $this->servicoModel->getLotesAtivos();
+    $operacoes = $this->operacaoModel->getOperacoesAtivas();
+
+    $this->render('admin/editar-servico', [
+        'title'         => 'PontoCerto - Editar Serviço',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'servico'       => $servico,
+        'lotes'         => $lotes,
+        'operacoes'     => $operacoes,
+        'errors'        => $_SESSION['servico_erros'] ?? [],
+        'old'           => $_SESSION['servico_data'] ?? []
+    ]);
+    
+    unset($_SESSION['servico_erros'], $_SESSION['servico_data']);
+}
+
+// Atualizar serviço
+public function atualizarServico()
+{
+    error_log("Tentativa de atualização de serviço");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/servicos');
+    }
+
+    $servicoId = $_POST['id'];
+    $data = $this->validarServico($_POST);
+
+    if (isset($data['errors'])) {
+        $_SESSION['servico_erros'] = $data['errors'];
+        $_SESSION['servico_data'] = $_POST;
+        $this->redirect('admin/editar-servico?id=' . $servicoId);
+    }
+
+    try {
+        $success = $this->servicoModel->atualizarServico($servicoId, $data);
+        
+        if ($success) {
+            $_SESSION['success_message'] = 'Serviço atualizado com sucesso!';
+            $this->redirect('admin/visualizar-servico?id=' . $servicoId);
+        } else {
+            $_SESSION['error_message'] = 'Erro ao atualizar o serviço';
+            $this->redirect('admin/editar-servico?id=' . $servicoId);
+        }
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Erro ao atualizar o serviço: ' . $e->getMessage();
+        $this->redirect('admin/editar-servico?id=' . $servicoId);
+    }
+}
+
+// Desvincular costureira
+public function desvincularCostureira()
+{
+    error_log("Desvinculando costureira do serviço");
+    $servicoId = $_GET['servico_id'];
+    $costureiraId = $_GET['costureira_id'];
+
+    try {
+        $success = $this->servicoModel->desvincularCostureira($servicoId, $costureiraId);
+        
+        if ($success) {
+            $_SESSION['success_message'] = 'Costureira desvinculada com sucesso!';
+        } else {
+            $_SESSION['error_message'] = 'Erro ao desvincular costureira';
+        }
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Erro ao desvincular costureira: ' . $e->getMessage();
+    }
+
+    $this->redirect('admin/visualizar-servico?id=' . $servicoId);
 }
 
 // Vincular costureira a serviço
@@ -1307,7 +1373,6 @@ public function vincularCostureira()
             $_SESSION['error_message'] = 'Erro ao vincular costureira';
         }
     } catch (Exception $e) {
-        error_log("Erro ao vincular costureira: " . $e->getMessage());
         $_SESSION['error_message'] = 'Erro ao vincular costureira: ' . $e->getMessage();
     }
 
@@ -1330,7 +1395,6 @@ public function finalizarServico()
             $_SESSION['error_message'] = 'Erro ao finalizar serviço';
         }
     } catch (Exception $e) {
-        error_log("Erro ao finalizar serviço: " . $e->getMessage());
         $_SESSION['error_message'] = 'Erro ao finalizar serviço: ' . $e->getMessage();
     }
 
@@ -1357,7 +1421,6 @@ public function removerServico()
             $_SESSION['error_message'] = 'Erro ao remover o serviço';
         }
     } catch (Exception $e) {
-        error_log("Erro ao remover serviço: " . $e->getMessage());
         $_SESSION['error_message'] = 'Erro ao remover o serviço: ' . $e->getMessage();
     }
 
