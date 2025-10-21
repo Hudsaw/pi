@@ -17,7 +17,7 @@ $menuItems = [
         ['route' => 'costura/servicos', 'label' => 'Meus Serviços'],
         ['route' => 'costura/pagamentos', 'label' => 'Meus Pagamentos'],
         ['route' => 'costura/mensagens', 'label' => 'Mensagens'],
-        ['route' => 'costura/perfil', 'label' => 'Perfil']
+        ['route' => 'costura/visualizar-perfil', 'label' => 'Perfil']
     ]
 ];
 ?>
