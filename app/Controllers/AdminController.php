@@ -9,17 +9,33 @@ class AdminController extends BaseController
 
     // Painel
     public function painel()
-    {
-        error_log("Exibindo painel");
-        $user  = $this->getUsuario();
+{
+    error_log("Exibindo painel administrativo");
+    $user = $this->getUsuario();
 
-        $this->render('admin/painel', [
-            'title'         => 'PontoCerto',
-            'user'          => $user,
-            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
-            'usuarioLogado' => $this->estaLogado(),
-        ]);
-    }
+    // Buscar dados para o dashboard
+    $totalUsuarios = $this->userModel->getTotalUsuarios();
+    $totalEmpresas = $this->empresaModel->getTotalEmpresas();
+    $totalLotes = $this->loteModel->getTotalLotes();
+    $totalServicos = $this->servicoModel->getTotalServicos();
+    $servicosAtivos = $this->servicoModel->getServicosAtivos();
+    $lotesRecentes = $this->loteModel->getLotesRecentes(5);
+    $servicosRecentes = $this->servicoModel->getServicosRecentes(5);
+
+    $this->render('admin/painel', [
+        'title' => 'PontoCerto - Painel Administrativo',
+        'user' => $user,
+        'nomeUsuario' => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'totalUsuarios' => $totalUsuarios,
+        'totalEmpresas' => $totalEmpresas,
+        'totalLotes' => $totalLotes,
+        'totalServicos' => $totalServicos,
+        'servicosAtivos' => $servicosAtivos,
+        'lotesRecentes' => $lotesRecentes,
+        'servicosRecentes' => $servicosRecentes
+    ]);
+}
 
     // Usuarios
     public function usuarios()

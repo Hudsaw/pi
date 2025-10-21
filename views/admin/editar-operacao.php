@@ -1,5 +1,5 @@
 <div class="conteudo flex">
-<?php require VIEWS_PATH . 'shared/sidebar-admin.php'; ?>
+<?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
     <form class="formulario-cadastro auth-form" method="POST" action="<?= BASE_URL ?>admin/atualizar-operacao">
         <div class="titulo">Editar Operação</div>
         <?php if (!empty($errors)): ?>

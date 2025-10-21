@@ -1,5 +1,5 @@
 <div class="conteudo flex">
-    <?php require VIEWS_PATH . 'shared/sidebar-costura.php'; ?>
+    <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
     
     <div class="dashboard-costureira">
         <h2>Meu Painel - <?= htmlspecialchars($nomeUsuario ?? 'Usuário') ?></h2>

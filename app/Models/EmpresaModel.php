@@ -130,4 +130,12 @@ class EmpresaModel
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getTotalEmpresas()
+{
+    $sql = "SELECT COUNT(*) as total FROM empresas WHERE ativo = 1";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+}
 }

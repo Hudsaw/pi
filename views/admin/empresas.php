@@ -1,5 +1,5 @@
 <div class="conteudo flex">
-    <?php require VIEWS_PATH . 'shared/sidebar-admin.php'; ?>
+    <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
     
     <div class="conteudo-tabela">
         <div class="filtro flex s-gap">

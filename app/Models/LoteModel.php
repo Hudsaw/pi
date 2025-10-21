@@ -249,4 +249,27 @@ public function podeEditar($loteId)
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result && $result['status'] === 'Aberto';
 }
+
+public function getTotalLotes()
+{
+    $sql = "SELECT COUNT(*) as total FROM lotes WHERE ativo = 1";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+}
+
+public function getLotesRecentes($limit = 5)
+{
+    $sql = "SELECT l.*, e.nome as empresa_nome 
+            FROM lotes l 
+            LEFT JOIN empresas e ON l.empresa_id = e.id 
+            WHERE l.ativo = 1 
+            ORDER BY l.data_entrada DESC 
+            LIMIT :limit";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 }

@@ -118,8 +118,8 @@ pi/
 │       ├── footer.php
 │       ├── header.php
 │       ├── home.php
-│       ├── sidebar-admin.php
-│       └── sidebar-costura.php
+│       ├── sidebar.php
+│       └── sidebar.php
 ├── .htaccess
 ├── banco.sql
 ├── composer.json

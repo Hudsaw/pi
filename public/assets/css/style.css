@@ -17,17 +17,95 @@
     --vermelho-escuro: #AB4040;
     --cinza: #DEE3E9;
     --verde: #28a745;
-    
+    --sidebar-width: 250px;
+}
 
-
-
+* {
+    box-sizing: border-box;
 }
 
 body {
     margin: 0;
     font-family: 'Schibsted Grotesk', sans-serif;
+    background: var(--fundo);
+    height: 100vh;
+    overflow: hidden;
 }
 
+/* HEADER SEMPRE VISÍVEL */
+.topo {
+    height: 10vh;
+    padding-inline: 10%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 100;
+}
+
+/* CONTEÚDO PRINCIPAL COM SIDEBAR E PAINEL */
+.conteudo {
+    height: 90vh;
+    display: flex;
+    width: 100%;
+}
+
+/* SIDEBAR DIVIDINDO A TELA */
+.menu {
+    width: var(--sidebar-width);
+    height: 100%;
+    background: var(--azul-medio);
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 1px solid var(--azul-claro);
+}
+
+.sidebar-header h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-nav li {
+    border-bottom: 1px solid var(--azul-claro);
+}
+
+.sidebar-nav li a {
+    display: block;
+    color: white;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.sidebar-nav li.active a,
+.sidebar-nav li a:hover {
+    background: var(--azul);
+}
+
+/* PAINEL/CONTEÚDO PRINCIPAL */
+.dashboard-admin,
+.dashboard-costureira,
+.formulario-cadastro {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    height: 100%;
+}
+
+/* MANTER ESTILOS ORIGINAIS DOS ELEMENTOS */
 h1 {
     font-size: 5rem;
     margin: 1rem;
@@ -55,151 +133,58 @@ input[type="submit"] {
     font-size: 1rem;
 }
 
-.principal {
-    height: 100vh;
-    width: 100vw;
-}
-
-.topo {
-    height: 10%;
-    padding-inline: 10%;
-}
-
-.conteudo {
-    height: 90%;
-}
-
-.painel {
-    height: 55%;
-}
-
 img {
     height: 100%;
 }
 
-hr {
-    width: 99%;
-}
-
-.texto-inicial {
-    background: var(--azul-medio);
-    color: white;
-    padding: 2rem;
-    width: 100%;
-}
-
-.titulo-cards {
-    font-size: 1.5rem;
-    padding-block: 1rem;
-    font-weight: bold;
-}
-
-.cards-landing {
+/* CARDS DO DASHBOARD */
+.cards-dashboard {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.card-landing {
-    font-size: 1.5rem;
-    display: grid;
-    border: 2px solid var(--azul);
-    padding: 3rem;
-    text-align: center;
-    border-radius: 8px;
-}
-
-.formulario-login {
+.card {
     background: white;
-    gap: 2rem;
-    padding-block: 2rem;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--azul);
+    transition: transform 0.2s ease;
 }
 
-.banner {
-    height: 100px;
-    width: 100%;
+.card:hover {
+    transform: translateY(-2px);
 }
 
-.bem-vindo {
-    color: var(--azul-medio);
-    text-align: center;
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
-.label {
-    gap: 1.5rem;
+.card-header h3 {
+    margin: 0;
+    color: var(--azul-escuro);
+    font-size: 1.1rem;
 }
 
-.input {
-    gap: 1.5rem;
-}
-
-input {
-    padding: calc(0.5rem - 1px);
-    border: 1px solid var(--cinza);
-    border-radius: 4px;
-}
-
-select {
-    padding: calc(0.5rem - 1px);
-    border: 1px solid var(--cinza);
-    border-radius: 4px;
-    height: 31px;
-}
-
-label {
-    padding: 0.5rem;
-    height: 15px;
-}
-
-.inputs {
-    padding-inline: 2rem;
-    gap: 1rem;
-}
-
-.voltar {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    border: 1px solid white;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    color: white;
-    font-weight: bold;;
-}
-
-.menu {
-    width: 250px;
-    height: 100%;
-    background: var(--azul-medio);
-}
-
-.imagem-topo {
-    margin-inline: auto;
-}
-
-.nome-usuario {
+.card-content .numero {
+    font-size: 2.5rem;
     font-weight: bold;
-    font-size: 1.2rem;
+    color: var(--azul-medio);
+    margin-bottom: 0.5rem;
 }
 
-.item {
-    color: white;
-    padding: 2rem;
-    font-size: 1.2rem;
-    border-bottom: 1px solid var(--azul-clarissimo);
+.card-content p {
+    margin: 0;
+    color: var(--cinza);
+    font-size: 0.9rem;
 }
 
-.sair {
-    position: absolute;
-    bottom: 1rem;
-    left: 1rem;
-    border: 1px solid white;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    color: white;
-    font-weight: bold;;
-}
-
+/* FORMULÁRIOS */
 .formulario-cadastro {
     width: 100%;
 }
@@ -215,15 +200,65 @@ label {
     width: 100%;
 }
 
-.lista-informacoes {
-    padding-inline: 2rem;
+.auth-form {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.formulario-cadastro .inputs {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+    align-items: start;
+}
+
+.label {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
 }
 
-.lista-informacoes-coluna {
-    gap: 1.5rem;
+.label label {
+    padding: 0.75rem 0;
+    height: auto;
+    font-weight: 500;
+    color: var(--azul-escuro);
 }
 
+.input {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input input,
+.input select,
+.input textarea {
+    padding: 0.75rem;
+    border: 1px solid var(--cinza);
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.input input:focus,
+.input select:focus,
+.input textarea:focus {
+    outline: none;
+    border-color: var(--azul);
+    box-shadow: 0 0 0 2px rgba(0, 180, 216, 0.1);
+}
+
+.input textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* TABELAS */
 .tabela {
     width: 100%;
 }
@@ -276,52 +311,7 @@ tr:hover {
     width: 50%;
 }
 
-.flex {
-    display: flex;
-}
-
-.vertical {
-    flex-direction: column;
-}
-
-.space-between {
-    justify-content: space-between;
-}
-
-.v-center {
-    align-items: center;
-}
-
-.s-gap {
-    gap: 1rem;
-}
-
-.m-gap {
-    gap: 2rem;
-}
-
-.l-gap {
-    gap: 3rem;
-}
-
-.bold {
-    font-weight: bold;
-}
-
-.h-center {
-    justify-content: center;
-}
-
-.center {
-    align-items: center; 
-    justify-content: center;
-}
-
-.shadow {
-    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
-    position: relative;
-}
-
+/* BOTÕES */
 .botao-grande {
     border: 2px solid var(--azul);
     border-radius: 8px;
@@ -361,6 +351,87 @@ tr:hover {
     padding: 0.5rem 1rem;
     box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
     text-align: center;
+}
+
+/* STATUS BADGES */
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-badge.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.completed {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-badge.in-progress {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* NAVBAR MOBILE - APENAS MOBILE */
+.navbar-mobile {
+    display: none;
+}
+
+/* UTILITÁRIOS */
+.flex {
+    display: flex;
+}
+
+.vertical {
+    flex-direction: column;
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
+.v-center {
+    align-items: center;
+}
+
+.h-center {
+    justify-content: center;
+}
+
+.center {
+    align-items: center;
+    justify-content: center;
+}
+
+.s-gap {
+    gap: 1rem;
+}
+
+.m-gap {
+    gap: 2rem;
+}
+
+.l-gap {
+    gap: 3rem;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.shadow {
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
+    position: relative;
 }
 
 .redondinho {
@@ -418,4 +489,120 @@ tr:hover {
 
 .tabela-formulario td {
     background: white;
+}
+
+/* RESPONSIVIDADE */
+
+/* Tablet e Mobile (até 1024px) */
+@media (max-width: 1024px) {
+    .menu {
+        display: none; /* Esconde sidebar no mobile */
+    }
+    
+    .topo {
+        height: 8vh; /* Header um pouco menor no mobile */
+        padding-inline: 5%;
+    }
+    
+    .conteudo {
+        height: 92vh;
+    }
+    
+    .dashboard-admin,
+    .dashboard-costureira,
+    .formulario-cadastro {
+        padding: 1rem;
+        width: 100%;
+    }
+    
+    /* Navbar Mobile */
+    .navbar-mobile {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--azul-medio);
+        z-index: 1000;
+        padding: 0.5rem;
+        border-top: 1px solid var(--azul-claro);
+    }
+    
+    .navbar-mobile-nav {
+        display: flex;
+        justify-content: space-around;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .navbar-mobile-nav li a {
+        color: white;
+        padding: 0.5rem;
+        text-decoration: none;
+        font-size: 0.8rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .navbar-mobile-nav li.active a {
+        color: var(--azul-claro);
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+    
+    .cards-dashboard {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    /* Ajusta conteúdo para não ficar atrás da navbar mobile */
+    .dashboard-admin,
+    .dashboard-costureira {
+        padding-bottom: 80px;
+    }
+}
+
+/* Mobile (768px para baixo) */
+@media (max-width: 768px) {
+    .formulario-cadastro .inputs {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .cards-dashboard {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-form {
+        padding: 1rem;
+    }
+    
+    h1 {
+        font-size: 3rem;
+    }
+    
+    h3 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Mobile Pequeno (480px para baixo) */
+@media (max-width: 480px) {
+    .dashboard-admin,
+    .dashboard-costureira,
+    .formulario-cadastro {
+        padding: 0.5rem;
+    }
+    
+    .card {
+        padding: 1rem;
+    }
+    
+    .card-content .numero {
+        font-size: 2rem;
+    }
 }

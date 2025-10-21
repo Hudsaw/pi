@@ -321,4 +321,34 @@ private function enviarMensagemVinculacao($servicoId, $costureiraId, $dataEntreg
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+public function getTotalServicos()
+{
+    $sql = "SELECT COUNT(*) as total FROM servicos";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+}
+
+public function getServicosAtivos()
+{
+    $sql = "SELECT COUNT(*) as total FROM servicos WHERE status = 'ativo'";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+}
+
+public function getServicosRecentes($limit = 5)
+{
+    $sql = "SELECT s.*, o.nome as operacao_nome, l.nome as lote_nome 
+            FROM servicos s 
+            LEFT JOIN operacoes o ON s.operacao_id = o.id 
+            LEFT JOIN lotes l ON s.lote_id = l.id 
+            ORDER BY s.created_at DESC 
+            LIMIT :limit";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }

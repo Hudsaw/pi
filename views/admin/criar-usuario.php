@@ -1,5 +1,5 @@
 <div class="conteudo flex">
-<?php require VIEWS_PATH . 'shared/sidebar-admin.php'; ?>
+<?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
     <form class="formulario-cadastro" class="auth-form" method="POST" action="<?= BASE_URL ?>admin/cadastrar-usuario">
         <div class="titulo">Cadastro de usuário</div>
         <?php if (!empty($_SESSION['registrar_erros'])): ?>
