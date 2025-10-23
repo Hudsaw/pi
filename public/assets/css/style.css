@@ -100,7 +100,6 @@ input[type="submit"] {
 
 .principal {
     height: 100vh;
-    width: 100vw;
 }
 
 .topo {
@@ -557,6 +556,10 @@ tr:hover {
     background: var(--azul-medio);
 }
 
+.input-grande {
+    width: 100%;
+}
+
 .alerta {
     position: absolute;
     top: 50px;
@@ -595,6 +598,7 @@ tr:hover {
 
 .icone {
     transition: scale 0.2s ease;
+    height:24px;
 }
 
 .tabela-formulario {

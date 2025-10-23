@@ -1,9 +1,9 @@
 <div class="conteudo flex">
-<?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
-    
+    <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
+
     <form class="formulario-cadastro auth-form" method="POST" action="<?= BASE_URL ?>admin/criar-lote">
         <div class="titulo">Cadastro de Lotes</div>
-        
+
         <?php if (!empty($errors)): ?>
             <div class="erro">
                 <ul>
@@ -19,25 +19,27 @@
                 </ul>
             </div>
         <?php endif; ?>
-        
         <hr class="shadow">
-        <span class="inputs flex center">
-            <span class="label flex vertical">
+        <span class="flex vertical s-gap">
+            <span class="flex space-between">
                 <label class="flex v-center" for="empresa_id">ID Empresa</label>
-                <label class="flex v-center" for="colecao">Coleção</label>
-                <label class="flex v-center" for="nome">Nome do Lote</label>
-                <label class="flex v-center" for="data_entrada">Data Entrada</label>
-                <label class="flex v-center" for="observacao">Observação</label>
-            </span>
-            <span class="input flex vertical">
                 <input type="text" name="empresa_id" id="empresa_id" placeholder="ID da Empresa" value="<?= htmlspecialchars($old['empresa_id'] ?? '') ?>" required>
+                <label class="flex v-center" for="colecao">Coleção</label>
                 <input type="text" name="colecao" id="colecao" placeholder="Coleção" value="<?= htmlspecialchars($old['colecao'] ?? '') ?>" required>
+                <label class="flex v-center" for="nome">Nome do Lote</label>
                 <input type="text" name="nome" id="nome" placeholder="Nome do Lote" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
+                <label class="flex v-center" for="data_entrada">Data Entrada</label>
                 <input type="date" name="data_entrada" id="data_entrada" value="<?= htmlspecialchars($old['data_entrada'] ?? '') ?>" required>
-                <textarea name="observacao" id="observacao" placeholder="Observações"><?= htmlspecialchars($old['observacao'] ?? '') ?></textarea>
+                <label class="flex v-center s-gap" for="anexo">Anexo
+                    <img class="icone" src="<?php echo ASSETS_URL?>icones/anexo.svg" alt="Anexo">
+                </label>
+                <input type="file" name="anexo" id="anexo" class="escondido" > 
+            </span>
+            <span class="flex "> 
+                <label class="flex v-center" for="observacao">Observação</label>
+                <input class="input-grande " name="observacao" id="observacao" placeholder="Observações"><?= htmlspecialchars($old['observacao'] ?? '') ?></input>
             </span>
         </span>
-        
         <hr>
         <div class="titulo">Peças</div>
         <div class="tabela-formulario">
@@ -86,13 +88,17 @@
                             </select>
                         </td>
                         <td class="ac">
-                            <input type="number" name="pecas[0][quantidade]" placeholder="Quantidade" min="1" value="<?= htmlspecialchars($old['pecas'][0]['quantidade'] ?? '') ?>" required>
+                            <input type="number" name="pecas[0][quantidade]" placeholder="Quantidade" min="1"
+                                value="<?= htmlspecialchars($old['pecas'][0]['quantidade'] ?? '') ?>" required>
                         </td>
                         <td class="ac">
-                            <input type="number" name="pecas[0][valor_unitario]" step="0.01" min="0" placeholder="Valor Unitário" value="<?= htmlspecialchars($old['pecas'][0]['valor_unitario'] ?? '') ?>" required>
+                            <input type="number" name="pecas[0][valor_unitario]" step="0.01" min="0"
+                                placeholder="Valor Unitário"
+                                value="<?= htmlspecialchars($old['pecas'][0]['valor_unitario'] ?? '') ?>" required>
                         </td>
                         <td class="ac">
-                            <button type="button" class="botao-vermelho pequeno" onclick="removerPeca(this)">Remover</button>
+                            <button type="button" class="botao-vermelho pequeno"
+                                onclick="removerPeca(this)">Remover</button>
                         </td>
                     </tr>
                 </tbody>
@@ -105,7 +111,7 @@
                 </tfoot>
             </table>
         </div>
-        
+
         <br>
         <hr>
         <div class="flex h-center l-gap">
@@ -116,14 +122,14 @@
 </div>
 
 <script>
-let pecaCount = 1;
+    let pecaCount = 1;
 
-function adicionarPeca() {
-    const container = document.getElementById('pecas-container');
-    const novaLinha = document.createElement('tr');
-    novaLinha.className = 'linha-peca';
-    
-    novaLinha.innerHTML = `
+    function adicionarPeca() {
+        const container = document.getElementById('pecas-container');
+        const novaLinha = document.createElement('tr');
+        novaLinha.className = 'linha-peca';
+
+        novaLinha.innerHTML = `
         <td class="ac">
             <select name="pecas[${pecaCount}][tipo_peca_id]" required>
                 <option value="">Selecione o tipo</option>
@@ -158,17 +164,17 @@ function adicionarPeca() {
             <button type="button" class="botao-vermelho pequeno" onclick="removerPeca(this)">Remover</button>
         </td>
     `;
-    
-    container.appendChild(novaLinha);
-    pecaCount++;
-}
 
-function removerPeca(botao) {
-    const linha = botao.closest('.linha-peca');
-    if (document.querySelectorAll('.linha-peca').length > 1) {
-        linha.remove();
-    } else {
-        alert('É necessário ter pelo menos uma peça no lote.');
+        container.appendChild(novaLinha);
+        pecaCount++;
     }
-}
+
+    function removerPeca(botao) {
+        const linha = botao.closest('.linha-peca');
+        if (document.querySelectorAll('.linha-peca').length > 1) {
+            linha.remove();
+        } else {
+            alert('É necessário ter pelo menos uma peça no lote.');
+        }
+    }
 </script>
