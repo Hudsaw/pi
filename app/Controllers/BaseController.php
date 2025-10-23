@@ -84,7 +84,7 @@ class BaseController
 
     return match ($_SESSION['user_role']) {
         'admin' => BASE_URL . 'admin/painel', 
-        'costura' => BASE_URL . 'costura/painel', 
+        'costureira' => BASE_URL . 'costura/painel', 
         default => BASE_URL
     };
 }

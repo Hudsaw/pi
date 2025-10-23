@@ -615,7 +615,7 @@ tr:hover {
     }
     
     .topo {
-        height: 8vh; /* Header um pouco menor no mobile */
+        height: 8vh; 
         padding-inline: 5%;
     }
     
@@ -628,6 +628,33 @@ tr:hover {
     .formulario-cadastro {
         padding: 1rem;
         width: 100%;
+    }
+
+    /* Formularios */
+    .formulario-cadastro .inputs {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .formulario-cadastro .inputs .label {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .formulario-cadastro .inputs .label label {
+        padding: 0.5rem 0;
+        height: auto;
+        min-width: 120px;
+    }
+    
+    .formulario-cadastro .inputs .input {
+        gap: 0.5rem;
+    }
+    
+    .formulario-cadastro .inputs .input input,
+    .formulario-cadastro .inputs .input textarea {
+        padding: 0.5rem;
     }
     
     /* Navbar Mobile */
@@ -683,9 +710,44 @@ tr:hover {
 
 /* Mobile (768px para baixo) */
 @media (max-width: 768px) {
+    .formulario-cadastro {
+        padding: 1rem;
+    }
+    
+    .tabela-formulario {
+        padding: 10px;
+        width: calc(100% - 20px);
+    }
+    
     .formulario-cadastro .inputs {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
+        padding-inline: 0;
+    }
+    
+    .formulario-cadastro .inputs .label {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .formulario-cadastro .inputs .label label {
+        min-width: auto;
+        width: 100%;
+        padding: 0.25rem 0;
+    }
+    
+    /* Melhoria para a tabela de peças em mobile */
+    .tabela-formulario table {
+        font-size: 0.9rem;
+    }
+    
+    .tabela-formulario th,
+    .tabela-formulario td {
+        padding: 8px 4px;
+    }
+    
+    .tabela-formulario select,
+    .tabela-formulario input {
+        font-size: 0.9rem;
+        padding: 4px;
     }
     
     .cards-dashboard {
@@ -711,6 +773,36 @@ tr:hover {
     .dashboard-costureira,
     .formulario-cadastro {
         padding: 0.5rem;
+    }
+    
+    .titulo {
+        font-size: 1.5rem;
+        margin-block: 0.5rem;
+    }
+    
+    .tabela-formulario {
+        padding: 5px;
+        width: calc(100% - 10px);
+    }
+    
+    /* Scroll horizontal para tabela em mobile muito pequeno */
+    .tabela-formulario {
+        overflow-x: auto;
+    }
+    
+    .tabela-formulario table {
+        min-width: 600px;
+    }
+    
+    .formulario-cadastro .inputs .input input,
+    .formulario-cadastro .inputs .input textarea {
+        padding: 0.4rem;
+        font-size: 0.9rem;
+    }
+    
+    .botao, .botao-azul, .botao-grande {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
     }
     
     .card {
