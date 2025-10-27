@@ -17,20 +17,34 @@ composer dump-autoload
 
 # Requisitos do sistema
 Código - Nome - Descrição - Prioridade
-RF01 - Cadastro de Usuário - O sistema deve permitir que novos usuários se  cadastrem com: nome, CPF, e-mail, telefone, CEP, endereço, tipo de chave PIX, chave PIX, senha criptografada. - Essencial
-RF02 - Login de Usuário - O sistema deve autenticar usuários com e-mail e senha, criando uma sessão. - Essencial
-RF03 - Gestão de Perfis - O sistema deve diferenciar entre admin e costureira, com menus e permissões distintas. - Essencial
-RF04 - Cadastro de Costureiras - O admin deve cadastrar costureiras vinculando a um usuário, incluindo especialidade, nível (Ouro, Prata, Bronze) e dados bancários. - Essencial
-RF05 - Cadastro de Lotes - O admin deve cadastrar lotes com: empresa, coleção, nome, data de entrada, data de entrega, status (Aberto, Entregue, Cancelado). - Essencial
-RF06 - Cadastro de Peças - O admin deve cadastrar peças vinculadas a um lote, com tipo, cor, tamanho, operação, quantidade e valor unitário. - Essencial
-RF07 - Cadastro de Serviços - O admin deve cadastrar serviços vinculados a um lote e operação, com quantidade de peças, valor da operação, datas de envio e finalização. - Essencial
-RF08 - Vincular Costureira a Serviço - O admin deve vincular costureiras a serviços com data de início e entrega. O sistema gera mensagem automática para a costureira. - Essencial
-RF09 - Controle de Pagamentos - O sistema deve calcular pagamentos automaticamente com base nos serviços finalizados, permitindo descontos e registro de comprovante. - Essencial
-RF10 - Gestão de Empresas - O admin deve cadastrar empresas (CNPJ, endereço, contato) para vincular aos lotes. - Importante
-RF11 - Sistema de Mensagens - Admin pode enviar mensagens para costureiras específicas ou todas. Mensagens automáticas são geradas ao vincular costureiras a serviços. - Importante
-RF12 - Relatórios de Produção - O admin deve gerar relatórios de peças por lote, por costureira e histórico de produção. - Importante
-RF13 - Cálculo de Lucro - O sistema deve calcular lucro com base em lotes entregues, pagamentos e compras de materiais. - Essencial
-RF14 - Logs do Sistema - Todas as alterações em cadastros devem ser registradas com usuário, data e dados alterados. - Desejável
+## RF01 - Cadastro de Usuário 
+O sistema deve permitir que novos usuários se  cadastrem com: nome, CPF, e-mail, telefone, CEP, endereço, tipo de chave PIX, chave PIX, senha criptografada. - Essencial
+## RF02 - Login de Usuário 
+O sistema deve autenticar usuários com e-mail e senha, criando uma sessão. - Essencial
+## RF03 - Gestão de Perfis 
+O sistema deve diferenciar entre admin e costureira, com menus e permissões distintas. - Essencial
+## RF04 - Cadastro de Costureiras
+O admin deve cadastrar costureiras vinculando a um usuário, incluindo especialidade, nível (Ouro, Prata, Bronze) e dados bancários. - Essencial
+## RF05 - Cadastro de Lotes 
+O admin deve cadastrar lotes com: empresa, coleção, nome, data de entrada, data de entrega, status (Aberto, Entregue, Cancelado). - Essencial
+## RF06 - Cadastro de Peças 
+O admin deve cadastrar peças vinculadas a um lote, com tipo, cor, tamanho, operação, quantidade e valor unitário. - Essencial
+## RF07 - Cadastro de Serviços 
+O admin deve cadastrar serviços vinculados a um lote e operação, com quantidade de peças, valor da operação, datas de envio e finalização. - Essencial
+## RF08 - Vincular Costureira a Serviço 
+O admin deve vincular costureiras a serviços com data de início e entrega. O sistema gera mensagem automática para a costureira. - Essencial
+## RF09 - Controle de Pagamentos
+O sistema deve calcular pagamentos automaticamente com base nos serviços finalizados, permitindo descontos e registro de comprovante. - Essencial
+## RF10 - Gestão de Empresas 
+O admin deve cadastrar empresas (CNPJ, endereço, contato) para vincular aos lotes. - Importante
+## RF11 - Sistema de Mensagens
+Admin pode enviar mensagens para costureiras específicas ou todas. Mensagens automáticas são geradas ao vincular costureiras a serviços. - Importante
+## RF12 - Relatórios de Produção
+O admin deve gerar relatórios de peças por lote, por costureira e histórico de produção. - Importante
+## RF13 - Cálculo de Lucro
+O sistema deve calcular lucro com base em lotes entregues, pagamentos e compras de materiais. - Essencial
+## RF14 - Logs do Sistema
+Todas as alterações em cadastros devem ser registradas com usuário, data e dados alterados. - Desejável
 
 # Estrutura de arquivos
 pi/

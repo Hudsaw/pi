@@ -525,6 +525,7 @@ private function validarCNPJ($cnpj)
     $user = $this->getUsuario();
 
     // Buscar todos os dados do banco
+    $empresas = $this->empresaModel->getEmpresas(1); 
     $tiposPeca = $this->pecaModel->getTiposAtivos();
     $cores = $this->pecaModel->getCoresAtivas();
     $tamanhos = $this->pecaModel->getTamanhosAtivos();
@@ -537,6 +538,7 @@ private function validarCNPJ($cnpj)
         'usuarioLogado' => $this->estaLogado(),
         'errors'        => $_SESSION['lote_erros'] ?? [],
         'old'           => $_SESSION['lote_data'] ?? [],
+        'empresas'      => $empresas, 
         'tiposPeca'     => $tiposPeca,
         'cores'         => $cores,        
         'tamanhos'      => $tamanhos
