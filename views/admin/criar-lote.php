@@ -20,32 +20,35 @@
             </div>
         <?php endif; ?>
         <hr class="shadow">
-        <span class="inputs flex center">
-    <span class="label flex vertical">
-        <label class="flex v-center" for="empresa_id">ID Empresa</label>
-        <label class="flex v-center" for="colecao">Coleção</label>
-        <label class="flex v-center" for="nome">Nome do Lote</label>
-        <label class="flex v-center" for="data_entrada">Data Entrada</label>
-        <label class="flex v-center" for="observacao">Observação</label>
-    </span>
-    <span class="input flex vertical">
-        <input type="text" name="empresa_id" id="empresa_id" placeholder="ID da Empresa" value="<?= htmlspecialchars($old['empresa_id'] ?? '') ?>" required>
-         <!--<select name="empresa_id" id="empresa_id" required>
-        <option value="">Selecione uma empresa</option>
-        <?php foreach ($empresas as $empresa): ?>
-            <option value="<?= $empresa['id'] ?>" 
-                <?= (isset($old['empresa_id']) && $old['empresa_id'] == $empresa['id']) ? 'selected' : '' ?>>
-                <?= htmlspecialchars($empresa['nome']) ?> - CNPJ: <?= htmlspecialchars($empresa['cnpj']) ?>
-            </option>
-        <?php endforeach; ?>
-        </select> -->
-        <input type="text" name="colecao" id="colecao" placeholder="Coleção" value="<?= htmlspecialchars($old['colecao'] ?? '') ?>" required>
-        <input type="text" name="nome" id="nome" placeholder="Nome do Lote" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
-        <input type="date" name="data_entrada" id="data_entrada" value="<?= htmlspecialchars($old['data_entrada'] ?? '') ?>" required>
-        <textarea name="observacao" id="observacao" placeholder="Observações"><?= htmlspecialchars($old['observacao'] ?? '') ?></textarea>
-    </span>
-</span>
-        
+        <span class="flex vertical s-gap">
+            <span class="flex space-between">
+                <label class="flex v-center" for="empresa_id">ID Empresa</label>
+                <!--<select name="empresa_id" id="empresa_id" required>
+                <option value="">Selecione uma empresa</option>
+                <?php foreach ($empresas as $empresa): ?>
+                    <option value="<?= $empresa['id'] ?>" 
+                        <?= (isset($old['empresa_id']) && $old['empresa_id'] == $empresa['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($empresa['nome']) ?> - CNPJ: <?= htmlspecialchars($empresa['cnpj']) ?>
+                    </option>
+                <?php endforeach; ?>
+                </select> -->
+                <input type="text" name="empresa_id" id="empresa_id" placeholder="ID da Empresa" value="<?= htmlspecialchars($old['empresa_id'] ?? '') ?>" required>
+                <label class="flex v-center" for="colecao">Coleção</label>
+                <input type="text" name="colecao" id="colecao" placeholder="Coleção" value="<?= htmlspecialchars($old['colecao'] ?? '') ?>" required>
+                <label class="flex v-center" for="nome">Nome do Lote</label>
+                <input type="text" name="nome" id="nome" placeholder="Nome do Lote" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
+                <label class="flex v-center" for="data_entrada">Data Entrada</label>
+                <input type="date" name="data_entrada" id="data_entrada" value="<?= htmlspecialchars($old['data_entrada'] ?? '') ?>" required>
+                <label class="flex v-center s-gap" for="anexo">Anexo
+                    <img class="icone" src="<?php echo ASSETS_URL?>icones/anexo.svg" alt="Anexo">
+                </label>
+                <input type="file" name="anexo" id="anexo" class="escondido" > 
+            </span>
+            <span class="flex"> 
+                <label class="flex v-center" for="observacao">Observação</label>
+                <input class="input-grande " name="observacao" id="observacao" placeholder="Observações"><?= htmlspecialchars($old['observacao'] ?? '') ?></input>
+            </span>
+        </span>
         <hr>
         <div class="titulo">Peças</div>
         <div class="tabela-formulario">
