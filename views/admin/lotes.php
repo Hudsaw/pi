@@ -13,7 +13,6 @@
             <table cellspacing='0' class="redondinho shadow" id="tabelaLotes">
                 <thead>
                     <tr>
-                        <th class="ae">ID</th>
                         <th class="ae">Empresa</th>
                         <th class="ae">Coleção</th>
                         <th class="ae">Nome</th>
@@ -31,7 +30,6 @@
                     <?php else: ?>
                         <?php foreach ($listaLotes as $lote): ?>
                             <tr class="linha-lote" data-ativo="<?= $lote['ativo'] ? '1' : '0' ?>">
-                                <td class="ae"><?= htmlspecialchars($lote['id']) ?></td>
                                 <td class="ae"><?= htmlspecialchars($lote['empresa_id']) ?></td>
                                 <td class="ae"><?= htmlspecialchars($lote['colecao']) ?></td>
                                 <td class="ae"><?= htmlspecialchars($lote['nome']) ?></td>
@@ -46,8 +44,8 @@
                                     <a href="<?= BASE_URL ?>admin/visualizar-lote?id=<?= $lote['id'] ?>" title="Visualizar">
                                         <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
                                     </a>
-                                    <a href="<?= BASE_URL ?>admin/adicionar-peca?lote_id=<?= $lote['id'] ?>" title="Adicionar Peça">
-                                        <img class="icone" src="<?= ASSETS_URL ?>icones/editar.svg" alt="adicionar peça">
+                                    <a href="<?= BASE_URL ?>admin/editar-lote?lote_id=<?= $lote['id'] ?>" title="Editar lote">
+                                        <img class="icone" src="<?= ASSETS_URL ?>icones/editar.svg" alt="Editar lote">
                                     </a>
                                     <?php if ($lote['status'] === 'Aberto'): ?>
                                         <a href="<?= BASE_URL ?>admin/remover-lote?id=<?= $lote['id'] ?>" 

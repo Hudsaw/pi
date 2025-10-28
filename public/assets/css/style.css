@@ -594,6 +594,7 @@ tr:hover {
 
 .icone:hover {
     scale: 1.5;
+    cursor: pointer;
 }
 
 .icone {
@@ -608,6 +609,10 @@ tr:hover {
 
 .tabela-formulario td {
     background: white;
+}
+
+.item-tabela {
+    width: 100%;
 }
 
 /* RESPONSIVIDADE */

@@ -800,17 +800,17 @@ public function atualizarOperacao()
     }
 }
 
-public function adicionarPecaLote()
+public function editarLote()
     {
-        error_log("Adicionando peça ao lote");
+        error_log("Editando lote");
         $user = $this->getUsuario();
         $loteId = $_GET['lote_id'];
         
         $lote = $this->loteModel->getLotePorId($loteId);
         $operacoes = $this->operacaoModel->getOperacoes();
 
-        $this->render('admin/adicionar-peca', [
-            'title'         => 'PontoCerto - Adicionar Peça',
+        $this->render('admin/editar-lote', [
+            'title'         => 'PontoCerto - Editar lote',
             'user'          => $user,
             'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
             'usuarioLogado' => $this->estaLogado(),
@@ -1485,5 +1485,22 @@ private function validarServico($post)
 
     return $data;
 }
+ public function pecas()
+    {
+        error_log("Exibindo peças");
+        $user = $this->getUsuario();
+        $filtro = $_GET['filtro'] ?? 'ativos';
+        
+
+        $this->render('admin/pecas', [
+            'title'           => 'PontoCerto - Peças',
+            'user'            => $user,
+            'nomeUsuario'     => $user ? $user['nome'] : 'Visitante',
+            'usuarioLogado'   => $this->estaLogado(),
+            'filtro'          => $filtro
+        ]);
+    }
 
 }
+
+
