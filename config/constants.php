@@ -13,6 +13,7 @@ define('APP_PATH', ROOT_PATH . 'app/');
 define('PUBLIC_PATH', ROOT_PATH . 'public/');
 define('VIEWS_PATH', ROOT_PATH . 'views/');
 define('BACKUP_PATH', ROOT_PATH . 'backups/');
+define('UPLOADS_PATH', ROOT_PATH . 'uploads/');
 
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_USER', 'tonhapaiano25@gmail.com');

@@ -529,7 +529,7 @@ private function validarCNPJ($cnpj)
     $tiposPeca = $this->pecaModel->getTiposAtivos();
     $cores = $this->pecaModel->getCoresAtivas();
     $tamanhos = $this->pecaModel->getTamanhosAtivos();
-    $operacoes = $this->operacaoModel->getOperacoes();
+    $operacoes = $this->operacaoModel->getOperacoesAtivas(); 
 
     $this->render('admin/criar-lote', [
         'title'         => 'PontoCerto - Criar Lote',
@@ -541,7 +541,8 @@ private function validarCNPJ($cnpj)
         'empresas'      => $empresas, 
         'tiposPeca'     => $tiposPeca,
         'cores'         => $cores,        
-        'tamanhos'      => $tamanhos
+        'tamanhos'      => $tamanhos,
+        'operacoes'     => $operacoes 
     ]);
     
     unset($_SESSION['lote_erros'], $_SESSION['lote_data']);
@@ -554,6 +555,19 @@ public function criarLote()
         $this->redirect('admin/criar-lote');
     }
 
+    // Processar upload de anexo se existir
+    $anexoNome = null;
+    if (isset($_FILES['anexo']) && $_FILES['anexo']['error'] === UPLOAD_ERR_OK) {
+        $anexoNome = $this->processarUploadAnexo($_FILES['anexo']);
+        if ($anexoNome) {
+            error_log("Anexo processado: " . $anexoNome);
+        } else {
+            error_log("Falha ao processar anexo");
+        }
+    } else {
+        error_log("Nenhum anexo enviado ou erro no upload: " . ($_FILES['anexo']['error'] ?? 'N/A'));
+    }
+
     $data = $this->validarLoteComPecas($_POST);
 
     if (isset($data['errors'])) {
@@ -562,13 +576,63 @@ public function criarLote()
         $this->redirect('admin/criar-lote');
     }
 
+    // Adicionar nome do anexo aos dados
+    if ($anexoNome) {
+        $data['anexos'] = $anexoNome;
+        error_log("Anexo adicionado aos dados: " . $anexoNome);
+    }
+
     try {
         $loteId = $this->loteModel->criarLote($data);
         $_SESSION['success_message'] = 'Lote criado com sucesso!';
         $this->redirect('admin/visualizar-lote?id=' . $loteId);
     } catch (Exception $e) {
+        error_log("Erro ao criar lote: " . $e->getMessage());
         $_SESSION['lote_erros'] = ['Falha ao criar lote: ' . $e->getMessage()];
         $this->redirect('admin/criar-lote');
+    }
+}
+
+private function processarUploadAnexo($anexo)
+{
+    // Verificar se o upload foi bem sucedido
+    if ($anexo['error'] !== UPLOAD_ERR_OK) {
+        error_log("Erro no upload: " . $anexo['error']);
+        return null;
+    }
+
+    // Validar tamanho do arquivo (5MB máximo)
+    if ($anexo['size'] > 5 * 1024 * 1024) {
+        error_log("Arquivo muito grande: " . $anexo['size']);
+        return null;
+    }
+
+    // Validar tipo de arquivo
+    $tiposPermitidos = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+    $extensao = strtolower(pathinfo($anexo['name'], PATHINFO_EXTENSION));
+    
+    if (!in_array($extensao, $tiposPermitidos)) {
+        error_log("Tipo de arquivo não permitido: " . $extensao);
+        return null;
+    }
+
+    $diretorioUpload = UPLOADS_PATH . 'lotes/';
+    
+    // Criar diretório se não existir
+    if (!is_dir($diretorioUpload)) {
+        mkdir($diretorioUpload, 0755, true);
+    }
+
+    // Gerar nome único para o arquivo
+    $nomeArquivo = uniqid() . '_' . date('Y-m-d') . '.' . $extensao;
+    $caminhoCompleto = $diretorioUpload . $nomeArquivo;
+
+    if (move_uploaded_file($anexo['tmp_name'], $caminhoCompleto)) {
+        error_log("Arquivo salvo com sucesso: " . $nomeArquivo);
+        return $nomeArquivo;
+    } else {
+        error_log("Falha ao mover arquivo para: " . $caminhoCompleto);
+        return null;
     }
 }
 
@@ -581,10 +645,11 @@ private function validarLoteComPecas($post)
         'nome' => trim($post['nome'] ?? ''),
         'observacao' => trim($post['observacao'] ?? ''),
         'data_entrada' => trim($post['data_entrada'] ?? ''),
+        'data_entrega' => trim($post['data_entrega'] ?? ''),
         'pecas' => []
     ];
 
-    // Validações do lote // Validações do lote
+    // Validações do lote
     if (empty($data['empresa_id'])) {
         $errors['empresa_id'] = 'ID da empresa é obrigatório';
     }
@@ -601,16 +666,22 @@ private function validarLoteComPecas($post)
         $errors['data_entrada'] = 'Data de entrada é obrigatória';
     }
 
+    if (empty($data['data_entrega'])) {
+        $errors['data_entrega'] = 'Data de entrega é obrigatória';
+    } elseif ($data['data_entrega'] < $data['data_entrada']) {
+        $errors['data_entrega'] = 'Data de entrega não pode ser anterior à data de entrada';
+    }
+
     // Validações das peças
     if (isset($post['pecas']) && is_array($post['pecas'])) {
         foreach ($post['pecas'] as $index => $pecaData) {
             $peca = [
                 'tipo_peca_id' => trim($pecaData['tipo_peca_id'] ?? ''),
-                'cor_id' => trim($pecaData['cor_id'] ?? ''),        // ← Agora é ID
-                'tamanho_id' => trim($pecaData['tamanho_id'] ?? ''), // ← Agora é ID
+                'cor_id' => trim($pecaData['cor_id'] ?? ''),
+                'tamanho_id' => trim($pecaData['tamanho_id'] ?? ''),
+                'operacao_id' => trim($pecaData['operacao_id'] ?? ''),
                 'quantidade' => trim($pecaData['quantidade'] ?? ''),
-                'valor_unitario' => trim($pecaData['valor_unitario'] ?? ''),
-                'operacao_id' => trim($pecaData['operacao_id'] ?? '')
+                'valor_unitario' => trim($pecaData['valor_unitario'] ?? '')
             ];
 
             // Validar cada peça
@@ -626,16 +697,22 @@ private function validarLoteComPecas($post)
                 $errors['pecas'][$index]['tamanho_id'] = 'Tamanho é obrigatório';
             }
 
-            if (empty($peca['quantidade'])) {
-                $errors['pecas'][$index]['quantidade'] = 'Quantidade é obrigatório';
+            if (empty($peca['operacao_id'])) {
+                $errors['pecas'][$index]['operacao_id'] = 'Operação é obrigatória';
             }
 
-            if (empty($peca['valor_unitario'])) {
-                $errors['pecas'][$index]['valor_unitario'] = 'Valor unitário é obrigatório';
+            if (empty($peca['quantidade']) || !is_numeric($peca['quantidade']) || $peca['quantidade'] <= 0) {
+                $errors['pecas'][$index]['quantidade'] = 'Quantidade deve ser um número positivo';
+            }
+
+            if (empty($peca['valor_unitario']) || !is_numeric($peca['valor_unitario']) || $peca['valor_unitario'] <= 0) {
+                $errors['pecas'][$index]['valor_unitario'] = 'Valor unitário deve ser um número positivo';
             }
 
             $data['pecas'][] = $peca;
         }
+    } else {
+        $errors['pecas'] = 'É necessário adicionar pelo menos uma peça ao lote';
     }
 
     if (!empty($errors)) {
@@ -685,6 +762,61 @@ public function visualizarLote()
         'fim'           => $fim,
         'search'        => $search
     ]);
+}
+
+public function atualizarLote()
+{
+    error_log("Tentativa de atualização de lote");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/lotes');
+    }
+
+    $loteId = $_POST['id'];
+    
+    // Processar upload de anexo se existir
+    $anexoNome = null;
+    if (isset($_FILES['anexo']) && $_FILES['anexo']['error'] === UPLOAD_ERR_OK) {
+        $anexoNome = $this->processarUploadAnexo($_FILES['anexo']);
+        if ($anexoNome) {
+            error_log("Novo anexo processado: " . $anexoNome);
+        }
+    } else {
+        error_log("Nenhum novo anexo enviado ou erro no upload: " . ($_FILES['anexo']['error'] ?? 'N/A'));
+    }
+
+    $data = $this->validarLoteComPecas($_POST);
+
+    if (isset($data['errors'])) {
+        $_SESSION['lote_erros'] = $data['errors'];
+        $_SESSION['lote_data'] = $_POST;
+        $this->redirect('admin/editar-lote?id=' . $loteId);
+    }
+
+    // Adicionar nome do anexo aos dados se foi feito upload
+    if ($anexoNome) {
+        $data['anexos'] = $anexoNome;
+    } else {
+        // Manter o anexo atual se não foi feito upload de novo
+        $loteAtual = $this->loteModel->getLotePorId($loteId);
+        $data['anexos'] = $loteAtual['anexos'] ?? null;
+    }
+
+    $data['id'] = $loteId;
+
+    try {
+        $success = $this->loteModel->atualizarLote($loteId, $data);
+        
+        if ($success) {
+            $_SESSION['success_message'] = 'Lote atualizado com sucesso!';
+            $this->redirect('admin/visualizar-lote?id=' . $loteId);
+        } else {
+            $_SESSION['error_message'] = 'Erro ao atualizar o lote';
+            $this->redirect('admin/editar-lote?id=' . $loteId);
+        }
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Erro ao atualizar o lote: ' . $e->getMessage();
+        $this->redirect('admin/editar-lote?id=' . $loteId);
+    }
 }
 
     public function operacoes()
@@ -801,27 +933,39 @@ public function atualizarOperacao()
 }
 
 public function editarLote()
-    {
-        error_log("Editando lote");
-        $user = $this->getUsuario();
-        $loteId = $_GET['lote_id'];
-        
-        $lote = $this->loteModel->getLotePorId($loteId);
-        $operacoes = $this->operacaoModel->getOperacoes();
+{
+    error_log("Editando lote");
+    $user = $this->getUsuario();
+    $loteId = $_GET['id'];
+    
+    $lote = $this->loteModel->getLotePorId($loteId);
+    $empresas = $this->empresaModel->getEmpresas(1);
+    $tiposPeca = $this->pecaModel->getTiposAtivos();
+    $cores = $this->pecaModel->getCoresAtivas();
+    $tamanhos = $this->pecaModel->getTamanhosAtivos();
+    $operacoes = $this->operacaoModel->getOperacoesAtivas();
+    
+    // Buscar peças existentes do lote
+    $pecasExistentes = $this->pecaModel->getPecasPorLote($loteId);
 
-        $this->render('admin/editar-lote', [
-            'title'         => 'PontoCerto - Editar lote',
-            'user'          => $user,
-            'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
-            'usuarioLogado' => $this->estaLogado(),
-            'lote'          => $lote,
-            'operacoes'     => $operacoes,
-            'errors'        => $_SESSION['peca_erros'] ?? [],
-            'old'           => $_SESSION['peca_data'] ?? []
-        ]);
-        
-        unset($_SESSION['peca_erros'], $_SESSION['peca_data']);
-    }
+    $this->render('admin/editar-lote', [
+        'title'         => 'PontoCerto - Editar Lote',
+        'user'          => $user,
+        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'lote'          => $lote,
+        'empresas'      => $empresas,
+        'tiposPeca'     => $tiposPeca,
+        'cores'         => $cores,
+        'tamanhos'      => $tamanhos,
+        'operacoes'     => $operacoes,
+        'pecasExistentes' => $pecasExistentes, 
+        'errors'        => $_SESSION['lote_erros'] ?? [],
+        'old'           => $_SESSION['lote_data'] ?? []
+    ]);
+    
+    unset($_SESSION['lote_erros'], $_SESSION['lote_data']);
+}
 
     public function criarPeca()
     {
@@ -1727,6 +1871,8 @@ private function validarTamanho($post)
 
     return $data;
 }
+
+
 
 }
 

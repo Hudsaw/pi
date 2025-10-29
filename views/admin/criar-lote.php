@@ -1,7 +1,8 @@
 <div class="conteudo flex">
     <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
 
-    <form class="formulario-cadastro auth-form form-responsive" method="POST" action="<?= BASE_URL ?>admin/criar-lote">
+    <form class="formulario-cadastro auth-form form-responsive" method="POST" 
+          action="<?= BASE_URL ?>admin/criar-lote" enctype="multipart/form-data">
         <div class="titulo">Cadastro de Lotes</div>
 
         <?php if (!empty($errors)): ?>
@@ -25,24 +26,37 @@
         <div class="form-row">
             <div class="form-group">
                 <label class="form-label" for="empresa_id">ID Empresa</label>
-                <input type="text" name="empresa_id" id="empresa_id" class="form-input" placeholder="ID da Empresa" value="<?= htmlspecialchars($old['empresa_id'] ?? '') ?>" required>
+                <select name="empresa_id" id="empresa_id" class="form-select" required>
+                    <option value="">Selecione a empresa</option>
+                    <?php foreach ($empresas as $empresa): ?>
+                        <option value="<?= $empresa['id'] ?>" <?= (isset($old['empresa_id']) && $old['empresa_id'] == $empresa['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($empresa['nome']) ?> - CNPJ: <?= htmlspecialchars($empresa['cnpj']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
-            
+            </div>
+        
+        <div class="form-row">
             <div class="form-group">
                 <label class="form-label" for="colecao">Coleção</label>
                 <input type="text" name="colecao" id="colecao" class="form-input" placeholder="Coleção" value="<?= htmlspecialchars($old['colecao'] ?? '') ?>" required>
             </div>
-        </div>
         
-        <div class="form-row">
             <div class="form-group">
                 <label class="form-label" for="nome">Nome do Lote</label>
                 <input type="text" name="nome" id="nome" class="form-input" placeholder="Nome do Lote" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
             </div>
-            
+            </div>
+        
+        <div class="form-row">    
             <div class="form-group">
                 <label class="form-label" for="data_entrada">Data Entrada</label>
-                <input type="date" name="data_entrada" id="data_entrada" class="form-input" value="<?= htmlspecialchars($old['data_entrada'] ?? '') ?>" required>
+                <input type="date" name="data_entrada" id="data_entrada" class="form-input" value="<?= htmlspecialchars($old['data_entrada'] ?? date('Y-m-d')) ?>" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="data_entrega">Data Entrega</label>
+                <input type="date" name="data_entrega" id="data_entrega" class="form-input" value="<?= htmlspecialchars($old['data_entrega'] ?? date('Y-m-d')) ?>" required>
             </div>
         </div>
         
@@ -52,7 +66,8 @@
                     Anexo
                     <img class="icone" src="<?php echo ASSETS_URL?>icones/anexo.svg" alt="Anexo">
                 </label>
-                <input type="file" name="anexo" id="anexo" class="form-input escondido">
+                <input type="file" name="anexo" id="anexo" class="form-input" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                <small>Formatos aceitos: PDF, JPG, PNG, DOC (Max: 5MB)</small>
             </div>
         </div>
         
@@ -72,6 +87,7 @@
                         <th>Tipo Peça</th>
                         <th>Cor</th>
                         <th>Tamanho</th>
+                        <th>Operação</th>
                         <th>Quantidade</th>
                         <th>Valor Unitário</th>
                         <th>Ações</th>
@@ -106,6 +122,16 @@
                                 <?php foreach ($tamanhos as $tamanho): ?>
                                     <option value="<?= $tamanho['id'] ?>" <?= (isset($old['pecas'][0]['tamanho_id']) && $old['pecas'][0]['tamanho_id'] == $tamanho['id']) ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($tamanho['nome']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                        <td class="ac">
+                            <select name="pecas[0][operacao_id]" class="form-select" required>
+                                <option value="">Selecione a operação</option>
+                                <?php foreach ($operacoes as $operacao): ?>
+                                    <option value="<?= $operacao['id'] ?>" <?= (isset($old['pecas'][0]['operacao_id']) && $old['pecas'][0]['operacao_id'] == $operacao['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($operacao['nome']) ?> - R$ <?= number_format($operacao['valor'], 2, ',', '.') ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -174,6 +200,14 @@
                 <option value="">Selecione o tamanho</option>
                 <?php foreach ($tamanhos as $tamanho): ?>
                     <option value="<?= $tamanho['id'] ?>"><?= htmlspecialchars($tamanho['nome']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </td>
+        <td class="ac">
+            <select name="pecas[${pecaCount}][operacao_id]" class="form-select" required>
+                <option value="">Selecione a operação</option>
+                <?php foreach ($operacoes as $operacao): ?>
+                    <option value="<?= $operacao['id'] ?>"><?= htmlspecialchars($operacao['nome']) ?></option>
                 <?php endforeach; ?>
             </select>
         </td>

@@ -13,6 +13,7 @@
                 <span class="flex v-center">Data de Entrada</span>
                 <span class="flex v-center">Data de Entrega</span>
                 <span class="flex v-center">Status</span>
+                <span class="flex v-center">Anexo</span>
                 <span class="flex v-center">Observação</span>
             </span>
             <span class="lista-informacoes-coluna flex vertical">
@@ -22,7 +23,17 @@
                 <span class="flex v-center" style="min-height:20px"><?= date('d/m/Y', strtotime($lote['data_entrada'])) ?></span>
                 <span class="flex v-center" style="min-height:20px"><?= $lote['data_entrega'] ? date('d/m/Y', strtotime($lote['data_entrega'])) : 'Não definida' ?></span>
                 <span class="flex v-center status-<?= strtolower($lote['status']) ?>" style="min-height:20px"><?= htmlspecialchars($lote['status']) ?></span>
-                <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($lote['observacao'] ?? 'Nenhuma') ?></span>
+                <span class="flex v-center" style="min-height:20px">
+        <?php if (!empty($lote['anexos'])): ?>
+            <a href="<?= BASE_URL ?>uploads/lotes/<?= htmlspecialchars($lote['anexos']) ?>" 
+               target="_blank" class="botao-link">
+               📎 Ver Anexo
+            </a>
+        <?php else: ?>
+            Nenhum anexo
+        <?php endif; ?>
+    </span>
+    <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($lote['observacao'] ?? 'Nenhuma') ?></span>
             </span>
         </span>
         
@@ -31,7 +42,6 @@
         <div class="flex h-center l-gap">
             <a href="<?= BASE_URL ?>admin/lotes" class="botao">Voltar</a>
             <a href="<?= BASE_URL ?>admin/editar-lote?id=<?= $lote['id'] ?>" class="botao">Editar Lote</a>
-            <a href="<?= BASE_URL ?>admin/adicionar-peca?lote_id=<?= $lote['id'] ?>" class="botao-azul">Adicionar Peça</a>
         </div>
         
         <!-- Seção de Peças -->

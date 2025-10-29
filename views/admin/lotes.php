@@ -45,8 +45,7 @@
                                     <a href="<?= BASE_URL ?>admin/visualizar-lote?id=<?= $lote['id'] ?>" title="Visualizar">
                                         <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
                                     </a>
-                                    <a href="<?= BASE_URL ?>admin/editar-lote?lote_id=<?= $lote['id'] ?>" title="Editar lote">
-                                        <img class="icone" src="<?= ASSETS_URL ?>icones/editar.svg" alt="Editar lote">
+                                    <a href="<?= BASE_URL ?>admin/editar-lote?id=<?= $lote['id'] ?>" title="Editar lote">                                        <img class="icone" src="<?= ASSETS_URL ?>icones/editar.svg" alt="Editar lote">
                                     </a>
                                     <?php if ($lote['status'] === 'Aberto'): ?>
                                         <a href="<?= BASE_URL ?>admin/remover-lote?id=<?= $lote['id'] ?>" 
@@ -81,9 +80,9 @@ function filtrarLotes() {
     const rows = table.querySelectorAll('.linha-lote');
     
     rows.forEach(row => {
-        const empresa = row.cells[1].textContent.toUpperCase();
-        const colecao = row.cells[2].textContent.toUpperCase();
-        const nome = row.cells[3].textContent.toUpperCase();
+        const empresa = row.cells[0].textContent.toUpperCase();
+        const colecao = row.cells[1].textContent.toUpperCase();
+        const nome = row.cells[2].textContent.toUpperCase();
         
         const match = empresa.includes(filter) || colecao.includes(filter) || nome.includes(filter);
         row.style.display = match ? '' : 'none';

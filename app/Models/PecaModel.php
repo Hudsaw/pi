@@ -40,26 +40,26 @@ class PecaModel
     }
 
     public function getPecasPorLote($loteId)
-    {
-        $sql = "SELECT p.*, 
-                       tp.nome as tipo_peca_nome,
-                       c.nome as cor_nome, 
-                       c.codigo_hex,
-                       t.nome as tamanho_nome,
-                       o.nome as operacao_nome 
-                FROM pecas p 
-                INNER JOIN tipos_peca tp ON p.tipo_peca_id = tp.id 
-                INNER JOIN cores c ON p.cor_id = c.id 
-                INNER JOIN tamanhos t ON p.tamanho_id = t.id 
-                INNER JOIN operacoes o ON p.operacao_id = o.id 
-                WHERE p.lote_id = :lote_id 
-                ORDER BY p.id DESC";
-        
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':lote_id' => $loteId]);
+{
+    $sql = "SELECT p.*, 
+                   tp.nome as tipo_peca_nome,
+                   c.nome as cor_nome, 
+                   c.codigo_hex,
+                   t.nome as tamanho_nome,
+                   o.nome as operacao_nome 
+            FROM pecas p 
+            INNER JOIN tipos_peca tp ON p.tipo_peca_id = tp.id 
+            INNER JOIN cores c ON p.cor_id = c.id 
+            INNER JOIN tamanhos t ON p.tamanho_id = t.id 
+            INNER JOIN operacoes o ON p.operacao_id = o.id 
+            WHERE p.lote_id = :lote_id 
+            ORDER BY p.id";
+    
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':lote_id' => $loteId]);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     public function getPecaPorId($id)
     {
@@ -299,5 +299,7 @@ public function desativarTamanho($id)
     $stmt = $this->pdo->prepare($sql);
     return $stmt->execute([':id' => $id]);
 }
+
+
 
 }

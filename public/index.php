@@ -53,6 +53,7 @@ $router->get('/admin/criar-lote', 'AdminController@mostrarCriarLote', ['AuthMidd
 $router->post('/admin/criar-lote', 'AdminController@criarLote', ['AuthMiddleware', 'RoleMiddleware::admin']);
 $router->get('/admin/visualizar-lote', 'AdminController@visualizarLote', ['AuthMiddleware', 'RoleMiddleware::admin']);
 $router->get('/admin/editar-lote', 'AdminController@editarLote', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->post('/admin/atualizar-lote', 'AdminController@atualizarLote', ['AuthMiddleware', 'RoleMiddleware::admin']);
 $router->get('/admin/remover-lote', 'AdminController@removerLote', ['AuthMiddleware', 'RoleMiddleware::admin']);
 
 // Rotas para operações
