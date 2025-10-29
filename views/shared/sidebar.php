@@ -6,12 +6,12 @@ $userRole = $_SESSION['tipo_usuario'] ?? 'guest';
 $menuItems = [
     'admin' => [
         ['route' => 'admin/painel', 'label' => 'Painel'],
+        ['route' => 'admin/lotes', 'label' => 'Lotes'],
+        ['route' => 'admin/servicos', 'label' => 'Serviços'],
         ['route' => 'admin/usuarios', 'label' => 'Usuários'],
         ['route' => 'admin/empresas', 'label' => 'Empresas'],
-        ['route' => 'admin/lotes', 'label' => 'Lotes'],
         ['route' => 'admin/operacoes', 'label' => 'Operações'],
-        ['route' => 'admin/servicos', 'label' => 'Serviços'],
-        ['route'=> 'admin/pecas', 'label'=> 'Peças'],
+        ['route' => 'admin/pecas', 'label'=> 'Peças'],
     ],
     'costureira' => [
         ['route' => 'costura/painel', 'label' => 'Painel'],

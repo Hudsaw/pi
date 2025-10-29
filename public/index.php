@@ -53,9 +53,7 @@ $router->get('/admin/criar-lote', 'AdminController@mostrarCriarLote', ['AuthMidd
 $router->post('/admin/criar-lote', 'AdminController@criarLote', ['AuthMiddleware', 'RoleMiddleware::admin']);
 $router->get('/admin/visualizar-lote', 'AdminController@visualizarLote', ['AuthMiddleware', 'RoleMiddleware::admin']);
 $router->get('/admin/editar-lote', 'AdminController@editarLote', ['AuthMiddleware', 'RoleMiddleware::admin']);
-$router->post('/admin/criar-peca', 'AdminController@criarPeca', ['AuthMiddleware', 'RoleMiddleware::admin']);
 $router->get('/admin/remover-lote', 'AdminController@removerLote', ['AuthMiddleware', 'RoleMiddleware::admin']);
-$router->get('/admin/remover-peca', 'AdminController@removerPeca', ['AuthMiddleware', 'RoleMiddleware::admin']);
 
 // Rotas para operações
 $router->get('/admin/operacoes', 'AdminController@operacoes', ['AuthMiddleware', 'RoleMiddleware::admin']);
@@ -78,9 +76,16 @@ $router->get('/admin/desvincular-costureira', 'AdminController@desvincularCostur
 $router->get('/admin/remover-servico', 'AdminController@removerServico', ['AuthMiddleware', 'RoleMiddleware::admin']);
 $router->post('/admin/finalizar-servico', 'AdminController@finalizarServico', ['AuthMiddleware', 'RoleMiddleware::admin']);
 
-//Cadastro de peças
+// Peças
 $router->get('/admin/pecas', 'AdminController@pecas', ['AuthMiddleware', 'RoleMiddleware::admin']);
-
+$router->post('/admin/criar-peca', 'AdminController@criarPeca', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->get('/admin/remover-peca', 'AdminController@removerPeca', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->post('/admin/criar-tipo-peca', 'AdminController@criarTipoPeca', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->post('/admin/criar-cor', 'AdminController@criarCor', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->post('/admin/criar-tamanho', 'AdminController@criarTamanho', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->get('/admin/remover-tipo-peca', 'AdminController@removerTipoPeca', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->get('/admin/remover-cor', 'AdminController@removerCor', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->get('/admin/remover-tamanho', 'AdminController@removerTamanho', ['AuthMiddleware', 'RoleMiddleware::admin']);
 
 // Rotas da Costureira
 //$router->get('/costura/painel', 'CosturaController@painel', ['AuthMiddleware', 'RoleMiddleware::costureira']);

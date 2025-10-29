@@ -1,6 +1,6 @@
 <div class="conteudo flex">
 <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
-    <form class="formulario-cadastro auth-form" method="POST" action="<?= BASE_URL ?>admin/atualizar-operacao">
+    <form class="formulario-cadastro auth-form form-responsive" method="POST" action="<?= BASE_URL ?>admin/atualizar-operacao">
         <div class="titulo">Editar Operação</div>
         <?php if (!empty($errors)): ?>
             <div class="erro">
@@ -15,16 +15,19 @@
         <input type="hidden" name="id" value="<?= htmlspecialchars($operacao['id']) ?>">
         
         <hr class="shadow">
-        <span class="inputs flex center">
-            <span class="label flex vertical">
-                <label class="flex v-center" for="nome">Operação</label>
-                <label class="flex v-center" for="valor">Valor (R$)</label>
-            </span>
-            <span class="input flex vertical">
-                <input type="text" name="nome" id="nome" placeholder="Nome da operação" value="<?= htmlspecialchars($old['nome'] ?? $operacao['nome']) ?>" required>
-                <input type="text" name="valor" id="valor" maxlength="22" value="<?= htmlspecialchars($old['valor'] ?? number_format($operacao['valor'], 2, ',', '')) ?>" required>
-            </span>
-        </span>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="nome">Operação</label>
+                <input type="text" name="nome" id="nome" class="form-input" placeholder="Nome da operação" value="<?= htmlspecialchars($old['nome'] ?? $operacao['nome']) ?>" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="valor">Valor (R$)</label>
+                <input type="text" name="valor" id="valor" class="form-input" maxlength="22" value="<?= htmlspecialchars($old['valor'] ?? number_format($operacao['valor'], 2, ',', '')) ?>" required>
+            </div>
+        </div>
+        
         <br>
         <hr>
         <div class="flex h-center l-gap">

@@ -23,6 +23,7 @@
 body {
     margin: 0;
     font-family: 'Schibsted Grotesk', sans-serif;
+    overflow: hidden;
 }
 
 .sidebar-header {
@@ -103,12 +104,16 @@ input[type="submit"] {
 }
 
 .topo {
-    height: 10%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10vh;
     padding-inline: 10%;
 }
 
 .conteudo {
-    height: 90%;
+    height: 80vh;
 }
 
 .painel {
@@ -185,7 +190,6 @@ select {
     padding: calc(0.5rem - 1px);
     border: 1px solid var(--cinza);
     border-radius: 4px;
-    height: 31px;
 }
 
 label {
@@ -289,13 +293,83 @@ label {
     font-size: 0.9rem;
 }
 
-/* FORMULÁRIOS */
-.formulario-cadastro {
+/* NOVOS ESTILOS PARA FORMULÁRIOS RESPONSIVOS */
+.form-responsive {
     width: 100%;
 }
 
-.formulario-cadastro hr {
-    margin-bottom: 2rem;
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    flex: 1 1 calc(50% - 1rem);
+    min-width: 250px;
+}
+
+.form-group-full {
+    flex: 1 1 100%;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--azul-escuro);
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--cinza);
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+    min-height: 48px; 
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--azul);
+    box-shadow: 0 0 0 2px rgba(0, 180, 216, 0.1);
+}
+
+.form-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--cinza);
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: white;
+    box-sizing: border-box;
+    min-height: 48px; 
+
+}
+
+.form-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid var(--cinza);
+    border-radius: 4px;
+    font-size: 1rem;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+/* FORMULÁRIOS */
+.formulario-cadastro .inputs {
+    display: block !important;
+}
+
+.formulario-cadastro .label,
+.formulario-cadastro .input {
+    display: block !important;
+    flex-direction: column !important;
 }
 
 .titulo {
@@ -323,12 +397,7 @@ label {
     /* margin: 0 auto; */
 }
 
-.formulario-cadastro .inputs {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 1rem;
-    align-items: start;
-}
+
 
 .label {
     display: flex;
@@ -621,12 +690,108 @@ textarea {
     width: 100%;
 }
 
+/* ESTILOS PARA A PÁGINA DE PEÇAS */
+.accordion-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.accordion-item {
+    margin-bottom: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+}
+
+.accordion-header {
+    padding: 15px 20px;
+    background: #f8f9fa;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.accordion-header:hover {
+    background: #e9ecef;
+}
+
+.accordion-header h3 {
+    margin: 0;
+    color: #495057;
+    font-size: 1.1em;
+}
+
+.accordion-icon {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #6c757d;
+    transition: transform 0.3s ease;
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: white;
+}
+
+.accordion-content.open {
+    max-height: 1000px;
+}
+
+.accordion-icon.open {
+    transform: rotate(45deg);
+}
+
+.tabela-formulario {
+    padding: 0 20px 20px 20px;
+}
+
+.cor-display {
+    width: 25px;
+    height: 25px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    display: inline-block;
+}
+
+.color-picker {
+    width: 60px;
+    height: 38px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.input-ordem {
+    width: 100px;
+}
+
+.small-label {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.v-center {
+    align-items: center;
+}
+
+
 /* RESPONSIVIDADE */
 
 /* Tablet e Mobile (até 1024px) */
-@media (max-width: 1024px) {
+@media (max-width: 1024px) {    
     .menu {
-        display: none; /* Esconde sidebar no mobile */
+        display: none;
     }
     
     .topo {
@@ -635,7 +800,8 @@ textarea {
     }
     
     .conteudo {
-        height: 92vh;
+        height: 85vh;
+        overflow-x: auto;
     }
     
     .dashboard-admin,
@@ -671,6 +837,7 @@ textarea {
     .formulario-cadastro .inputs .input textarea {
         padding: 0.5rem;
     }
+    
     
     /* Navbar Mobile */
     .navbar-mobile {
@@ -716,10 +883,17 @@ textarea {
         gap: 1rem;
     }
     
-    /* Ajusta conteúdo para não ficar atrás da navbar mobile */
-    .dashboard-admin,
-    .dashboard-costureira {
-        padding-bottom: 80px;
+    .pecas-container {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+    
+    .item-tabela {
+        padding: 1rem;
+    }
+    
+    .tabela-formulario table {
+        font-size: 0.9rem;
     }
 }
 
@@ -727,6 +901,7 @@ textarea {
 @media (max-width: 768px) {
     .formulario-cadastro {
         padding: 1rem;
+        padding-bottom: 60px;
     }
     
     .tabela-formulario {
@@ -747,6 +922,15 @@ textarea {
         min-width: auto;
         width: 100%;
         padding: 0.25rem 0;
+    }
+
+    .pecas-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .item-tabela {
+        padding: 1rem;
     }
     
     /* Melhoria para a tabela de peças em mobile */
@@ -780,6 +964,14 @@ textarea {
     h3 {
         font-size: 1.5rem;
     }
+
+    .form-group {
+        flex: 1 1 100%;
+    }
+    
+    .form-row {
+        gap: 1rem;
+    }
 }
 
 /* Mobile Pequeno (480px para baixo) */
@@ -788,6 +980,7 @@ textarea {
     .dashboard-costureira,
     .formulario-cadastro {
         padding: 0.5rem;
+        padding-bottom: 40px;
     }
     
     .titulo {
@@ -798,6 +991,14 @@ textarea {
     .tabela-formulario {
         padding: 5px;
         width: calc(100% - 10px);
+    }
+
+    .pecas-container {
+        gap: 0.75rem;
+    }
+    
+    .item-tabela {
+        padding: 0.75rem;
     }
     
     /* Scroll horizontal para tabela em mobile muito pequeno */

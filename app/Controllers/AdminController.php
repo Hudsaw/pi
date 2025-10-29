@@ -1485,21 +1485,248 @@ private function validarServico($post)
 
     return $data;
 }
- public function pecas()
-    {
-        error_log("Exibindo peças");
-        $user = $this->getUsuario();
-        $filtro = $_GET['filtro'] ?? 'ativos';
-        
+public function pecas()
+{
+    error_log("Exibindo peças");
+    $user = $this->getUsuario();
+    
+    // Buscar todos os dados
+    $tiposPeca = $this->pecaModel->getTiposAtivos();
+    $cores = $this->pecaModel->getCoresAtivas();
+    $tamanhos = $this->pecaModel->getTamanhosAtivos();
 
-        $this->render('admin/pecas', [
-            'title'           => 'PontoCerto - Peças',
-            'user'            => $user,
-            'nomeUsuario'     => $user ? $user['nome'] : 'Visitante',
-            'usuarioLogado'   => $this->estaLogado(),
-            'filtro'          => $filtro
-        ]);
+    $this->render('admin/pecas', [
+        'title'           => 'PontoCerto - Peças',
+        'user'            => $user,
+        'nomeUsuario'     => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado'   => $this->estaLogado(),
+        'tiposPeca'       => $tiposPeca,
+        'cores'           => $cores,
+        'tamanhos'        => $tamanhos,
+        'errors'          => $_SESSION['pecas_erros'] ?? [],
+        'old'             => $_SESSION['pecas_data'] ?? []
+    ]);
+    
+    unset($_SESSION['pecas_erros'], $_SESSION['pecas_data']);
+}
+
+public function criarTipoPeca()
+{
+    error_log("Tentativa de criação de tipo de peça");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/pecas');
     }
+
+    $data = $this->validarTipoPeca($_POST);
+
+    if (isset($data['errors'])) {
+        $_SESSION['pecas_erros']['tipo'] = $data['errors'];
+        $_SESSION['pecas_data']['tipo'] = $_POST;
+        $this->redirect('admin/pecas');
+    }
+
+    try {
+        $tipoId = $this->pecaModel->criarTipo($data);
+        $_SESSION['success_message'] = 'Tipo de peça criado com sucesso!';
+        $this->redirect('admin/pecas');
+    } catch (Exception $e) {
+        $_SESSION['pecas_erros']['tipo'] = ['Falha ao criar tipo de peça: ' . $e->getMessage()];
+        $this->redirect('admin/pecas');
+    }
+}
+
+public function criarCor()
+{
+    error_log("Tentativa de criação de cor");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/pecas');
+    }
+
+    $data = $this->validarCor($_POST);
+
+    if (isset($data['errors'])) {
+        $_SESSION['pecas_erros']['cor'] = $data['errors'];
+        $_SESSION['pecas_data']['cor'] = $_POST;
+        $this->redirect('admin/pecas');
+    }
+
+    try {
+        $corId = $this->pecaModel->criarCor($data);
+        $_SESSION['success_message'] = 'Cor criada com sucesso!';
+        $this->redirect('admin/pecas');
+    } catch (Exception $e) {
+        $_SESSION['pecas_erros']['cor'] = ['Falha ao criar cor: ' . $e->getMessage()];
+        $this->redirect('admin/pecas');
+    }
+}
+
+public function criarTamanho()
+{
+    error_log("Tentativa de criação de tamanho");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/pecas');
+    }
+
+    $data = $this->validarTamanho($_POST);
+
+    if (isset($data['errors'])) {
+        $_SESSION['pecas_erros']['tamanho'] = $data['errors'];
+        $_SESSION['pecas_data']['tamanho'] = $_POST;
+        $this->redirect('admin/pecas');
+    }
+
+    try {
+        $tamanhoId = $this->pecaModel->criarTamanho($data);
+        $_SESSION['success_message'] = 'Tamanho criado com sucesso!';
+        $this->redirect('admin/pecas');
+    } catch (Exception $e) {
+        $_SESSION['pecas_erros']['tamanho'] = ['Falha ao criar tamanho: ' . $e->getMessage()];
+        $this->redirect('admin/pecas');
+    }
+}
+
+public function removerTipoPeca()
+{
+    error_log("Tentativa de remoção de tipo de peça");
+    $tipoId = $_GET['id'];
+
+    if (empty($tipoId) || !is_numeric($tipoId)) {
+        $_SESSION['error_message'] = 'ID de tipo de peça inválido';
+        $this->redirect('admin/pecas');
+    }
+
+    try {
+        $success = $this->pecaModel->desativarTipo($tipoId);
+
+        if ($success) {
+            $_SESSION['success_message'] = 'Tipo de peça removido com sucesso!';
+        } else {
+            $_SESSION['error_message'] = 'Erro ao remover o tipo de peça';
+        }
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Erro ao remover o tipo de peça: ' . $e->getMessage();
+    }
+
+    $this->redirect('admin/pecas');
+}
+
+public function removerCor()
+{
+    error_log("Tentativa de remoção de cor");
+    $corId = $_GET['id'];
+
+    if (empty($corId) || !is_numeric($corId)) {
+        $_SESSION['error_message'] = 'ID de cor inválido';
+        $this->redirect('admin/pecas');
+    }
+
+    try {
+        $success = $this->pecaModel->desativarCor($corId);
+
+        if ($success) {
+            $_SESSION['success_message'] = 'Cor removida com sucesso!';
+        } else {
+            $_SESSION['error_message'] = 'Erro ao remover a cor';
+        }
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Erro ao remover a cor: ' . $e->getMessage();
+    }
+
+    $this->redirect('admin/pecas');
+}
+
+public function removerTamanho()
+{
+    error_log("Tentativa de remoção de tamanho");
+    $tamanhoId = $_GET['id'];
+
+    if (empty($tamanhoId) || !is_numeric($tamanhoId)) {
+        $_SESSION['error_message'] = 'ID de tamanho inválido';
+        $this->redirect('admin/pecas');
+    }
+
+    try {
+        $success = $this->pecaModel->desativarTamanho($tamanhoId);
+
+        if ($success) {
+            $_SESSION['success_message'] = 'Tamanho removido com sucesso!';
+        } else {
+            $_SESSION['error_message'] = 'Erro ao remover o tamanho';
+        }
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Erro ao remover o tamanho: ' . $e->getMessage();
+    }
+
+    $this->redirect('admin/pecas');
+}
+
+// Métodos de validação
+private function validarTipoPeca($post)
+{
+    $errors = [];
+    $data = [
+        'nome' => trim($post['nome'] ?? ''),
+        'descricao' => trim($post['descricao'] ?? '')
+    ];
+
+    if (empty($data['nome'])) {
+        $errors['nome'] = 'Nome é obrigatório';
+    }
+
+    if (!empty($errors)) {
+        return ['errors' => $errors];
+    }
+
+    return $data;
+}
+
+private function validarCor($post)
+{
+    $errors = [];
+    $data = [
+        'nome' => trim($post['nome'] ?? ''),
+        'codigo_hex' => trim($post['codigo_hex'] ?? '')
+    ];
+
+    if (empty($data['nome'])) {
+        $errors['nome'] = 'Nome é obrigatório';
+    }
+
+    if (empty($data['codigo_hex'])) {
+        $errors['codigo_hex'] = 'Código hexadecimal é obrigatório';
+    } elseif (!preg_match('/^#[0-9A-F]{6}$/i', $data['codigo_hex'])) {
+        $errors['codigo_hex'] = 'Código hexadecimal inválido (formato: #FFFFFF)';
+    }
+
+    if (!empty($errors)) {
+        return ['errors' => $errors];
+    }
+
+    return $data;
+}
+
+private function validarTamanho($post)
+{
+    $errors = [];
+    $data = [
+        'nome' => trim($post['nome'] ?? ''),
+        'ordem' => trim($post['ordem'] ?? '')
+    ];
+
+    if (empty($data['nome'])) {
+        $errors['nome'] = 'Nome é obrigatório';
+    }
+
+    if (empty($data['ordem']) || !is_numeric($data['ordem'])) {
+        $errors['ordem'] = 'Ordem deve ser um número';
+    }
+
+    if (!empty($errors)) {
+        return ['errors' => $errors];
+    }
+
+    return $data;
+}
 
 }
 

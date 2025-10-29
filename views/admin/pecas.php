@@ -1,9 +1,8 @@
 <div class="conteudo flex">
     <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
 
-    <form class="formulario-cadastro auth-form" method="POST" action="<?= BASE_URL ?>admin/criar-lote">
-        <div class="titulo">Cadastro de Peças</div>
-
+    <div class="conteudo-tabela">
+        <h2>Cadastro de Peças</h2>
         <?php if (!empty($errors)): ?>
             <div class="erro">
                 <ul>
@@ -19,174 +18,209 @@
                 </ul>
             </div>
         <?php endif; ?>
-        <hr class="shadow">
-        <span class="flex horizontal space-between"> 
-        <span class="item-tabela">    
-            <div class="titulo ">Tipo de peça</div>
-            <div class="tabela-formulario">
-                <table cellspacing='0' class="redondinho shadow">
-                    <thead>
-                        <tr>
-                            <th>Tipo</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pecas-container">
-                        <!-- Linha inicial -->
-                        <tr class="linha-peca">
-                            <td class="ac">
-                                <input type="text" name="tipo[0][tipo]" placeholder="Tipo"
-                                    value="<?= htmlspecialchars($old['tipo'][0]['tipo'] ?? '') ?>" required>
-                            </td>
+
+        <div class="accordion-container">
+            <!-- Tipos de Peça -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion('tipos')">
+                    <h3>Tipos de Peça</h3>
+                    <span class="accordion-icon" id="icon-tipos">+</span>
+                </div>
+                <div class="accordion-content" id="content-tipos">
+                    <form method="POST" action="<?= BASE_URL ?>admin/criar-tipo-peca" class="form-adicionar">
+                        <div class="flex s-gap v-center">
+                            <input type="text" name="nome" placeholder="Novo tipo de peça" 
+                                   value="<?= htmlspecialchars($old['tipo']['nome'] ?? '') ?>" required
+                                   class="flex-1">
+                            <input type="text" name="descricao" placeholder="Descrição (opcional)"
+                                   value="<?= htmlspecialchars($old['tipo']['descricao'] ?? '') ?>"
+                                   class="flex-1">
+                            <button type="submit" class="botao-azul pequeno">Adicionar</button>
+                        </div>
+                    </form>
                     
-                            <td class="ac">
-                                <button type="button" class="botao-remover pequeno"
-                                    onclick="removerPeca(this)">Remover</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="7" class="ac">
-                                <button type="button" class="botao-azul" onclick="adicionarTipo()">Adicionar Tipo</button>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>  
-            </span> 
-            <span class="item-tabela"> 
-             <div class="titulo ">Cores</div>
-            <div class="tabela-formulario">
-                <table cellspacing='0' class="redondinho shadow">
-                    <thead>
-                        <tr>
-                            <th>Cor</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pecas-container">
-                        <!-- Linha inicial -->
-                        <tr class="linha-peca">
-                            <td class="ac">
-                                <input type="text" name="cor[0][cor]" placeholder="Cor"
-                                    value="<?= htmlspecialchars($old['cor'][0]['cor'] ?? '') ?>" required>
-                            </td>
-                    
-                            <td class="ac">
-                                <button type="button" class="botao-remover pequeno"
-                                    onclick="removerPeca(this)">Remover</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="7" class="ac">
-                                <button type="button" class="botao-azul" onclick="adicionarTipo()">Adicionar cor</button>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                    <div class="tabela-formulario">
+                        <table cellspacing='0' class="redondinho shadow">
+                            <thead>
+                                <tr>
+                                    <th class="ae">Nome</th>
+                                    <th class="ae">Descrição</th>
+                                    <th class="ac">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($tiposPeca)): ?>
+                                    <tr>
+                                        <td colspan="3" class="ac">Nenhum tipo de peça cadastrado</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($tiposPeca as $tipo): ?>
+                                        <tr>
+                                            <td class="ae"><?= htmlspecialchars($tipo['nome']) ?></td>
+                                            <td class="ae"><?= htmlspecialchars($tipo['descricao'] ?? '') ?></td>
+                                            <td class="ac">
+                                                <a href="<?= BASE_URL ?>admin/remover-tipo-peca?id=<?= $tipo['id'] ?>" 
+                                                   onclick="return confirm('Tem certeza que deseja remover este tipo de peça?')"
+                                                   title="Remover">
+                                                    <img class="icone" src="<?= ASSETS_URL ?>icones/remover.svg" alt="remover">
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            </span> 
-            <span class="item-tabela">
-               <div class="titulo ">Tamanhos</div>
-            <div class="tabela-formulario">
-                <table cellspacing='0' class="redondinho shadow">
-                    <thead>
-                        <tr>
-                            <th>Tamanho</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pecas-container">
-                        <!-- Linha inicial -->
-                        <tr class="linha-peca">
-                            <td class="ac">
-                                <input type="text" name="tamanho[0][tamanho]" placeholder="Tamanho"
-                                    value="<?= htmlspecialchars($old['tamanho'][0]['tamanho'] ?? '') ?>" required>
-                            </td>
+
+            <!-- Cores -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion('cores')">
+                    <h3>Cores</h3>
+                    <span class="accordion-icon" id="icon-cores">+</span>
+                </div>
+                <div class="accordion-content" id="content-cores">
+                    <form method="POST" action="<?= BASE_URL ?>admin/criar-cor" class="form-adicionar">
+                        <div class="flex s-gap v-center">
+                            <input type="text" name="nome" placeholder="Nova cor" 
+                                   value="<?= htmlspecialchars($old['cor']['nome'] ?? '') ?>" required
+                                   class="flex-1">
+                            <div class="flex v-center s-gap">
+                                <label class="small-label">Cor:</label>
+                                <input type="color" name="codigo_hex" value="<?= htmlspecialchars($old['cor']['codigo_hex'] ?? '#000000') ?>" 
+                                       class="color-picker">
+                            </div>
+                            <button type="submit" class="botao-azul pequeno">Adicionar</button>
+                        </div>
+                    </form>
                     
-                            <td class="ac">
-                                <button type="button" class="botao-remover pequeno"
-                                    onclick="removerPeca(this)">Remover</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="7" class="ac">
-                                <button type="button" class="botao-azul" onclick="adicionarTipo()">Adicionar Tamanho</button>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                    <div class="tabela-formulario">
+                        <table cellspacing='0' class="redondinho shadow">
+                            <thead>
+                                <tr>
+                                    <th class="ae">Nome</th>
+                                    <th class="ae">Cor</th>
+                                    <th class="ac">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($cores)): ?>
+                                    <tr>
+                                        <td colspan="3" class="ac">Nenhuma cor cadastrada</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($cores as $cor): ?>
+                                        <tr>
+                                            <td class="ae"><?= htmlspecialchars($cor['nome']) ?></td>
+                                            <td class="ae">
+                                                <div class="flex v-center s-gap">
+                                                    <div class="cor-display" style="background-color: <?= htmlspecialchars($cor['codigo_hex']) ?>"></div>
+                                                    <?= htmlspecialchars($cor['codigo_hex']) ?>
+                                                </div>
+                                            </td>
+                                            <td class="ac">
+                                                <a href="<?= BASE_URL ?>admin/remover-cor?id=<?= $cor['id'] ?>" 
+                                                   onclick="return confirm('Tem certeza que deseja remover esta cor?')"
+                                                   title="Remover">
+                                                    <img class="icone" src="<?= ASSETS_URL ?>icones/remover.svg" alt="remover">
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            </span>
-        </span>
-        <br>
-        <hr>
-        <div class="flex h-center l-gap">
-            <a href="<?= BASE_URL ?>admin/lotes" class="botao">Voltar</a>
-            <input type="submit" class="botao" value="Salvar">
+
+            <!-- Tamanhos -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion('tamanhos')">
+                    <h3>Tamanhos</h3>
+                    <span class="accordion-icon" id="icon-tamanhos">+</span>
+                </div>
+                <div class="accordion-content" id="content-tamanhos">
+                    <form method="POST" action="<?= BASE_URL ?>admin/criar-tamanho" class="form-adicionar">
+                        <div class="flex s-gap v-center">
+                            <input type="text" name="nome" placeholder="Novo tamanho" 
+                                   value="<?= htmlspecialchars($old['tamanho']['nome'] ?? '') ?>" required
+                                   class="flex-1">
+                            <input type="number" name="ordem" placeholder="Ordem" min="1"
+                                   value="<?= htmlspecialchars($old['tamanho']['ordem'] ?? '') ?>" required 
+                                   class="input-ordem">
+                            <button type="submit" class="botao-azul pequeno">Adicionar</button>
+                        </div>
+                    </form>
+                    
+                    <div class="tabela-formulario">
+                        <table cellspacing='0' class="redondinho shadow">
+                            <thead>
+                                <tr>
+                                    <th class="ae">Nome</th>
+                                    <th class="ae">Ordem</th>
+                                    <th class="ac">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($tamanhos)): ?>
+                                    <tr>
+                                        <td colspan="3" class="ac">Nenhum tamanho cadastrado</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($tamanhos as $tamanho): ?>
+                                        <tr>
+                                            <td class="ae"><?= htmlspecialchars($tamanho['nome']) ?></td>
+                                            <td class="ae"><?= htmlspecialchars($tamanho['ordem']) ?></td>
+                                            <td class="ac">
+                                                <a href="<?= BASE_URL ?>admin/remover-tamanho?id=<?= $tamanho['id'] ?>" 
+                                                   onclick="return confirm('Tem certeza que deseja remover este tamanho?')"
+                                                   title="Remover">
+                                                    <img class="icone" src="<?= ASSETS_URL ?>icones/remover.svg" alt="remover">
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
+
+        <br>
+        <br>
+
+    </div>
 </div>
 
 <script>
-    let pecaCount = 1;
+let accordionAberto = null;
 
-    function adicionarPeca() {
-        const container = document.getElementById('pecas-container');
-        const novaLinha = document.createElement('tr');
-        novaLinha.className = 'linha-peca';
-
-        novaLinha.innerHTML = `
-        <td class="ac">
-            <select name="pecas[${pecaCount}][tipo_peca_id]" required>
-                <option value="">Selecione o tipo</option>
-                <?php foreach ($tiposPeca as $tipo): ?>
-                    <option value="<?= $tipo['id'] ?>"><?= htmlspecialchars($tipo['nome']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </td>
-        <td class="ac">
-            <select name="pecas[${pecaCount}][cor_id]" required>
-                <option value="">Selecione a cor</option>
-                <?php foreach ($cores as $cor): ?>
-                    <option value="<?= $cor['id'] ?>"><?= htmlspecialchars($cor['nome']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </td>
-        <td class="ac">
-            <select name="pecas[${pecaCount}][tamanho_id]" required>
-                <option value="">Selecione o tamanho</option>
-                <?php foreach ($tamanhos as $tamanho): ?>
-                    <option value="<?= $tamanho['id'] ?>"><?= htmlspecialchars($tamanho['nome']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </td>
-        <td class="ac">
-            <input type="number" name="pecas[${pecaCount}][quantidade]" placeholder="Quantidade" min="1" required>
-        </td>
-        <td class="ac">
-            <input type="number" name="pecas[${pecaCount}][valor_unitario]" step="0.01" min="0" placeholder="Valor Unitário" required>
-        </td>
-        <td class="ac">
-            <button type="button" class="botao-remover pequeno" onclick="removerPeca(this)">Remover</button>
-        </td>
-    `;
-
-        container.appendChild(novaLinha);
-        pecaCount++;
+function toggleAccordion(id) {
+    const content = document.getElementById('content-' + id);
+    const icon = document.getElementById('icon-' + id);
+    
+    // Fecha o accordion anterior se existir
+    if (accordionAberto && accordionAberto !== id) {
+        const contentAnterior = document.getElementById('content-' + accordionAberto);
+        const iconAnterior = document.getElementById('icon-' + accordionAberto);
+        
+        contentAnterior.classList.remove('open');
+        iconAnterior.classList.remove('open');
     }
-
-    function removerPeca(botao) {
-        const linha = botao.closest('.linha-peca');
-        if (document.querySelectorAll('.linha-peca').length > 1) {
-            linha.remove();
-        } else {
-            alert('É necessário ter pelo menos uma peça no lote.');
-        }
+    
+    // Abre/fecha o atual
+    if (content.classList.contains('open')) {
+        content.classList.remove('open');
+        icon.classList.remove('open');
+        accordionAberto = null;
+    } else {
+        content.classList.add('open');
+        icon.classList.add('open');
+        accordionAberto = id;
     }
+}
 </script>

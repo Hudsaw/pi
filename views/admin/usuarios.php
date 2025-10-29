@@ -1,6 +1,7 @@
 <div class="conteudo flex">
 <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
     <div class="conteudo-tabela">
+    <h2>Usuários</h2>
         <div class="filtro flex s-gap">
             <input type="text" id="filtro" placeholder="Digite sua busca (nome ou especialidade)" onkeyup="filtrarUsuarios()">
             <span class="flex v-center">
@@ -15,7 +16,6 @@
                     <tr>
                         <th class="ae">Nome</th>
                         <th class="ae">Telefone</th>
-                        <th class="ae">CPF</th>
                         <th class="ae">Cidade</th>
                         <th class="ae">Especialidade</th>
                         <th class="ac">Ações</th>
@@ -26,7 +26,6 @@
                         <tr class="linha-usuario" data-ativo="<?= $usuario['ativo'] ? '1' : '0' ?>">
                             <td class="ae"><?= htmlspecialchars($usuario['nome']) ?></td>
                             <td class="ae" id="telefone"><?= htmlspecialchars($usuario['telefone']) ?></td>
-                            <td class="ae" id="cpf"><?= htmlspecialchars($usuario['cpf']) ?></td>
                             <td class="ae"><?= htmlspecialchars($usuario['cidade']) ?></td>
                             <td class="ae"><?= htmlspecialchars($usuario['especialidade'] ?? 'N/A') ?></td>
                             <td class="ac">

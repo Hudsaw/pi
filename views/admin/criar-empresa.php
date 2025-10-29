@@ -1,7 +1,7 @@
 <div class="conteudo flex">
     <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
     
-    <form class="formulario-cadastro auth-form" method="POST" action="<?= BASE_URL ?>admin/criar-empresa">
+    <form class="formulario-cadastro auth-form form-responsive" method="POST" action="<?= BASE_URL ?>admin/criar-empresa">
         <div class="titulo">Cadastro de Empresa</div>
         
         <?php if (!empty($errors)): ?>
@@ -15,30 +15,61 @@
         <?php endif; ?>
         
         <hr class="shadow">
-        <span class="inputs flex center">
-            <span class="label flex vertical">
-                <label class="flex v-center" for="nome">Nome da Empresa</label>
-                <label class="flex v-center" for="cnpj">CNPJ</label>
-                <label class="flex v-center" for="email">Email</label>
-                <label class="flex v-center" for="telefone">Telefone</label>
-                <label class="flex v-center" for="cep">CEP</label>
-                <label class="flex v-center" for="endereco">Endereço</label>
-                <label class="flex v-center" for="cidade">Cidade</label>
-                <label class="flex v-center" for="estado">Estado</label>
-                <label class="flex v-center" for="observacao">Observação</label>
-            </span>
-            <span class="input flex vertical">
-                <input type="text" name="nome" id="nome" placeholder="Nome da empresa" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
-                <input type="text" name="cnpj" id="cnpj" placeholder="00.000.000/0000-00" value="<?= htmlspecialchars($old['cnpj'] ?? '') ?>" required>
-                <input type="email" name="email" id="email" placeholder="email@empresa.com" value="<?= htmlspecialchars($old['email'] ?? '') ?>">
-                <input type="text" name="telefone" id="telefone" placeholder="(00) 00000-0000" value="<?= htmlspecialchars($old['telefone'] ?? '') ?>" required>
-                <input type="text" name="cep" id="cep" placeholder="00000-000" value="<?= htmlspecialchars($old['cep'] ?? '') ?>">
-                <input type="text" name="endereco" id="endereco" placeholder="Endereço completo" value="<?= htmlspecialchars($old['endereco'] ?? '') ?>">
-                <input type="text" name="cidade" id="cidade" placeholder="Cidade" value="<?= htmlspecialchars($old['cidade'] ?? '') ?>">
-                <input type="text" name="estado" id="estado" placeholder="UF" maxlength="2" value="<?= htmlspecialchars($old['estado'] ?? '') ?>">
-                <textarea name="observacao" id="observacao" placeholder="Observações"><?= htmlspecialchars($old['observacao'] ?? '') ?></textarea>
-            </span>
-        </span>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="nome">Nome da Empresa</label>
+                <input type="text" name="nome" id="nome" class="form-input" placeholder="Nome da empresa" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="cnpj">CNPJ</label>
+                <input type="text" name="cnpj" id="cnpj" class="form-input" placeholder="00.000.000/0000-00" value="<?= htmlspecialchars($old['cnpj'] ?? '') ?>" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" name="email" id="email" class="form-input" placeholder="email@empresa.com" value="<?= htmlspecialchars($old['email'] ?? '') ?>">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="telefone">Telefone</label>
+                <input type="text" name="telefone" id="telefone" class="form-input" placeholder="(00) 00000-0000" value="<?= htmlspecialchars($old['telefone'] ?? '') ?>" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="cep">CEP</label>
+                <input type="text" name="cep" id="cep" class="form-input" placeholder="00000-000" value="<?= htmlspecialchars($old['cep'] ?? '') ?>">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="cidade">Cidade</label>
+                <input type="text" name="cidade" id="cidade" class="form-input" placeholder="Cidade" value="<?= htmlspecialchars($old['cidade'] ?? '') ?>">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="estado">Estado</label>
+                <input type="text" name="estado" id="estado" class="form-input" placeholder="UF" maxlength="2" value="<?= htmlspecialchars($old['estado'] ?? '') ?>">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="endereco">Endereço</label>
+                <input type="text" name="endereco" id="endereco" class="form-input" placeholder="Endereço completo" value="<?= htmlspecialchars($old['endereco'] ?? '') ?>">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group-full">
+                <label class="form-label" for="observacao">Observação</label>
+                <textarea name="observacao" id="observacao" class="form-textarea" placeholder="Observações"><?= htmlspecialchars($old['observacao'] ?? '') ?></textarea>
+            </div>
+        </div>
         
         <br>
         <hr>

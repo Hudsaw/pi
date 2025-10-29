@@ -1,76 +1,88 @@
 <div class="conteudo flex">
 <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
-    
-    <form class="formulario-cadastro auth-form" method="POST" action="<?= BASE_URL ?>admin/atualizar-servico">
-        <input type="hidden" name="id" value="<?= $servico['id'] ?>">
-        <div class="titulo">Editar Serviço #<?= $servico['id'] ?></div>
-        
-        <?php if (!empty($errors)): ?>
-            <div class="erro">
-                <ul>
-                    <?php foreach ($errors as $field => $errorMessages): ?>
-                        <?php if (is_array($errorMessages)): ?>
-                            <?php foreach ($errorMessages as $error): ?>
-                                <li><?= htmlspecialchars($error) ?></li>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <li><?= htmlspecialchars($errorMessages) ?></li>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
-        
+    <form class="formulario-cadastro auth-form form-responsive" method="POST" action="<?= BASE_URL ?>admin/salvar-usuario">
+        <div class="titulo">Edição de usuário</div>
         <hr class="shadow">
-        <span class="flex vertical s-gap">
-            <span class="flex space-between">
-                <label class="flex v-center" for="lote_id">Lote</label>
-                <select name="lote_id" id="lote_id" required>
-                    <option value="">Selecione um lote</option>
-                    <?php foreach ($lotes as $lote): ?>
-                        <option value="<?= $lote['id'] ?>" <?= ($servico['lote_id'] == $lote['id']) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($lote['nome']) ?> - <?= htmlspecialchars($lote['colecao']) ?>
-                        </option>
-                    <?php endforeach; ?>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="nome">Nome Completo</label>
+                <input type="text" name="nome" id="nome" class="form-input" placeholder="Nome Completo" value="<?= $usuario['nome'] ?>">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="telefone">Telefone</label>
+                <input type="text" name="telefone" id="telefone" class="form-input" placeholder="Telefone" value="<?= $usuario['telefone'] ?>">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="text" name="email" id="email" class="form-input" placeholder="Email" value="<?= $usuario['email'] ?>">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="cpf">CPF</label>
+                <input type="text" name="cpf" id="cpf" class="form-input" placeholder="CPF" maxlength='14' value="<?= $usuario['cpf'] ?>">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="cep">CEP</label>
+                <input type="text" name="cep" id="cep" class="form-input" placeholder="CEP" value="<?= $usuario['cep'] ?>">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="logradouro">Logradouro</label>
+                <input type="text" name="logradouro" id="logradouro" class="form-input" placeholder="Logradouro" value="<?= $usuario['logradouro'] ?>">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="complemento">Complemento</label>
+                <input type="text" name="complemento" id="complemento" class="form-input" placeholder="Complemento" value="<?= $usuario['complemento'] ?>">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="cidade">Cidade</label>
+                <input type="text" name="cidade" id="cidade" class="form-input" placeholder="Cidade" value="<?= $usuario['cidade'] ?>">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="tipo_chave_pix">Tipo da chave PIX</label>
+                <select name="tipo_chave_pix" id="tipo_chave_pix" class="form-select">
+                    <option <?= $usuario['tipo_chave_pix'] === 'cpf' ? 'selected' : '' ?> value="cpf">CPF</option>
+                    <option <?= $usuario['tipo_chave_pix'] === 'cnpj' ? 'selected' : '' ?> value="cnpj">CNPJ</option>
+                    <option <?= $usuario['tipo_chave_pix'] === 'email' ? 'selected' : '' ?> value="email">Email</option>
+                    <option <?= $usuario['tipo_chave_pix'] === 'telefone' ? 'selected' : '' ?> value="telefone">Telefone</option>
+                    <option <?= $usuario['tipo_chave_pix'] === 'aleatoria' ? 'selected' : '' ?> value="aleatoria">Aleatória</option>
                 </select>
-                <label class="flex v-center" for="operacao_id">Operação</label>
-                <select name="operacao_id" id="operacao_id" required>
-                    <option value="">Selecione uma operação</option>
-                    <?php foreach ($operacoes as $operacao): ?>
-                        <option value="<?= $operacao['id'] ?>" data-valor="<?= $operacao['valor'] ?>" <?= ($servico['operacao_id'] == $operacao['id']) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($operacao['nome']) ?> - R$ <?= number_format($operacao['valor'], 2, ',', '.') ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <label class="flex v-center" for="quantidade_pecas">Quantidade de Peças</label>
-                <input type="number" name="quantidade_pecas" id="quantidade_pecas" placeholder="Quantidade de peças" min="1" value="<?= htmlspecialchars($servico['quantidade_pecas']) ?>" required>
-                <label class="flex v-center" for="valor_operacao">Valor da Operação (R$)</label>
-                <input type="number" name="valor_operacao" id="valor_operacao" step="0.01" min="0" placeholder="Valor da operação" value="<?= htmlspecialchars($servico['valor_operacao']) ?>" required>
-                <label class="flex v-center" for="data_envio">Data de Envio</label>
-                <input type="date" name="data_envio" id="data_envio" value="<?= htmlspecialchars($servico['data_envio']) ?>" required>
-            </span>
-            <span class="flex">
-                <label class="flex v-center" for="observacao">Observação</label>
-                <textarea name="observacao" id="observacao" placeholder="Observações"><?= htmlspecialchars($servico['observacao'] ?? '') ?></textarea>
-            </span>
-        </span>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="chave_pix">Chave PIX</label>
+                <input type="text" name="chave_pix" id="chave_pix" class="form-input" placeholder="Chave PIX" value="<?= $usuario['chave_pix'] ?>">
+            </div>
+        </div>
+        
+        <input type="hidden" name="id" value="<?= $usuario['id'] ?>">
         
         <br>
         <hr>
         <div class="flex h-center l-gap">
-            <a href="<?= BASE_URL ?>admin/visualizar-servico?id=<?= $servico['id'] ?>" class="botao">Cancelar</a>
-            <input type="submit" class="botao" value="Atualizar Serviço">
+            <a href="<?= BASE_URL ?>admin/visualizar-usuario?id=<?= $usuario['id'] ?>" class="botao">Voltar</a>
+            <input type="submit" class="botao" value="Salvar">
         </div>
     </form>
 </div>
-
+<script src="<?= ASSETS_URL ?>js/utils.js"></script>
 <script>
-// Preencher automaticamente o valor da operação quando selecionada
-document.getElementById('operacao_id').addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    const valor = selectedOption.getAttribute('data-valor');
-    if (valor) {
-        document.getElementById('valor_operacao').value = valor;
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    setupMasks();
 });
 </script>

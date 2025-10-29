@@ -1,6 +1,7 @@
 <div class="conteudo flex">
 <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
     <div class="conteudo-tabela">
+    <h2>Operações</h2>
         <div class="filtro flex s-gap">
             <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarOperacoes()">
             <span class="flex v-center">

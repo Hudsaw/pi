@@ -286,4 +286,18 @@ public function getTiposAtivos()
         return $this->pdo->lastInsertId();
     }
 
+    public function desativarCor($id)
+{
+    $sql = "UPDATE cores SET ativo = 0 WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([':id' => $id]);
+}
+
+public function desativarTamanho($id)
+{
+    $sql = "UPDATE tamanhos SET ativo = 0 WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([':id' => $id]);
+}
+
 }
