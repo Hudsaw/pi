@@ -1,58 +1,37 @@
-2<div class="conteudo flex">
+<div class="conteudo flex">
 <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
     
-    <div class="conteudo-tabela">
-        <div class="filtro flex s-gap v-center">
-            <h2>Serviço #<?= htmlspecialchars($servico['id']) ?></h2>
-            <a href="<?= BASE_URL ?>admin/servicos" class="botao-cinza">Voltar</a>
-        </div>
-        
-        <div class="detalhes-servico">
-            <div class="info-servico">
-                <div class="info-item">
-                    <span class="info-label">Lote:</span>
-                    <span class="info-value"><?= htmlspecialchars($servico['lote_nome']) ?> - <?= htmlspecialchars($servico['colecao']) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Operação:</span>
-                    <span class="info-value"><?= htmlspecialchars($servico['operacao_nome']) ?> (R$ <?= number_format($servico['valor_base_operacao'], 2, ',', '.') ?>)</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Quantidade de Peças:</span>
-                    <span class="info-value"><?= htmlspecialchars($servico['quantidade_pecas']) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Valor da Operação:</span>
-                    <span class="info-value">R$ <?= number_format($servico['valor_operacao'], 2, ',', '.') ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Valor Total:</span>
-                    <span class="info-value">R$ <?= number_format($servico['valor_operacao'] * $servico['quantidade_pecas'], 2, ',', '.') ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Data de Envio:</span>
-                    <span class="info-value"><?= date('d/m/Y', strtotime($servico['data_envio'])) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Status:</span>
-                    <span class="info-value status-<?= strtolower($servico['status']) ?>">
-                        <?= htmlspecialchars($servico['status']) ?>
-                    </span>
-                </div>
+    <form class="formulario-cadastro">
+        <div class="titulo">Serviço #<?= htmlspecialchars($servico['id']) ?></div>
+        <hr class="shadow">
+        <span class="lista-informacoes flex center">
+            <span class="lista-informacoes-coluna bold flex vertical">
+                <span class="flex v-center">Lote</span>
+                <span class="flex v-center">Operação</span>
+                <span class="flex v-center">Quantidade de peças</span>
+                <span class="flex v-center">Valor da operação</span>
+                <span class="flex v-center">Valor total</span>
+                <span class="flex v-center">Data de envio</span>
+                <span class="flex v-center">Status</span>
+                <span class="flex v-center">Observação</span>
+            </span>
+            <span class="lista-informacoes-coluna flex vertical">
+                <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['lote_nome']) ?> - <?= htmlspecialchars($servico['colecao']) ?></span>
+                <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['operacao_nome']) ?> (R$ <?= number_format($servico['valor_base_operacao'], 2, ',', '.') ?>)</span>
+                <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['quantidade_pecas']) ?></span>
+                <span class="flex v-center" style="min-height:20px">R$ <?= number_format($servico['valor_operacao'], 2, ',', '.') ?></span>
+                <span class="flex v-center" style="min-height:20px">R$ <?= number_format($servico['valor_operacao'] * $servico['quantidade_pecas'], 2, ',', '.') ?></span>
+                <span class="flex v-center" style="min-height:20px"><?= date('d/m/Y', strtotime($servico['data_envio'])) ?></span>
+                <span class="flex v-center status-<?= strtolower($servico['status']) ?>" style="min-height:20px"><?= htmlspecialchars($servico['status']) ?></span>
                 <?php if ($servico['data_finalizacao']): ?>
-                <div class="info-item">
-                    <span class="info-label">Data de Finalização:</span>
-                    <span class="info-value"><?= date('d/m/Y', strtotime($servico['data_finalizacao'])) ?></span>
-                </div>
+                <span class="flex v-center" style="min-height:20px"><?= date('d/m/Y', strtotime($servico['data_finalizacao'])) ?></span>
                 <?php endif; ?>
-                <div class="info-item">
-                    <span class="info-label">Observação:</span>
-                    <span class="info-value"><?= htmlspecialchars($servico['observacao'] ?? 'Nenhuma') ?></span>
-                </div>
-            </div>
-        </div>
+                <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['observacao'] ?? 'Nenhuma') ?></span>
+            </span>
+        </span>
         
         <!-- Costureiras vinculadas -->
+        <div>
         <h3>Costureiras Vinculadas</h3>
         <?php if (empty($servico['costureiras'])): ?>
             <p>Nenhuma costureira vinculada a este serviço.</p>
@@ -117,5 +96,6 @@
             </form>
         </div>
         <?php endif; ?>
+        </div>
     </div>
 </div>

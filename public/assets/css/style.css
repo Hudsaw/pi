@@ -175,7 +175,7 @@ hr {
     gap: 1.5rem;
 }
 
-input {
+input, textarea {
     padding: calc(0.5rem - 1px);
     border: 1px solid var(--cinza);
     border-radius: 4px;
@@ -558,6 +558,12 @@ tr:hover {
 
 .input-grande {
     width: 100%;
+}
+
+textarea {
+    width: 100%;
+    min-height: 4em;
+    resize: vertical;
 }
 
 .alerta {

@@ -14,7 +14,6 @@
             <table cellspacing='0' class="redondinho shadow">
                 <thead>
                     <tr>
-                        <th class="ae">ID</th>
                         <th class="ae">Nome</th>
                         <th class="ae">Valor (R$)</th>
                         <th class="ae">Status</th>
@@ -29,7 +28,6 @@
                     <?php else: ?>
                         <?php foreach ($listaOperacoes as $operacao): ?>
                             <tr>
-                                <td class="ae"><?= htmlspecialchars($operacao['id']) ?></td>
                                 <td class="ae"><?= htmlspecialchars($operacao['nome']) ?></td>
                                 <td class="ae">R$ <?= number_format($operacao['valor'], 2, ',', '.') ?></td>
                                 <td class="ae">

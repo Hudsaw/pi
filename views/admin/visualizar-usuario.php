@@ -1,8 +1,5 @@
 <div class="conteudo flex">
-    <div class="menu flex vertical shadow">
-        <a class="item bold">Usuários</a>
-        <a href="<?= BASE_URL ?>/" class="sair">Sair</a>
-    </div>
+    <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
     <form class="formulario-cadastro">
         <div class="titulo"><?= $usuario['nome'] ?></div>
         <hr class="shadow">

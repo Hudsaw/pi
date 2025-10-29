@@ -1,34 +1,19 @@
 <div class="conteudo flex">
 <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
-    
     <div class="conteudo-tabela">
-        <div class="filtro flex s-gap v-center">
-            <h2>Serviços</h2>
-            <a href="<?= BASE_URL ?>admin/criar-servico" class="botao-azul">Novo Serviço</a>
-            
-            <!-- Filtros -->
-            <select id="filtro-status" onchange="filtrarServicos()" class="campo">
-                <option value="ativos" <?= ($filtro === 'ativos') ? 'selected' : '' ?>>Ativos</option>
-                <option value="finalizados" <?= ($filtro === 'finalizados') ? 'selected' : '' ?>>Finalizados</option>
-                <option value="inativos" <?= ($filtro === 'inativos') ? 'selected' : '' ?>>Inativos</option>
-            </select>
-            
-            <!-- Busca -->
-            <form method="GET" class="flex v-center s-gap">
-                <input type="hidden" name="filtro" value="<?= $filtro ?>">
-                <input type="text" name="search" placeholder="Buscar serviços..." value="<?= htmlspecialchars($termoBusca) ?>" class="campo-busca">
-                <button type="submit" class="botao-azul pequeno">Buscar</button>
-                <?php if (!empty($termoBusca)): ?>
-                    <a href="?filtro=<?= $filtro ?>" class="botao-cinza pequeno">Limpar</a>
-                <?php endif; ?>
-            </form>
+        <div class="filtro flex s-gap">
+            <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrar()">
+            <span class="flex v-center">
+                <input type="checkbox" id="inativos" onchange="filtrarInativos(this)">
+                <label class="flex v-center" for="inativos">Mostrar Inativos</label>
+            </span>
+            <a href="<?= BASE_URL ?>admin/criar-servico" class="botao-azul">Criar Serviço</a>
         </div>
 
         <div class="tabela">
             <table cellspacing='0' class="redondinho shadow">
                 <thead>
                     <tr>
-                        <th class="ae">ID</th>
                         <th class="ae">Lote</th>
                         <th class="ae">Operação</th>
                         <th class="ae">Costureira</th>
@@ -47,7 +32,6 @@
                     <?php else: ?>
                         <?php foreach ($listaServicos as $servico): ?>
                             <tr>
-                                <td class="ae"><?= htmlspecialchars($servico['id']) ?></td>
                                 <td class="ae"><?= htmlspecialchars($servico['lote_nome']) ?></td>
                                 <td class="ae"><?= htmlspecialchars($servico['operacao_nome']) ?></td>
 <td class="ae"><?= htmlspecialchars($servico['costureiras_vinculadas'] ?? 'Não vinculada') ?></td>                                <td class="ae"><?= htmlspecialchars($servico['quantidade_pecas']) ?></td>

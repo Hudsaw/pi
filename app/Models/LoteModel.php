@@ -167,7 +167,12 @@ public function getLotes($filtro = 'ativos')
         $where = "WHERE status = 'Inativo'";
     }
 
-    $sql = "SELECT * FROM lotes $where ORDER BY data_entrada DESC";
+    $sql = "SELECT *, 
+            CASE
+            WHEN data_entrega IS NOT NULL THEN 'Finalizado' 
+            WHEN EXISTS (SELECT 1 FROM servicos WHERE servicos.lote_id=lotes.id) THEN 'Andamento' 
+            ELSE 'Recebido' 
+            END AS 'status' FROM lotes";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute();
 

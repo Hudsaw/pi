@@ -106,7 +106,7 @@
                                 value="<?= htmlspecialchars($old['pecas'][0]['valor_unitario'] ?? '') ?>" required>
                         </td>
                         <td class="ac">
-                            <button type="button" class="botao-vermelho pequeno"
+                            <button type="button" class="botao-remover pequeno"
                                 onclick="removerPeca(this)">Remover</button>
                         </td>
                     </tr>
@@ -170,7 +170,7 @@
             <input type="number" name="pecas[${pecaCount}][valor_unitario]" step="0.01" min="0" placeholder="Valor Unitário" required>
         </td>
         <td class="ac">
-            <button type="button" class="botao-vermelho pequeno" onclick="removerPeca(this)">Remover</button>
+            <button type="button" class="botao-remover pequeno" onclick="removerPeca(this)">Remover</button>
         </td>
     `;
 

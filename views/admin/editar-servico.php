@@ -22,16 +22,9 @@
         <?php endif; ?>
         
         <hr class="shadow">
-        <span class="inputs flex center">
-            <span class="label flex vertical">
+        <span class="flex vertical s-gap">
+            <span class="flex space-between">
                 <label class="flex v-center" for="lote_id">Lote</label>
-                <label class="flex v-center" for="operacao_id">Operação</label>
-                <label class="flex v-center" for="quantidade_pecas">Quantidade de Peças</label>
-                <label class="flex v-center" for="valor_operacao">Valor da Operação (R$)</label>
-                <label class="flex v-center" for="data_envio">Data de Envio</label>
-                <label class="flex v-center" for="observacao">Observação</label>
-            </span>
-            <span class="input flex vertical">
                 <select name="lote_id" id="lote_id" required>
                     <option value="">Selecione um lote</option>
                     <?php foreach ($lotes as $lote): ?>
@@ -40,7 +33,7 @@
                         </option>
                     <?php endforeach; ?>
                 </select>
-                
+                <label class="flex v-center" for="operacao_id">Operação</label>
                 <select name="operacao_id" id="operacao_id" required>
                     <option value="">Selecione uma operação</option>
                     <?php foreach ($operacoes as $operacao): ?>
@@ -49,10 +42,15 @@
                         </option>
                     <?php endforeach; ?>
                 </select>
-                
+                <label class="flex v-center" for="quantidade_pecas">Quantidade de Peças</label>
                 <input type="number" name="quantidade_pecas" id="quantidade_pecas" placeholder="Quantidade de peças" min="1" value="<?= htmlspecialchars($servico['quantidade_pecas']) ?>" required>
+                <label class="flex v-center" for="valor_operacao">Valor da Operação (R$)</label>
                 <input type="number" name="valor_operacao" id="valor_operacao" step="0.01" min="0" placeholder="Valor da operação" value="<?= htmlspecialchars($servico['valor_operacao']) ?>" required>
+                <label class="flex v-center" for="data_envio">Data de Envio</label>
                 <input type="date" name="data_envio" id="data_envio" value="<?= htmlspecialchars($servico['data_envio']) ?>" required>
+            </span>
+            <span class="flex">
+                <label class="flex v-center" for="observacao">Observação</label>
                 <textarea name="observacao" id="observacao" placeholder="Observações"><?= htmlspecialchars($servico['observacao'] ?? '') ?></textarea>
             </span>
         </span>

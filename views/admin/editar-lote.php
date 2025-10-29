@@ -2,7 +2,7 @@
     <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
 
     <form class="formulario-cadastro auth-form" method="POST" action="<?= BASE_URL ?>admin/criar-lote">
-        <div class="titulo">Cadastro de Lotes</div>
+        <div class="titulo">Edição de Lotes</div>
 
         <?php if (!empty($errors)): ?>
             <div class="erro">
@@ -106,7 +106,7 @@
                                 value="<?= htmlspecialchars($old['pecas'][0]['valor_unitario'] ?? '') ?>" required>
                         </td>
                         <td class="ac">
-                            <button type="button" class="botao-vermelho pequeno"
+                            <button type="button" class="botao-remover pequeno"
                                 onclick="removerPeca(this)">Remover</button>
                         </td>
                     </tr>
@@ -170,7 +170,7 @@
             <input type="number" name="pecas[${pecaCount}][valor_unitario]" step="0.01" min="0" placeholder="Valor Unitário" required>
         </td>
         <td class="ac">
-            <button type="button" class="botao-vermelho pequeno" onclick="removerPeca(this)">Remover</button>
+            <button type="button" class="botao-remover pequeno" onclick="removerPeca(this)">Remover</button>
         </td>
     `;
 

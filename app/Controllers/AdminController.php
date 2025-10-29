@@ -1471,9 +1471,9 @@ private function validarServico($post)
         $errors['quantidade_pecas'] = 'Quantidade de peças deve ser um número positivo';
     }
 
-    if (empty($data['valor_operacao']) || !is_numeric($data['valor_operacao']) || $data['valor_operacao'] <= 0) {
-        $errors['valor_operacao'] = 'Valor da operação deve ser um número positivo';
-    }
+    // if (empty($data['valor_operacao']) || !is_numeric($data['valor_operacao']) || $data['valor_operacao'] <= 0) {
+    //     $errors['valor_operacao'] = 'Valor da operação deve ser um número positivo';
+    // }
 
     if (empty($data['data_envio'])) {
         $errors['data_envio'] = 'Data de envio é obrigatória';
