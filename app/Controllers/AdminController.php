@@ -1325,7 +1325,7 @@ private function validarCPF($cpf)
 // Listar serviços
 public function servicos()
 {
-    error_log("Exibindo serviços");
+    error_log("Exibindo servicos");
     $user = $this->getUsuario();
     $filtro = $_GET['filtro'] ?? 'ativos';
     $termoBusca = $_GET['search'] ?? '';
@@ -1350,11 +1350,11 @@ public function servicos()
 // Mostrar formulário de criação de serviço
 public function mostrarCriarServico()
 {
-    error_log("Exibindo tela de criação de serviço");
+    error_log("Exibindo tela de criacao de servico");
     $user = $this->getUsuario();
 
     // Buscar dados necessários
-    $lotes = $this->servicoModel->getLotesAtivos(); // Usar servicoModel
+    $lotes = $this->servicoModel->getLotesAtivos(); 
     $costureiras = $this->userModel->getCostureirasAtivas();
     $operacoes = $this->operacaoModel->getOperacoesAtivas();
 
@@ -1376,7 +1376,7 @@ public function mostrarCriarServico()
 // Criar serviço
 public function criarServico()
 {
-    error_log("Tentativa de criação de serviço");
+    error_log("Tentativa de criacao de servico");
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         $this->redirect('admin/criar-servico');
     }
@@ -1402,18 +1402,18 @@ public function criarServico()
 // Visualizar serviço
 public function visualizarServico()
 {
-    error_log("Exibindo detalhes do serviço");
+    error_log("Exibindo detalhes do servico");
     $user = $this->getUsuario();
     $id = $_GET['id'];
     
     $servico = $this->servicoModel->getServicoPorId($id);
     
     if (!$servico) {
-        $_SESSION['error_message'] = 'Serviço não encontrado';
+        $_SESSION['error_message'] = 'Servico não encontrado';
         $this->redirect('admin/servicos');
     }
 
-    $costureiras = $this->servicoModel->getCostureirasAtivas();
+    $costureiras = $this->servicoModel->getCostureirasAtivas(); 
 
     $this->render('admin/visualizar-servico', [
         'title'         => 'PontoCerto - Visualizar Serviço',
@@ -1421,14 +1421,14 @@ public function visualizarServico()
         'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
         'usuarioLogado' => $this->estaLogado(),
         'servico'       => $servico,
-        'costureiras'   => $costureiras // ADICIONAR ESTA LINHA
+        'costureiras'   => $costureiras 
     ]);
 }
 
 // Mostrar editar serviço
 public function mostrarEditarServico()
 {
-    error_log("Exibindo tela de edição de serviço");
+    error_log("Exibindo tela de edicao de servico");
     $user = $this->getUsuario();
     $id = $_GET['id'];
 
@@ -1454,7 +1454,7 @@ public function mostrarEditarServico()
 // Atualizar serviço
 public function atualizarServico()
 {
-    error_log("Tentativa de atualização de serviço");
+    error_log("Tentativa de atualizacao de servico");
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         $this->redirect('admin/servicos');
     }
@@ -1487,7 +1487,7 @@ public function atualizarServico()
 // Desvincular costureira
 public function desvincularCostureira()
 {
-    error_log("Desvinculando costureira do serviço");
+    error_log("Desvinculando costureira do servico");
     $servicoId = $_GET['servico_id'];
     $costureiraId = $_GET['costureira_id'];
 
@@ -1509,26 +1509,28 @@ public function desvincularCostureira()
 // Vincular costureira a serviço
 public function vincularCostureira()
 {
-    error_log("Vinculando costureira a serviço");
+    error_log("=== INICIANDO VINCULAR COSTUREIRA ===");
+
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $_SESSION['error_message'] = 'Método inválido';
         $this->redirect('admin/servicos');
+        return;
     }
 
-    $servicoId = $_POST['servico_id'];
-    $costureiraId = $_POST['costureira_id'];
-    $dataInicio = $_POST['data_inicio'];
-    $dataEntrega = $_POST['data_entrega'];
+    $servicoId = $_POST['servico_id'] ?? null;
+    $costureiraId = $_POST['costureira_id'] ?? null;
+    $dataInicio = $_POST['data_inicio'] ?? null;
+    $dataEntrega = $_POST['data_entrega'] ?? null;
 
-    // Validar se costureira pode ser vinculada (limite de 2 serviços)
-    $servicosAtivos = $this->servicoModel->getServicosAtivosPorCostureira($costureiraId);
-    if (count($servicosAtivos) >= 2) {
-        $_SESSION['error_message'] = 'Costureira já possui 2 serviços ativos. Limite máximo atingido.';
+    // Validar dados
+    if (empty($servicoId) || empty($costureiraId) || empty($dataInicio) || empty($dataEntrega)) {
+        $_SESSION['error_message'] = 'Todos os campos são obrigatórios';
         $this->redirect('admin/visualizar-servico?id=' . $servicoId);
+        return;
     }
 
     try {
-        $success = $this->servicoModel->vincularCostureira($servicoId, $costureiraId, $dataInicio, $dataEntrega);
-        
+        $success = $this->servicoModel->vincularCostureira($servicoId, $costureiraId, $dataInicio, $dataEntrega);        
         if ($success) {
             $_SESSION['success_message'] = 'Costureira vinculada com sucesso!';
         } else {
@@ -1544,7 +1546,7 @@ public function vincularCostureira()
 // Finalizar serviço
 public function finalizarServico()
 {
-    error_log("Finalizando serviço");
+    error_log("Finalizando servico");
     $servicoId = $_GET['id'];
     $dataFinalizacao = $_POST['data_finalizacao'] ?? date('Y-m-d');
 
@@ -1615,9 +1617,12 @@ private function validarServico($post)
         $errors['quantidade_pecas'] = 'Quantidade de peças deve ser um número positivo';
     }
 
-    // if (empty($data['valor_operacao']) || !is_numeric($data['valor_operacao']) || $data['valor_operacao'] <= 0) {
-    //     $errors['valor_operacao'] = 'Valor da operação deve ser um número positivo';
-    // }
+    $valor = str_replace(['.', ','], ['', '.'], $data['valor_operacao']);
+    if (empty($valor) || !is_numeric($valor) || $valor <= 0) {
+        $errors['valor_operacao'] = 'Valor da operação deve ser um número positivo';
+    } else {
+        $data['valor_operacao'] = $valor;
+    }
 
     if (empty($data['data_envio'])) {
         $errors['data_envio'] = 'Data de envio é obrigatória';

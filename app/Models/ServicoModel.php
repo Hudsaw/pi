@@ -134,6 +134,8 @@ class ServicoModel
     // Vincular costureira a um serviço específico
     public function vincularCostureira($servicoId, $costureiraId, $dataInicio, $dataEntrega)
 {
+    error_log("ServicoModel::vincularCostureira - Servico: $servicoId, Costureira: $costureiraId");
+    
     // Verificar se já está vinculada a este mesmo serviço
     $sqlCheck = "SELECT COUNT(*) as total FROM servico_costureiras 
                  WHERE servico_id = :servico_id AND costureira_id = :costureira_id";
@@ -165,6 +167,8 @@ class ServicoModel
         ':data_inicio' => $dataInicio,
         ':data_entrega' => $dataEntrega
     ]);
+
+    error_log("Resultado do INSERT: " . ($success ? 'SUCESSO' : 'FALHA'));
 
     // ENVIAR MENSAGEM AUTOMÁTICA PARA A COSTUREIRA
     if ($success) {

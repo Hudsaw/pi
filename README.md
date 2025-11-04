@@ -184,7 +184,7 @@ pi/
     Entrega de lote com data e ajuste de quantidade
     Listagem por status
     
-    Sprint  5 - Vinculação de Costureiras e Empresas
+    ✅ Sprint  5 - Vinculação de Costureiras e Empresas
     Vincular costureiras a serviços (operações específicas)
     Limite de 2 serviços ativos por costureira
     Validação de disponibilidade de costureiras
