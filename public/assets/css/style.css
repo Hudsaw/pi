@@ -113,7 +113,7 @@ input[type="submit"] {
 }
 
 .conteudo {
-    height: 80vh;
+    height: 100%;
 }
 
 .painel {
@@ -482,7 +482,7 @@ tr:hover {
 
 .conteudo-tabela {
     padding: 20px;
-    width: 100%;
+    width: calc(100% - 250px);
 }
 
 .filtro {

@@ -2,28 +2,15 @@
     <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
     
     <div class="conteudo-tabela">
+        <h2>Empresas</h2>
         <div class="filtro flex s-gap">
-            <h2>Empresas</h2>
-            <a href="<?= BASE_URL ?>admin/criar-empresa" class="botao-azul">Criar Empresa</a>
-        </div>
-        
-        <!-- Filtros e busca -->
-        <div class="filtro flex s-gap v-center">
-            <form method="GET" class="flex v-center s-gap">
-                <input type="text" name="search" placeholder="Buscar empresa..." value="<?= htmlspecialchars($termoBusca ?? '') ?>" class="campo-busca">
-                <button type="submit" class="botao-azul pequeno">Buscar</button>
-                <?php if (!empty($termoBusca)): ?>
-                    <a href="?filtro=<?= $filtro ?>" class="botao-cinza pequeno">Limpar</a>
-                <?php endif; ?>
-            </form>
-            
-            <div class="filtro flex s-gap">
-                <a href="?filtro=ativos" class="<?= ($filtro === 'ativos') ? 'botao-azul' : 'botao-cinza' ?>">Ativas</a>
-                <a href="?filtro=inativos" class="<?= ($filtro === 'inativos') ? 'botao-azul' : 'botao-cinza' ?>">Inativas</a>
-                <a href="?filtro=todos" class="<?= ($filtro === 'todos') ? 'botao-azul' : 'botao-cinza' ?>">Todas</a>
-            </div>
-        </div>
-        
+            <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarEmpresa()">
+            <span class="flex v-center">
+                <input type="checkbox" id="inativos" onchange="filtrarEmpresaInativos(this)">
+                <label class="flex v-center" for="inativos">Mostrar Inativos</label>
+            </span>
+            <a href="<?= BASE_URL ?>admin/criar-empresa" class="botao-azul">Criar empresa</a>
+        </div>    
         <div class="tabela">
             <table cellspacing='0' class="redondinho shadow">
                 <thead>

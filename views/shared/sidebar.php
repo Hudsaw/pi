@@ -11,7 +11,7 @@ $menuItems = [
         ['route' => 'admin/usuarios', 'label' => 'Usuários'],
         ['route' => 'admin/empresas', 'label' => 'Empresas'],
         ['route' => 'admin/operacoes', 'label' => 'Operações'],
-        ['route' => 'admin/pecas', 'label'=> 'Peças'],
+        ['route' => 'admin/pecas', 'label'=> 'Gerenciamento de Peças'],
     ],
     'costureira' => [
         ['route' => 'costura/painel', 'label' => 'Painel'],

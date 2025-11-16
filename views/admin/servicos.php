@@ -21,6 +21,7 @@
                         <th class="ae">Costureira</th>
                         <th class="ae">Qtd. Peças</th>
                         <th class="ae">Data Envio</th>
+                        <th class="ae">Status</th>
                         <th class="ac">Ações</th>
                     </tr>
                 </thead>
@@ -34,11 +35,16 @@
                             <tr>
                                 <td class="ae"><?= htmlspecialchars($servico['lote_nome']) ?></td>
                                 <td class="ae"><?= htmlspecialchars($servico['operacao_nome']) ?></td>
-<td class="ae"><?= htmlspecialchars($servico['costureiras_vinculadas'] ?? 'Não vinculada') ?></td>                                <td class="ae"><?= htmlspecialchars($servico['quantidade_pecas']) ?></td>
+                                <td class="ae"><?= htmlspecialchars($servico['costureiras_vinculadas'] ?? 'Não vinculada') ?></td>                                
+                                <td class="ae"><?= htmlspecialchars($servico['quantidade_pecas']) ?></td>
+                                <td class="ae"><?= htmlspecialchars($servico['status']) ?></td>
                                 <td class="ae"><?= date('d/m/Y', strtotime($servico['data_envio'])) ?></td>
                                 <td class="ac">
                                     <a href="<?= BASE_URL ?>admin/visualizar-servico?id=<?= $servico['id'] ?>" class="btn-visualizar" title="Visualizar">
                                         <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
+                                    </a>
+                                    <a href="<?= BASE_URL ?>admin/editar-servico?id=<?= $servico['id'] ?>"> 
+                                        <img class="icone" src="<?php echo ASSETS_URL?>icones/editar.svg" alt="editar">
                                     </a>
                                     <?php if ($servico['status'] === 'Em andamento'): ?>
                                         <a href="<?= BASE_URL ?>admin/remover-servico?id=<?= $servico['id'] ?>" 

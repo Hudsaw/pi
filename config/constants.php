@@ -25,7 +25,7 @@ define('SMTP_FROM', 'tonhapaiano25@gmail.com');
  define('DB_HOST', 'localhost');
  define('DB_NAME', 'pi');
  define('DB_USER', 'root');
- define('DB_PASS', 'aluno');
+ define('DB_PASS', '');
  
  // Configurações de sessão
 ini_set('session.cookie_lifetime', 0); 

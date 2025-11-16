@@ -58,16 +58,27 @@
                 <label class="form-label" for="valor_operacao">Valor da Operação (R$)</label>
                 <input type="text" name="valor_operacao" id="valor_operacao" class="form-input" placeholder="0,00" value="<?= htmlspecialchars($old['valor_operacao'] ?? '') ?>" required>
             </div>
-            
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="costureira_id">Costureira</label>
+                <select name="costureira_id" required class="form-select">
+                    <option value="">Selecione uma costureira</option>
+                    <?php foreach ($costureiras as $costureira): ?>
+                        <option value="<?= $costureira['id'] ?>"><?= htmlspecialchars($costureira['nome']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             <div class="form-group">
                 <label class="form-label" for="data_envio">Data de Envio</label>
                 <input type="date" name="data_envio" id="data_envio" class="form-input" value="<?= htmlspecialchars($old['data_envio'] ?? '') ?>" required>
             </div>
         </div>
-        
-        <div class="form-row">
-            <div class="form-group-full">
-                <label class="form-label" for="observacao">Observações</label>
+    
+    <div class="form-row">
+        <div class="form-group-full">
+            <label class="form-label" for="observacao">Observações</label>
                 <textarea name="observacao" id="observacao" class="form-textarea" placeholder="Observações"><?= htmlspecialchars($old['observacao'] ?? '') ?></textarea>
             </div>
         </div>
