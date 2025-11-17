@@ -300,13 +300,6 @@ INSERT INTO servicos (lote_id, operacao_id, quantidade_pecas, valor_operacao, da
 (2, 2, 150, 1.80, '2024-01-10', 'Arremate de bainhas', 'Finalizado'),
 (3, 3, 80, 3.20, '2024-01-20', 'Costura de golas', 'Em andamento');
 
--- Vincular costureiras aos serviços
-INSERT INTO servico_costureiras (servico_id, costureira_id, data_inicio, data_entrega) VALUES
-(1, 1, '2024-01-16', '2024-01-25'),
-(1, 2, '2024-01-16', '2024-01-23'),
-(2, 3, '2024-01-11', '2024-01-18'),
-(3, 1, '2024-01-21', '2024-01-30');
-
 -- =============================================
 -- ÍNDICES PARA MELHOR PERFORMANCE
 -- =============================================
@@ -333,11 +326,6 @@ CREATE INDEX idx_servicos_costureira_id ON servicos(costureira_id);
 CREATE INDEX idx_servicos_status ON servicos(status);
 CREATE INDEX idx_servicos_data_inicio ON servicos(data_inicio);
 CREATE INDEX idx_servicos_operacao_id ON servicos(operacao_id);
-
--- Índices para serviço_costureira
-CREATE INDEX idx_servico_costureiras_servico_id ON servico_costureiras(servico_id);
-CREATE INDEX idx_servico_costureiras_costureira_id ON servico_costureiras(costureira_id);
-CREATE INDEX idx_servico_costureiras_datas ON servico_costureiras(data_inicio, data_entrega);
 
 -- Índices para pagamentos
 CREATE INDEX idx_pagamentos_costureira_id ON pagamentos(costureira_id);
