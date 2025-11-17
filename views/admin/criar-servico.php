@@ -61,20 +61,22 @@
         </div>
         
         <div class="form-row">
-            <div class="form-group">
-                <label class="form-label" for="costureira_id">Costureira</label>
-                <select name="costureira_id" required class="form-select">
-                    <option value="">Selecione uma costureira</option>
-                    <?php foreach ($costureiras as $costureira): ?>
-                        <option value="<?= $costureira['id'] ?>"><?= htmlspecialchars($costureira['nome']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="data_envio">Data de Envio</label>
-                <input type="date" name="data_envio" id="data_envio" class="form-input" value="<?= htmlspecialchars($old['data_envio'] ?? '') ?>" required>
-            </div>
-        </div>
+    <div class="form-group">
+        <label class="form-label" for="costureira_id">Costureira</label>
+        <select name="costureira_id" id="costureira_id" required class="form-select">
+            <option value="">Selecione uma costureira</option>
+            <?php foreach ($costureiras as $costureira): ?>
+                <option value="<?= $costureira['id'] ?>" <?= (isset($old['costureira_id']) && $old['costureira_id'] == $costureira['id']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($costureira['nome']) ?> - <?= htmlspecialchars($costureira['especialidade'] ?? '') ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="form-label" for="data_envio">Data de Envio</label>
+        <input type="date" name="data_envio" id="data_envio" class="form-input" value="<?= htmlspecialchars($old['data_envio'] ?? '') ?>" required>
+    </div>
+</div>
     
     <div class="form-row">
         <div class="form-group-full">

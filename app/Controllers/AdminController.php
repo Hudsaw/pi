@@ -1333,7 +1333,12 @@ public function servicos()
     if (!empty($termoBusca)) {
         $listaServicos = $this->servicoModel->buscarServicos($termoBusca);
     } else {
-        $listaServicos = $this->servicoModel->getServicos($filtro);
+        // Se for "todos", não aplicar filtro de status
+        if ($filtro === 'todos') {
+            $listaServicos = $this->servicoModel->getServicos();
+        } else {
+            $listaServicos = $this->servicoModel->getServicos($filtro);
+        }
     }
 
     $this->render('admin/servicos', [
@@ -1434,7 +1439,8 @@ public function mostrarEditarServico()
 
     $servico = $this->servicoModel->getServicoPorId($id);
     $lotes = $this->servicoModel->getLotesAtivos();
-    $operacoes = $this->operacaoModel->getOperacoesAtivas();
+    $operacoes = $this->servicoModel->getOperacoesAtivas();
+    $costureiras = $this->servicoModel->getCostureirasAtivas(); 
 
     $this->render('admin/editar-servico', [
         'title'         => 'PontoCerto - Editar Serviço',
@@ -1444,6 +1450,7 @@ public function mostrarEditarServico()
         'servico'       => $servico,
         'lotes'         => $lotes,
         'operacoes'     => $operacoes,
+        'costureiras'   => $costureiras, 
         'errors'        => $_SESSION['servico_erros'] ?? [],
         'old'           => $_SESSION['servico_data'] ?? []
     ]);
@@ -1487,12 +1494,10 @@ public function atualizarServico()
 // Desvincular costureira
 public function desvincularCostureira()
 {
-    error_log("Desvinculando costureira do servico");
     $servicoId = $_GET['servico_id'];
-    $costureiraId = $_GET['costureira_id'];
-
+    
     try {
-        $success = $this->servicoModel->desvincularCostureira($servicoId, $costureiraId);
+        $success = $this->servicoModel->desvincularCostureira($servicoId);
         
         if ($success) {
             $_SESSION['success_message'] = 'Costureira desvinculada com sucesso!';
@@ -1509,38 +1514,9 @@ public function desvincularCostureira()
 // Vincular costureira a serviço
 public function vincularCostureira()
 {
-    error_log("=== INICIANDO VINCULAR COSTUREIRA ===");
-
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        $_SESSION['error_message'] = 'Método inválido';
-        $this->redirect('admin/servicos');
-        return;
-    }
-
-    $servicoId = $_POST['servico_id'] ?? null;
-    $costureiraId = $_POST['costureira_id'] ?? null;
-    $dataInicio = $_POST['data_inicio'] ?? null;
-    $dataEntrega = $_POST['data_entrega'] ?? null;
-
-    // Validar dados
-    if (empty($servicoId) || empty($costureiraId) || empty($dataInicio) || empty($dataEntrega)) {
-        $_SESSION['error_message'] = 'Todos os campos são obrigatórios';
-        $this->redirect('admin/visualizar-servico?id=' . $servicoId);
-        return;
-    }
-
-    try {
-        $success = $this->servicoModel->vincularCostureira($servicoId, $costureiraId, $dataInicio, $dataEntrega);        
-        if ($success) {
-            $_SESSION['success_message'] = 'Costureira vinculada com sucesso!';
-        } else {
-            $_SESSION['error_message'] = 'Erro ao vincular costureira';
-        }
-    } catch (Exception $e) {
-        $_SESSION['error_message'] = 'Erro ao vincular costureira: ' . $e->getMessage();
-    }
-
-    $this->redirect('admin/visualizar-servico?id=' . $servicoId);
+    // Este método não é mais necessário pois a costureira é definida na criação/edição
+    $_SESSION['error_message'] = 'Método não disponível. A costureira deve ser selecionada ao criar/editar o serviço.';
+    $this->redirect('admin/servicos');
 }
 
 // Finalizar serviço
@@ -1601,7 +1577,8 @@ private function validarServico($post)
         'quantidade_pecas' => trim($post['quantidade_pecas'] ?? ''),
         'valor_operacao' => trim($post['valor_operacao'] ?? ''),
         'data_envio' => trim($post['data_envio'] ?? ''),
-        'observacao' => trim($post['observacao'] ?? '')
+        'observacao' => trim($post['observacao'] ?? ''),
+        'costureira_id' => trim($post['costureira_id'] ?? '')
     ];
 
     // Validações
@@ -1628,12 +1605,22 @@ private function validarServico($post)
         $errors['data_envio'] = 'Data de envio é obrigatória';
     }
 
+    if (empty($data['costureira_id']) || !is_numeric($data['costureira_id'])) {
+        $errors['costureira_id'] = 'Costureira é obrigatória';
+    }
+
+    // Verificar se já existe serviço do mesmo tipo no lote
+    if (empty($errors) && $this->servicoModel->servicoDoMesmoTipoExiste($data['lote_id'], $data['operacao_id'])) {
+        $errors['operacao_id'] = 'Já existe um serviço deste tipo no lote selecionado';
+    }
+
     if (!empty($errors)) {
         return ['errors' => $errors];
     }
 
     return $data;
 }
+
 public function pecas()
 {
     error_log("Exibindo peças");

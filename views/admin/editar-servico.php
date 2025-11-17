@@ -28,7 +28,7 @@
                 <select name="lote_id" id="lote_id" class="form-select" required>
                     <option value="">Selecione um lote</option>
                     <?php foreach ($lotes as $lote): ?>
-                        <option value="<?= $lote['id'] ?>" <?= (isset($old['lote_id']) && $old['lote_id'] == $lote['id']) || $servico['lote_id'] == $lote['id'] ? 'selected' : '' ?>>
+                        <option value="<?= $lote['id'] ?>" <?= (isset($old['lote_id']) && $old['lote_id'] == $lote['id']) || (isset($servico['lote_id']) && $servico['lote_id'] == $lote['id']) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($lote['nome']) ?> - <?= htmlspecialchars($lote['colecao']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -40,7 +40,7 @@
                 <select name="operacao_id" id="operacao_id" class="form-select" required>
                     <option value="">Selecione uma operação</option>
                     <?php foreach ($operacoes as $operacao): ?>
-                        <option value="<?= $operacao['id'] ?>" data-valor="<?= $operacao['valor'] ?>" <?= (isset($old['operacao_id']) && $old['operacao_id'] == $operacao['id']) || $servico['operacao_id'] == $operacao['id'] ? 'selected' : '' ?>>
+                        <option value="<?= $operacao['id'] ?>" data-valor="<?= $operacao['valor'] ?>" <?= (isset($old['operacao_id']) && $old['operacao_id'] == $operacao['id']) || (isset($servico['operacao_id']) && $servico['operacao_id'] == $operacao['id']) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($operacao['nome']) ?> - R$ <?= number_format($operacao['valor'], 2, ',', '.') ?>
                         </option>
                     <?php endforeach; ?>
@@ -60,13 +60,15 @@
             </div>
         </div>
 
-         <div class="form-row">
+        <div class="form-row">
             <div class="form-group">
                 <label class="form-label" for="costureira_id">Costureira</label>
-                <select name="costureira_id" required class="form-select">
+                <select name="costureira_id" id="costureira_id" class="form-select" required>
                     <option value="">Selecione uma costureira</option>
                     <?php foreach ($costureiras as $costureira): ?>
-                        <option value="<?= $costureira['id'] ?>"><?= htmlspecialchars($costureira['nome']) ?></option>
+                        <option value="<?= $costureira['id'] ?>" <?= (isset($old['costureira_id']) && $old['costureira_id'] == $costureira['id']) || (isset($servico['costureira_id']) && $servico['costureira_id'] == $costureira['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($costureira['nome']) ?> - <?= htmlspecialchars($costureira['especialidade'] ?? 'Sem especialidade') ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
             </div>

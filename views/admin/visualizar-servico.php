@@ -8,6 +8,7 @@
             <span class="lista-informacoes-coluna bold flex vertical">
                 <span class="flex v-center">Lote</span>
                 <span class="flex v-center">Operação</span>
+                <span class="flex v-center">Costureira</span>
                 <span class="flex v-center">Quantidade de peças</span>
                 <span class="flex v-center">Valor da operação</span>
                 <span class="flex v-center">Valor total</span>
@@ -19,8 +20,23 @@
                 <span class="flex v-center">Observação</span>
             </span>
             <span class="lista-informacoes-coluna flex vertical">
-                <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['lote_nome']) ?> - <?= htmlspecialchars($servico['colecao']) ?></span>
-                <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['operacao_nome']) ?> (R$ <?= number_format($servico['valor_base_operacao'], 2, ',', '.') ?>)</span>
+            <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['lote_nome']) ?> - <?= htmlspecialchars($servico['colecao']) ?></span>
+            <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['operacao_nome']) ?> (R$ <?= number_format($servico['valor_base_operacao'], 2, ',', '.') ?>)</span>
+            <span class="flex v-center" style="min-height:20px">
+        <?php if ($servico['costureira_nome']): ?>
+            <?= htmlspecialchars($servico['costureira_nome']) ?> - <?= htmlspecialchars($servico['costureira_especialidade']) ?>
+            <?php if ($servico['status'] === 'Em andamento'): ?>
+                <a href="<?= BASE_URL ?>admin/desvincular-costureira?servico_id=<?= $servico['id'] ?>" 
+                   onclick="return confirm('Tem certeza que deseja desvincular esta costureira?')"
+                   class="btn-remover" style="margin-left: 10px;" title="Desvincular Costureira">
+                    Desvincular
+                </a>
+            <?php endif; ?>
+        <?php else: ?>
+            <span class="texto-vermelho">Nenhuma costureira vinculada</span>
+        <?php endif; ?>
+    </span>
+    <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['quantidade_pecas']) ?></span>
                 <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['quantidade_pecas']) ?></span>
                 <span class="flex v-center" style="min-height:20px">R$ <?= number_format($servico['valor_operacao'], 2, ',', '.') ?></span>
                 <span class="flex v-center" style="min-height:20px">R$ <?= number_format($servico['valor_operacao'] * $servico['quantidade_pecas'], 2, ',', '.') ?></span>

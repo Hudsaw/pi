@@ -166,27 +166,13 @@ CREATE TABLE servicos (
     data_envio DATE NOT NULL,
     data_finalizacao DATE NULL,
     observacao TEXT,
+    costureira_id INT NULL,
     status ENUM('Em andamento', 'Finalizado', 'Inativo') DEFAULT 'Em andamento',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     FOREIGN KEY (lote_id) REFERENCES lotes(id) ON DELETE RESTRICT,
     FOREIGN KEY (operacao_id) REFERENCES operacoes(id) ON DELETE RESTRICT
-);
-
-CREATE TABLE servico_costureiras (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    servico_id INT NOT NULL,
-    costureira_id INT NOT NULL,
-    data_inicio DATE NOT NULL,
-    data_entrega DATE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (servico_id) REFERENCES servicos(id) ON DELETE CASCADE,
-    FOREIGN KEY (costureira_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    
-    -- Garantir que uma costureira não seja vinculada duas vezes ao mesmo serviço
-    UNIQUE KEY unique_servico_costureira (servico_id, costureira_id)
 );
 
 -- Tabela de pagamentos

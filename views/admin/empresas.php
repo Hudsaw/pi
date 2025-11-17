@@ -71,3 +71,35 @@
         </div>
     </div>
 </div>
+<script>
+function filtrarEmpresa() {
+    const filtro = document.getElementById('filtro').value.toLowerCase();
+    const checkboxInativos = document.getElementById('inativos');
+    const mostrarInativos = checkboxInativos.checked;
+    const linhas = document.querySelectorAll('.tabela tbody tr');
+    
+    linhas.forEach(linha => {
+        if (linha.cells.length <= 1) return; // Pular linha de "Nenhuma empresa encontrada"
+        
+        const textoLinha = linha.textContent.toLowerCase();
+        const status = linha.querySelector('.status-inativo') ? 'inativo' : 'ativo';
+        
+        // Verificar se a linha corresponde ao filtro de texto
+        const correspondeFiltro = textoLinha.includes(filtro);
+        
+        // Verificar se deve mostrar baseado no status
+        const mostrarPorStatus = mostrarInativos || status === 'ativo';
+        
+        // Mostrar/ocultar linha
+        if (correspondeFiltro && mostrarPorStatus) {
+            linha.style.display = '';
+        } else {
+            linha.style.display = 'none';
+        }
+    });
+}
+
+function filtrarEmpresaInativos(checkbox) {
+    filtrarEmpresa(); // Reaplica o filtro quando o checkbox muda
+}
+</script>
