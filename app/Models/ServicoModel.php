@@ -15,29 +15,29 @@ class ServicoModel
 
     // Verificar se já existe serviço do mesmo tipo no lote
     public function servicoDoMesmoTipoExiste($loteId, $operacaoId, $servicoId = null)
-    {
-        $sql = "SELECT COUNT(*) as total FROM servicos 
-                WHERE lote_id = :lote_id AND operacao_id = :operacao_id AND status != 'Inativo'";
-        
-        if ($servicoId) {
-            $sql .= " AND id != :servico_id";
-        }
-        
-        $stmt = $this->pdo->prepare($sql);
-        $params = [
-            ':lote_id' => $loteId,
-            ':operacao_id' => $operacaoId
-        ];
-        
-        if ($servicoId) {
-            $params[':servico_id'] = $servicoId;
-        }
-        
-        $stmt->execute($params);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        return $result['total'] > 0;
+{
+    $sql = "SELECT COUNT(*) as total FROM servicos 
+            WHERE lote_id = :lote_id AND operacao_id = :operacao_id AND status != 'Inativo'";
+    
+    if ($servicoId) {
+        $sql .= " AND id != :servico_id";
     }
+    
+    $stmt = $this->pdo->prepare($sql);
+    $params = [
+        ':lote_id' => $loteId,
+        ':operacao_id' => $operacaoId
+    ];
+    
+    if ($servicoId) {
+        $params[':servico_id'] = $servicoId;
+    }
+    
+    $stmt->execute($params);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return $result['total'] > 0;
+}
 
     // Criar serviço (operação dentro de um lote)
     public function criarServico($dados)

@@ -1467,7 +1467,9 @@ public function atualizarServico()
     }
 
     $servicoId = $_POST['id'];
-    $data = $this->validarServico($_POST);
+    
+    // Passar true como segundo parâmetro para indicar que é uma atualização
+    $data = $this->validarServico($_POST, true);
 
     if (isset($data['errors'])) {
         $_SESSION['servico_erros'] = $data['errors'];
@@ -1568,7 +1570,7 @@ public function removerServico()
 }
 
 // Validação de serviço
-private function validarServico($post)
+private function validarServico($post, $isUpdate = false)
 {
     $errors = [];
     $data = [
@@ -1609,9 +1611,12 @@ private function validarServico($post)
         $errors['costureira_id'] = 'Costureira é obrigatória';
     }
 
-    // Verificar se já existe serviço do mesmo tipo no lote
-    if (empty($errors) && $this->servicoModel->servicoDoMesmoTipoExiste($data['lote_id'], $data['operacao_id'])) {
-        $errors['operacao_id'] = 'Já existe um serviço deste tipo no lote selecionado';
+    // Verificar se já existe serviço do mesmo tipo no lote (excluindo o próprio serviço em caso de atualização)
+    if (empty($errors)) {
+        $servicoId = $isUpdate ? ($post['id'] ?? null) : null;
+        if ($this->servicoModel->servicoDoMesmoTipoExiste($data['lote_id'], $data['operacao_id'], $servicoId)) {
+            $errors['operacao_id'] = 'Já existe um serviço deste tipo no lote selecionado';
+        }
     }
 
     if (!empty($errors)) {
