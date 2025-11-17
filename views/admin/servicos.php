@@ -64,23 +64,24 @@
 </div>
 
 <script>
-function filtrarServicos() {
+function filtrarServico() {
     const filtro = document.getElementById('filtro').value.toLowerCase();
     const checkboxInativos = document.getElementById('inativos');
     const mostrarInativos = checkboxInativos.checked;
     const linhas = document.querySelectorAll('.tabela tbody tr');
     
     linhas.forEach(linha => {
-        if (linha.cells.length <= 1) return; // Pular linha de "Nenhuma Servico encontrada"
+        if (linha.cells.length <= 1) return; // Pular linha de "Nenhum serviço encontrada"
         
         const textoLinha = linha.textContent.toLowerCase();
-        const status = linha.querySelector('.status-inativo') ? 'inativo' : 'ativo';
+        const statusCell = linha.querySelector('td:nth-child(6)'); // Coluna do status
+        const status = statusCell ? statusCell.textContent.toLowerCase().trim() : '';
         
         // Verificar se a linha corresponde ao filtro de texto
         const correspondeFiltro = textoLinha.includes(filtro);
         
         // Verificar se deve mostrar baseado no status
-        const mostrarPorStatus = mostrarInativos || status === 'ativo';
+        const mostrarPorStatus = mostrarInativos || status !== 'inativo';
         
         // Mostrar/ocultar linha
         if (correspondeFiltro && mostrarPorStatus) {
@@ -91,7 +92,7 @@ function filtrarServicos() {
     });
 }
 
-function filtrarServicosInativos(checkbox) {
-    filtrarServicos(); // Reaplica o filtro quando o checkbox muda
+function filtrarServicoInativos(checkbox) {
+    filtrarServico(); // Reaplica o filtro quando o checkbox muda
 }
 </script>
