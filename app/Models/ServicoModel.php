@@ -226,6 +226,20 @@ class ServicoModel
         ]);
     }
 
+    public function getCostureirasDisponiveis()
+    {
+        // falta innerjoin e selecionar quem nao tem servico
+        $sql = "SELECT u.id, u.nome, e.nome as especialidade
+                FROM usuarios u
+                LEFT JOIN especialidade e ON u.especialidade_id = e.id
+                WHERE u.tipo = 'costureira' AND u.ativo = 1 
+                ORDER BY u.nome";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
     // Desvincular costureira de um serviço
     public function desvincularCostureira($servicoId)
     {
@@ -290,4 +304,23 @@ class ServicoModel
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getServicosAtivosPorCostureira($costureiraId)
+    {
+        $sql = "SELECT s.*, 
+                       l.nome as lote_nome,
+                       o.nome as operacao_nome
+                FROM servicos s
+                INNER JOIN lotes l ON s.lote_id = l.id
+                INNER JOIN operacoes o ON s.operacao_id = o.id
+                WHERE s.costureira_id = :costureira_id 
+                AND s.status = 'em_andamento'
+                ORDER BY s.data_envio DESC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':costureira_id' => $costureiraId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }

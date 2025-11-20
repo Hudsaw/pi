@@ -1360,7 +1360,7 @@ public function mostrarCriarServico()
 
     // Buscar dados necessários
     $lotes = $this->servicoModel->getLotesAtivos(); 
-    $costureiras = $this->servicoModel->getCostureirasAtivas();
+    $costureiras = $this->servicoModel->getCostureirasDisponiveis();
     $operacoes = $this->operacaoModel->getOperacoesAtivas();
 
     $this->render('admin/criar-servico', [
