@@ -1,5 +1,6 @@
-# Sistema de Gestão para Malharia – Projeto PI
+# Sistema de Gestão para Malharia – Projeto PI 
 Cliente: Malharia Holz Birck
+Equipe: Hudson Borges e Maria Antonia
 
 # Objetivo Geral
 Desenvolver um sistema web para gerenciar RH, produção e contabilidade da malharia Holz Birck.
