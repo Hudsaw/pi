@@ -46,6 +46,11 @@ class ServicoModel
         if ($this->servicoDoMesmoTipoExiste($dados['lote_id'], $dados['operacao_id'])) {
             throw new Exception('Já existe um serviço deste tipo no lote selecionado.');
         }
+
+        // Verificar se a costureira já tem serviço em andamento
+    if ($this->costureiraTemServicoEmAndamento($dados['costureira_id'])) {
+        throw new Exception('Esta costureira já possui um serviço em andamento.');
+    }
         
         $sql = "INSERT INTO servicos (lote_id, operacao_id, quantidade_pecas, valor_operacao, data_envio, observacao, status, costureira_id) 
                 VALUES (:lote_id, :operacao_id, :quantidade_pecas, :valor_operacao, :data_envio, :observacao, 'Em andamento', :costureira_id)";
@@ -202,6 +207,11 @@ class ServicoModel
         if ($this->servicoDoMesmoTipoExiste($dados['lote_id'], $dados['operacao_id'], $id)) {
             throw new Exception('Já existe um serviço deste tipo no lote selecionado.');
         }
+
+        // Verificar se a costureira já tem serviço em andamento
+    if ($this->costureiraTemServicoEmAndamento($dados['costureira_id'])) {
+        throw new Exception('Esta costureira já possui um serviço em andamento.');
+    }
         
         $sql = "UPDATE servicos 
                 SET lote_id = :lote_id, 
@@ -233,6 +243,12 @@ class ServicoModel
                 FROM usuarios u
                 LEFT JOIN especialidade e ON u.especialidade_id = e.id
                 WHERE u.tipo = 'costureira' AND u.ativo = 1 
+                AND u.id NOT IN (
+                SELECT DISTINCT costureira_id 
+                FROM servicos 
+                WHERE status = 'Em andamento' 
+                AND costureira_id IS NOT NULL
+            )
                 ORDER BY u.nome";
         
         $stmt = $this->pdo->prepare($sql);
@@ -257,23 +273,6 @@ class ServicoModel
         return $stmt->execute([':id' => $servicoId]);
     }
 
-    public function getServicosFinalizadosPorCostureira($costureiraId)
-    {
-        $sql = "SELECT s.*, 
-                       l.nome as lote_nome,
-                       o.nome as operacao_nome
-                FROM servicos s
-                INNER JOIN lotes l ON s.lote_id = l.id
-                INNER JOIN operacoes o ON s.operacao_id = o.id
-                WHERE s.costureira_id = :costureira_id 
-                AND s.status = 'Finalizado'
-                ORDER BY s.data_finalizacao DESC";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':costureira_id' => $costureiraId]);
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
 
     public function getTotalServicos()
     {
@@ -305,22 +304,116 @@ class ServicoModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getServicosAtivosPorCostureira($costureiraId)
-    {
-        $sql = "SELECT s.*, 
-                       l.nome as lote_nome,
-                       o.nome as operacao_nome
-                FROM servicos s
-                INNER JOIN lotes l ON s.lote_id = l.id
-                INNER JOIN operacoes o ON s.operacao_id = o.id
-                WHERE s.costureira_id = :costureira_id 
-                AND s.status = 'em_andamento'
-                ORDER BY s.data_envio DESC";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':costureira_id' => $costureiraId]);
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function costureiraTemServicoEmAndamento($costureiraId, $servicoId = null)
+{
+    $sql = "SELECT COUNT(*) as total FROM servicos 
+            WHERE costureira_id = :costureira_id 
+            AND status = 'Em andamento'";
+    
+    if ($servicoId) {
+        $sql .= " AND id != :servico_id";
     }
+    
+    $stmt = $this->pdo->prepare($sql);
+    $params = [':costureira_id' => $costureiraId];
+    
+    if ($servicoId) {
+        $params[':servico_id'] = $servicoId;
+    }
+    
+    $stmt->execute($params);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return $result['total'] > 0;
+}
+
+public function getServicosRecentesPorCostureira($costureiraId, $limite = 10)
+{
+    $sql = "SELECT s.*, 
+                   l.nome as lote_nome,
+                   l.colecao,
+                   o.nome as operacao_nome,
+                   o.valor as valor_base_operacao,
+                   CASE 
+                       WHEN s.status = 1 THEN 'Finalizado'
+                       ELSE 'Em andamento'
+                   END as status
+            FROM servicos s
+            INNER JOIN lotes l ON s.lote_id = l.id
+            INNER JOIN operacoes o ON s.operacao_id = o.id
+            WHERE s.costureira_id = :costureira_id 
+            ORDER BY s.data_envio DESC, s.id DESC
+            LIMIT :limite";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->bindValue(':costureira_id', $costureiraId, PDO::PARAM_INT);
+    $stmt->bindValue(':limite', $limite, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getServicosAtivosPorCostureira($costureiraId)
+{
+    $sql = "SELECT s.*, 
+                   l.nome as lote_nome,
+                   l.colecao,
+                   o.nome as operacao_nome,
+                   o.valor as valor_base_operacao
+            FROM servicos s
+            INNER JOIN lotes l ON s.lote_id = l.id
+            INNER JOIN operacoes o ON s.operacao_id = o.id
+            WHERE s.costureira_id = :costureira_id 
+            AND s.status = 'Em andamento'
+            ORDER BY s.data_envio DESC";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':costureira_id' => $costureiraId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+public function getServicosFinalizadosPorCostureira($costureiraId)
+{
+    $sql = "SELECT s.*, 
+                   l.nome as lote_nome,
+                   l.colecao,
+                   o.nome as operacao_nome,
+                   o.valor as valor_base_operacao
+            FROM servicos s
+            INNER JOIN lotes l ON s.lote_id = l.id
+            INNER JOIN operacoes o ON s.operacao_id = o.id
+            WHERE s.costureira_id = :costureira_id 
+            AND s.status = 'Finalizado'
+            ORDER BY s.data_finalizacao DESC";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':costureira_id' => $costureiraId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+public function getTodosServicosPorCostureira($costureiraId)
+{
+    $sql = "SELECT s.*, 
+                   l.nome as lote_nome,
+                   l.colecao,
+                   o.nome as operacao_nome,
+                   o.valor as valor_base_operacao
+            FROM servicos s
+            INNER JOIN lotes l ON s.lote_id = l.id
+            INNER JOIN operacoes o ON s.operacao_id = o.id
+            WHERE s.costureira_id = :costureira_id 
+            ORDER BY 
+                CASE s.status
+                    WHEN 'Em andamento' THEN 1
+                    WHEN 'Finalizado' THEN 2
+                    ELSE 3
+                END,
+                s.data_envio DESC";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':costureira_id' => $costureiraId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 }

@@ -10,7 +10,6 @@ class AdminController extends BaseController
     // Painel
     public function painel()
 {
-    error_log("Exibindo painel administrativo");
     $user = $this->getUsuario();
 
     // Buscar dados para o dashboard
@@ -1418,7 +1417,7 @@ public function visualizarServico()
         $this->redirect('admin/servicos');
     }
 
-    $costureiras = $this->servicoModel->getCostureirasAtivas(); 
+    $costureiras = $this->servicoModel->getCostureirasDisponiveis(); 
 
     $this->render('admin/visualizar-servico', [
         'title'         => 'PontoCerto - Visualizar Serviço',
@@ -1440,7 +1439,7 @@ public function mostrarEditarServico()
     $servico = $this->servicoModel->getServicoPorId($id);
     $lotes = $this->servicoModel->getLotesAtivos();
     $operacoes = $this->servicoModel->getOperacoesAtivas();
-    $costureiras = $this->servicoModel->getCostureirasAtivas(); 
+    $costureiras = $this->servicoModel->getCostureirasDisponiveis(); 
 
     $this->render('admin/editar-servico', [
         'title'         => 'PontoCerto - Editar Serviço',

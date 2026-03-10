@@ -90,10 +90,13 @@ $router->get('/admin/remover-tamanho', 'AdminController@removerTamanho', ['AuthM
 
 // Rotas da Costureira
 $router->get('/costura/painel', 'CosturaController@painel', ['AuthMiddleware', 'RoleMiddleware::costureira']);
-$router->get('/costura/servicos', 'CosturaController@servicos', ['AuthMiddleware', 'RoleMiddleware::costureira']);
+$router->get('/costura/servicos', 'CosturaController@servicos', ['AuthMiddleware', 'RoleMiddleware::costureira']); 
+$router->post('/costura/visualizar-servico', 'CosturaController@visualizarServico', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->get('/costura/pagamentos', 'CosturaController@pagamentos', ['AuthMiddleware', 'RoleMiddleware::costureira']);
+$router->post('/costura/visualizar-pagamento', 'CosturaController@visualizarPagamento', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->get('/costura/mensagens', 'CosturaController@mensagens', ['AuthMiddleware', 'RoleMiddleware::costureira']);
-$router->get('/costura/visualizar-perfil', 'CosturaController@visualizarperfil', ['AuthMiddleware', 'RoleMiddleware::costureira']);
+$router->post('/costura/excluir-mensagem', 'CosturaController@excluirMensagem', ['AuthMiddleware', 'RoleMiddleware::costureira']);
+$router->get('/costura/visualizar-perfil', 'CosturaController@visualizarPerfil', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->get('/costura/editar-perfil', 'CosturaController@editarPerfil', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->post('/costura/atualizar-perfil', 'CosturaController@atualizarPerfil', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 

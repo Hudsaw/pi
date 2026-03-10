@@ -3,6 +3,9 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\CosturaModel;
+use App\Models\NotificacaoModel;
+use App\Models\PagamentoModel;
+use App\Models\ServicoModel;
 use App\Models\UserModel;
 use Exception;
 use PDO;
@@ -17,13 +20,12 @@ class CosturaController extends BaseController
     public function painel()
     {
         $user = $this->getUsuario();
-        error_log("CosturaController - User ID: " . ($user['id'] ?? 'null'));
-    error_log("CosturaController - User Role: " . ($_SESSION['user_role'] ?? 'null'));
-
+        
         // Buscar dados para o dashboard
         $servicosAtivos = $this->servicoModel->getServicosAtivosPorCostureira($user['id']);
-        $pagamentoMes = $this->costuraModel->calcularPagamentoMes($user['id']);
-        $proximasEntregas = $this->costuraModel->contarProximasEntregas($user['id']);
+        $pagamentoMes = $this->pagamentoModel->calcularPagamentoMes($user['id']);
+        $proximasEntregas = $this->pagamentoModel->contarProximasEntregas($user['id']);
+        $mensagensNaoLidas = $this->notificacaoModel->getNotificacoesPorUsuario($user['id'], 50);
 
         $this->render('costura/painel', [
             'title' => 'PontoCerto - Meu Painel',
@@ -33,7 +35,8 @@ class CosturaController extends BaseController
             'servicosAtivos' => count($servicosAtivos),
             'pagamentoMes' => $pagamentoMes,
             'proximasEntregas' => $proximasEntregas,
-            'servicos' => $servicosAtivos
+            'servicos' => $servicosAtivos,
+            'mensagensNaoLidas' => $mensagensNaoLidas
         ]);
     }
 
@@ -197,6 +200,74 @@ private function validarPerfil($post)
     return $data;
 }
 
+    //Serviços
+    public function servicos() {
+    $user = $this->getUsuario();
+    
+    // Busca os 10 serviços mais recentes (inclui ativos e finalizados)
+    $servicosRecentes = $this->servicoModel->getServicosRecentesPorCostureira($user['id'], 10);
+    
+    $this->render('costura/servicos', [
+        'title' => 'PontoCerto - Meus Serviços',
+        'user' => $user,
+        'nomeUsuario' => $user['nome'],
+        'usuarioLogado' => true,
+        'servicos' => $servicosRecentes
+    ]);
+}
+
+    public function visualizarServico()
+{
+    // Verificar se é POST
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $_SESSION['error_message'] = 'Método não permitido';
+        $this->redirect('costura/servicos');
+        return;
+    }
+
+    $user = $this->getUsuario();
+    
+    // Verificar se o usuário está logado
+    if (!$user) {
+        $this->redirect('login');
+        return;
+    }
+    
+    $servicoId = $_POST['servico_id'] ?? null;
+
+    if (!$servicoId) {
+        $_SESSION['error_message'] = 'Serviço não identificado';
+        $this->redirect('costura/servicos');
+        return;
+    }
+    
+    // Buscar o serviço pelo ID
+    $servico = $this->servicoModel->getServicoPorId($servicoId);
+    
+    // Verificar se o serviço existe
+    if (!$servico) {
+        $_SESSION['error_message'] = 'Serviço não encontrado';
+        $this->redirect('costura/servicos');
+        return;
+    }
+    
+    // Verificar se o serviço pertence à costureira
+    if ($servico['costureira_id'] != $user['id']) {
+        $_SESSION['error_message'] = 'Acesso não autorizado';
+        $this->redirect('costura/servicos');
+        return;
+    }
+
+    $this->render('costura/visualizar-servico', [
+        'title' => 'PontoCerto - Detalhes do Serviço',
+        'user' => $user,
+        'nomeUsuario' => $user['nome'],
+        'usuarioLogado' => true,
+        'servico' => $servico
+    ]);
+}
+
+
     // Meus Pagamentos
     public function pagamentos()
     {
@@ -210,6 +281,95 @@ private function validarPerfil($post)
             'usuarioLogado' => true,
             'pagamentos' => $pagamentos
         ]);
+    }
+
+    public function visualizarPagamento()
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $_SESSION['error_message'] = 'Método não permitido';
+        $this->redirect('costura/pagamentos');
+    }
+
+    $user = $this->getUsuario();
+    $pagamentoId = $_POST['pagamento_id'] ?? null;
+
+    if (!$pagamentoId) {
+        $_SESSION['error_message'] = 'Pagamento não identificado';
+        $this->redirect('costura/pagamentos');
+    }
+    
+    // Buscar o pagamento pelo ID
+    $pagamento = $this->pagamentoModel->getPagamentoPorId($pagamentoId);
+    
+    // Verificar se o pagamento existe
+    if (!$pagamento) {
+        $_SESSION['error_message'] = 'Pagamento não encontrado';
+        $this->redirect('costura/pagamentos');
+    }
+    
+    // Verificar se o pagamento pertence à costureira
+    if ($pagamento['costureira_id'] != $user['id']) {
+        $_SESSION['error_message'] = 'Acesso não autorizado';
+        $this->redirect('costura/pagamentos');
+    }
+
+    $itens = $this->pagamentoModel->getItensPagamento($pagamentoId);
+
+    $this->render('costura/visualizar-pagamento', [
+        'title' => 'PontoCerto - Detalhes do Pagamento',
+        'user' => $user,
+        'nomeUsuario' => $user['nome'],
+        'usuarioLogado' => true,
+        'pagamento' => $pagamento,
+        'itens' => $itens
+    ]);
+}
+
+    // Notificações
+    public function mensagens()
+    {
+        $user = $this->getUsuario();
+        
+        // Buscar mensagens (notificações) do usuário
+        $mensagens = $this->notificacaoModel->getNotificacoesPorUsuario($user['id'], 100);
+
+        $this->render('costura/mensagens', [
+            'title' => 'PontoCerto - Minhas Mensagens',
+            'user' => $user,
+            'nomeUsuario' => $user['nome'],
+            'usuarioLogado' => true,
+            'mensagens' => $mensagens
+        ]);
+    }
+
+    public function excluirMensagem()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('costura/mensagens');
+        }
+
+        $user = $this->getUsuario();
+        $mensagemId = $_POST['mensagem_id'] ?? null;
+
+        if (!$mensagemId) {
+            $_SESSION['error_message'] = 'Mensagem não identificada';
+            $this->redirect('costura/mensagens');
+        }
+
+        try {
+            // Excluir a notificação
+            $excluido = $this->notificacaoModel->excluirNotificacoes($user['id'], [$mensagemId]);
+
+            if ($excluido) {
+                $_SESSION['success_message'] = 'Mensagem excluída com sucesso!';
+            } else {
+                $_SESSION['error_message'] = 'Erro ao excluir mensagem';
+            }
+        } catch (Exception $e) {
+            $_SESSION['error_message'] = 'Erro ao excluir mensagem: ' . $e->getMessage();
+        }
+
+        $this->redirect('costura/mensagens');
     }
     
 }
