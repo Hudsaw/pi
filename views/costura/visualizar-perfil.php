@@ -1,65 +1,42 @@
 <div class="conteudo flex">
     <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
-    
-    <div class="dashboard-costureira">
-        <h2>Meu Perfil - <?= htmlspecialchars($nomeUsuario ?? 'Usuário') ?></h2>
-        
-        <div class="detalhes-perfil">
-            <div class="info-perfil">
-                <div class="info-item">
-                    <span class="info-label">Nome Completo:</span>
-                    <span class="info-value"><?= htmlspecialchars($usuario['nome']) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Telefone:</span>
-                    <span class="info-value" id="telefone"><?= htmlspecialchars($usuario['telefone']) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Email:</span>
-                    <span class="info-value"><?= htmlspecialchars($usuario['email']) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">CPF:</span>
-                    <span class="info-value" id="cpf"><?= htmlspecialchars($usuario['cpf']) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">CEP:</span>
-                    <span class="info-value" id="cep"><?= htmlspecialchars($usuario['cep']) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Logradouro:</span>
-                    <span class="info-value"><?= htmlspecialchars($usuario['logradouro']) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Complemento:</span>
-                    <span class="info-value"><?= htmlspecialchars($usuario['complemento']) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Cidade:</span>
-                    <span class="info-value"><?= htmlspecialchars($usuario['cidade']) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Especialidade:</span>
-                    <span class="info-value"><?= htmlspecialchars($usuario['especialidade'] ?? 'Não informada') ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Tipo da chave PIX:</span>
-                    <span class="info-value"><?= htmlspecialchars($usuario['tipo_chave_pix']) ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">PIX:</span>
-                    <span class="info-value"><?= htmlspecialchars($usuario['chave_pix']) ?></span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="acoes-perfil flex h-center l-gap" style="margin-top: 30px;">
+    <form class="formulario-cadastro">
+        <div class="titulo"><?= $usuario['nome'] ?></div>
+        <hr class="shadow">
+        <span class="lista-informacoes flex center">
+            <span class="lista-informacoes-coluna bold flex vertical">
+                <span class="flex v-center">Nome Completo</span>
+                <span class="flex v-center">Telefone</span>
+                <span class="flex v-center">Email</span>
+                <span class="flex v-center">CPF</span>
+                <span class="flex v-center">CEP</span>
+                <span class="flex v-center">Logradouro</span>
+                <span class="flex v-center">Complemento</span>
+                <span class="flex v-center">Cidade</span>
+                <span class="flex v-center">Tipo da chave PIX</span>
+                <span class="flex v-center">PIX</span>
+            </span>
+            <span class="lista-informacoes-coluna flex vertical">
+                <span class="flex v-center" style="min-height:20px"><?= $usuario['nome'] ?></span>
+                <span class="flex v-center" style="min-height:20px" id="telefone"><?= $usuario['telefone'] ?></span>
+                <span class="flex v-center" style="min-height:20px"><?= $usuario['email'] ?></span>
+                <span class="flex v-center" style="min-height:20px" id="cpf"><?= $usuario['cpf'] ?></span>
+                <span class="flex v-center" style="min-height:20px" id="cep"><?= $usuario['cep'] ?></span>
+                <span class="flex v-center" style="min-height:20px"><?= $usuario['logradouro'] ?></span>
+                <span class="flex v-center" style="min-height:20px"><?= $usuario['complemento'] ?></span>
+                <span class="flex v-center" style="min-height:20px"><?= $usuario['cidade'] ?></span>
+                <span class="flex v-center" style="min-height:20px"><?= $usuario['tipo_chave_pix'] ?></span>
+                <span class="flex v-center" style="min-height:20px"><?= $usuario['chave_pix'] ?></span>
+            </span>
+        </span>
+        <br>
+        <hr>
+        <div class="flex h-center l-gap">
             <a href="<?= BASE_URL ?>costura/painel" class="botao">Voltar ao Painel</a>
             <a href="<?= BASE_URL ?>costura/editar-perfil" class="botao">Editar Perfil</a>
         </div>
-    </div>
+    </form>
 </div>
-
 <script src="<?= ASSETS_URL ?>js/utils.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {

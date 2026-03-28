@@ -23,7 +23,6 @@
 body {
     margin: 0;
     font-family: 'Schibsted Grotesk', sans-serif;
-    overflow: hidden;
 }
 
 .sidebar-header {
@@ -67,7 +66,6 @@ body {
 .formulario-cadastro {
     flex: 1;
     padding: 2rem;
-    overflow-y: auto;
     height: 100%;
 }
 
@@ -104,16 +102,13 @@ input[type="submit"] {
 }
 
 .topo {
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     right: 0;
     height: 10vh;
     padding-inline: 10%;
-}
-
-.conteudo {
-    height: 100%;
+    background: white
 }
 
 .painel {
@@ -214,8 +209,10 @@ label {
 }
 
 .menu {
+    position: sticky;
+    top: 10vh;
     width: 250px;
-    height: 100%;
+    height: 90vh;
     background: var(--azul-medio);
 }
 
@@ -614,7 +611,6 @@ tr:hover {
 
 .shadow {
     box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
-    position: relative;
 }
 
 .redondinho {
