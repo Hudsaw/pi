@@ -3,31 +3,33 @@
     <div class="conteudo-tabela">
     <h2>Usuários</h2>
         <div class="filtro flex s-gap">
-            <input type="text" id="filtro" placeholder="Digite sua busca (nome ou especialidade)" onkeyup="filtrarUsuarios()">
+            <input type="text" id="filtro" placeholder="Digite sua busca (nome ou especialidade)" onkeyup="filtrarBusca()">
             <span class="flex v-center">
-                <input type="checkbox" id="inativos" onchange="filtrarUsuariosInativos(this)">
+                <input type="checkbox" id="inativos" onchange="filtrarInativos(this)">
                 <label class="flex v-center" for="inativos">Mostrar Inativos</label>
             </span>
             <a href="<?= BASE_URL ?>admin/criar-usuario" class="botao-azul">Criar usuario</a>
         </div>
         <div class="tabela">
-            <table cellspacing='0' class="redondinho shadow" id="tabelaUsuarios">
+            <table cellspacing='0' class="redondinho shadow filter">
                 <thead>
                     <tr>
                         <th class="ae">Nome</th>
-                        <th class="ae">Telefone</th>
                         <th class="ae">Cidade</th>
                         <th class="ae">Especialidade</th>
+                        <th class="ae">Telefone</th>
+                        <th class="ae">Status</th>
                         <th class="ac">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($listaUsuarios as $usuario): ?>
-                        <tr class="linha-usuario" data-ativo="<?= $usuario['ativo'] ? '1' : '0' ?>">
+                        <tr class="linha-filter" data-ativo="<?= $usuario['ativo'] ? '1' : '0' ?>">
                             <td class="ae"><?= htmlspecialchars($usuario['nome']) ?></td>
-                            <td class="ae" id="telefone"><?= htmlspecialchars($usuario['telefone']) ?></td>
                             <td class="ae"><?= htmlspecialchars($usuario['cidade']) ?></td>
                             <td class="ae"><?= htmlspecialchars($usuario['especialidade'] ?? 'N/A') ?></td>
+                            <td class="ae" id="telefone"><?= htmlspecialchars($usuario['telefone']) ?></td>
+                            <td class="ae"> <span class="status-badge <?=$usuario['ativo'] ? "active":"inactive" ?> "> <?= htmlspecialchars($usuario['ativo'] ? "Ativo":"Inativo") ?></span></td>
                             <td class="ac">
                                 <a href="<?= BASE_URL ?>admin/visualizar-usuario?id=<?= $usuario['id'] ?>">
                                     <img class="icone" src="<?php echo ASSETS_URL?>icones/visualizar.svg" alt="visualizar">
@@ -56,49 +58,5 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     formatarDadosExibidos();
-    esconderUsuariosInativos();
 });
-
-function filtrarUsuarios() {
-    const input = document.getElementById('filtro');
-    const filter = input.value.trim().toUpperCase();
-    const table = document.getElementById('tabelaUsuarios');
-    const rows = table.querySelectorAll('.linha-usuario');
-    
-    rows.forEach(row => {
-        const nome = row.cells[0].textContent.toUpperCase();
-        const especialidade = row.cells[4].textContent.toUpperCase();
-        
-        const match = nome.includes(filter) || especialidade.includes(filter);
-        row.style.display = match ? '' : 'none';
-    });
-}
-
-
-function filtrarUsuariosInativos(elemento) {
-    if (elemento.checked) {
-        listarUsuariosInativos(); 
-    } else {
-        esconderUsuariosInativos();
-    } 
-}
-
-function esconderUsuariosInativos() {
-    const table = document.getElementById('tabelaUsuarios');
-    const rows = table.querySelectorAll('.linha-usuario');
-    
-    rows.forEach(row => {
-        const ativo = row.getAttribute('data-ativo');
-        row.style.display = ativo === '1' ? '' : 'none';
-    });
-}
-
-function listarUsuariosInativos() {
-    const table = document.getElementById('tabelaUsuarios');
-    const rows = table.querySelectorAll('.linha-usuario');
-    
-    rows.forEach(row => {
-        row.style.display = "";
-    });
-}
 </script>

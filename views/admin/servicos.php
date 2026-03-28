@@ -3,16 +3,16 @@
 <div class="conteudo-tabela">
     <h2>Serviços</h2>
     <div class="filtro flex s-gap">
-            <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarServico()">
+            <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarBusca()">
             <span class="flex v-center">
-                <input type="checkbox" id="inativos" onchange="filtrarServicoInativos(this)">
+                <input type="checkbox" id="inativos" onchange="filtrarInativos(this)">
                 <label class="flex v-center" for="inativos">Mostrar Inativos</label>
             </span>
         <a href="<?= BASE_URL ?>admin/criar-servico" class="botao-azul">Criar Serviço</a>
     </div>
 
     <div class="tabela">
-        <table cellspacing='0' class="redondinho shadow">
+        <table cellspacing='0' class="redondinho shadow filter">
             <thead>
                 <tr>
                     <th class="ae">Lote</th>
@@ -31,7 +31,8 @@
                     </tr>
                 <?php else: ?>
                     <?php foreach ($listaServicos as $servico): ?>
-                        <tr>
+                       <tr class="linha-filter" data-ativo="<?= $servico['status'] == 'Inativo' ? '0' : '1' ?>">
+
                             <td class="ae"><?= htmlspecialchars($servico['lote_nome']) ?></td>
                             <td class="ae"><?= htmlspecialchars($servico['operacao_nome']) ?></td>
                             <td class="ae">
@@ -39,7 +40,15 @@
                             </td>
                             <td class="ae"><?= htmlspecialchars($servico['quantidade_pecas']) ?></td>
                             <td class="ae"><?= date('d/m/Y', strtotime($servico['data_envio'])) ?></td>
-                            <td class="ae status-<?= strtolower($servico['status']) ?>"><?= htmlspecialchars($servico['status']) ?></td>
+                            <td class="ae">
+                                    <span class="status-badge <?= match($servico['status']) {
+                                        'Em andamento'    => 'active',
+                                        'Finalizado'      => 'completed',
+                                        'Inativo'         => 'inactive',
+                                    } ?>">
+                                        <?= htmlspecialchars($servico['status']) ?>
+                                    </span>
+                                </td>
                             <td class="ac">
                                 <a href="<?= BASE_URL ?>admin/visualizar-servico?id=<?= $servico['id'] ?>" class="btn-visualizar" title="Visualizar">
                                     <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
@@ -62,37 +71,3 @@
         </table>
     </div>
 </div>
-
-<script>
-function filtrarServico() {
-    const filtro = document.getElementById('filtro').value.toLowerCase();
-    const checkboxInativos = document.getElementById('inativos');
-    const mostrarInativos = checkboxInativos.checked;
-    const linhas = document.querySelectorAll('.tabela tbody tr');
-    
-    linhas.forEach(linha => {
-        if (linha.cells.length <= 1) return; // Pular linha de "Nenhum serviço encontrada"
-        
-        const textoLinha = linha.textContent.toLowerCase();
-        const statusCell = linha.querySelector('td:nth-child(6)'); // Coluna do status
-        const status = statusCell ? statusCell.textContent.toLowerCase().trim() : '';
-        
-        // Verificar se a linha corresponde ao filtro de texto
-        const correspondeFiltro = textoLinha.includes(filtro);
-        
-        // Verificar se deve mostrar baseado no status
-        const mostrarPorStatus = mostrarInativos || status !== 'inativo';
-        
-        // Mostrar/ocultar linha
-        if (correspondeFiltro && mostrarPorStatus) {
-            linha.style.display = '';
-        } else {
-            linha.style.display = 'none';
-        }
-    });
-}
-
-function filtrarServicoInativos(checkbox) {
-    filtrarServico(); // Reaplica o filtro quando o checkbox muda
-}
-</script>

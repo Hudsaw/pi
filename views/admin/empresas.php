@@ -4,18 +4,17 @@
     <div class="conteudo-tabela">
         <h2>Empresas</h2>
         <div class="filtro flex s-gap">
-            <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarEmpresa()">
+            <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarBusca()">
             <span class="flex v-center">
-                <input type="checkbox" id="inativos" onchange="filtrarEmpresaInativos(this)">
+                <input type="checkbox" id="inativos" onchange="filtrarInativos(this)">
                 <label class="flex v-center" for="inativos">Mostrar Inativos</label>
             </span>
             <a href="<?= BASE_URL ?>admin/criar-empresa" class="botao-azul">Criar empresa</a>
         </div>    
         <div class="tabela">
-            <table cellspacing='0' class="redondinho shadow">
+            <table cellspacing='0' class="redondinho shadow filter">
                 <thead>
                     <tr>
-                        <th class="ae">ID</th>
                         <th class="ae">Nome</th>
                         <th class="ae">CNPJ</th>
                         <th class="ae">Telefone</th>
@@ -31,14 +30,13 @@
                         </tr>
                     <?php else: ?>
                         <?php foreach ($listaEmpresas as $empresa): ?>
-                            <tr>
-                                <td class="ae"><?= htmlspecialchars($empresa['id']) ?></td>
+                           <tr class="linha-filter" data-ativo="<?= $empresa['ativo'] ? '1' : '0' ?>">
                                 <td class="ae"><?= htmlspecialchars($empresa['nome']) ?></td>
                                 <td class="ae"><?= $this->formatarCNPJ($empresa['cnpj']) ?></td>
                                 <td class="ae"><?= $this->formatarTelefone($empresa['telefone']) ?></td>
                                 <td class="ae"><?= htmlspecialchars($empresa['cidade']) ?>/<?= htmlspecialchars($empresa['estado']) ?></td>
                                 <td class="ae">
-                                    <span class="status-<?= $empresa['ativo'] ? 'ativo' : 'inativo' ?>">
+                                    <span class="status-badge <?= $empresa['ativo'] ? 'active' : 'inactive' ?>">
                                         <?= $empresa['ativo'] ? 'Ativa' : 'Inativa' ?>
                                     </span>
                                 </td>
@@ -71,35 +69,3 @@
         </div>
     </div>
 </div>
-<script>
-function filtrarEmpresa() {
-    const filtro = document.getElementById('filtro').value.toLowerCase();
-    const checkboxInativos = document.getElementById('inativos');
-    const mostrarInativos = checkboxInativos.checked;
-    const linhas = document.querySelectorAll('.tabela tbody tr');
-    
-    linhas.forEach(linha => {
-        if (linha.cells.length <= 1) return; // Pular linha de "Nenhuma empresa encontrada"
-        
-        const textoLinha = linha.textContent.toLowerCase();
-        const status = linha.querySelector('.status-inativo') ? 'inativo' : 'ativo';
-        
-        // Verificar se a linha corresponde ao filtro de texto
-        const correspondeFiltro = textoLinha.includes(filtro);
-        
-        // Verificar se deve mostrar baseado no status
-        const mostrarPorStatus = mostrarInativos || status === 'ativo';
-        
-        // Mostrar/ocultar linha
-        if (correspondeFiltro && mostrarPorStatus) {
-            linha.style.display = '';
-        } else {
-            linha.style.display = 'none';
-        }
-    });
-}
-
-function filtrarEmpresaInativos(checkbox) {
-    filtrarEmpresa(); // Reaplica o filtro quando o checkbox muda
-}
-</script>

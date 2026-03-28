@@ -3,16 +3,16 @@
     <div class="conteudo-tabela">
     <h2>Operações</h2>
         <div class="filtro flex s-gap">
-            <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarOperacoes()">
+            <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarBusca()">
             <span class="flex v-center">
-                <input type="checkbox" id="inativos" onchange="filtrarOperacoesInativos(this)">
+                <input type="checkbox" id="inativos" onchange="filtrarInativos(this)">
                 <label class="flex v-center" for="inativos">Mostrar Inativos</label>
             </span>
             <a href="<?= BASE_URL ?>admin/criar-operacao" class="botao-azul">Criar operação</a>
         </div>  
         
         <div class="tabela">
-            <table cellspacing='0' class="redondinho shadow">
+            <table cellspacing='0' class="redondinho shadow filter">
                 <thead>
                     <tr>
                         <th class="ae">Nome</th>
@@ -28,11 +28,11 @@
                         </tr>
                     <?php else: ?>
                         <?php foreach ($listaOperacoes as $operacao): ?>
-                            <tr>
+                             <tr class="linha-filter" data-ativo="<?= $operacao['ativo'] ? '1' : '0' ?>">
                                 <td class="ae"><?= htmlspecialchars($operacao['nome']) ?></td>
                                 <td class="ae">R$ <?= number_format($operacao['valor'], 2, ',', '.') ?></td>
                                 <td class="ae">
-                                    <span class="status-<?= $operacao['ativo'] ? 'ativo' : 'inativo' ?>">
+                                    <span class="status-badge <?= $operacao['ativo'] ? 'active' : 'inactive' ?>">
                                         <?= $operacao['ativo'] ? 'Ativa' : 'Inativa' ?>
                                     </span>
                                 </td>

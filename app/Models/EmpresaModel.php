@@ -37,17 +37,6 @@ class EmpresaModel
     public function getEmpresas($filtro = 'ativos')
     {
         $sql = "SELECT * FROM empresas WHERE 1=1";
-        
-        switch ($filtro) {
-            case 'ativos':
-                $sql .= " AND ativo = 1";
-                break;
-            case 'inativos':
-                $sql .= " AND ativo = 0";
-                break;
-            // 'todos' não adiciona filtro
-        }
-        
         $sql .= " ORDER BY nome";
         
         $stmt = $this->pdo->prepare($sql);

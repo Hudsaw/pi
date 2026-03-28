@@ -72,14 +72,14 @@ class ServicoModel
     // Obter todos os serviços (operações)
     public function getServicos($filtro = null)
 {
-    $where = "";
-    if ($filtro === 'ativos') {
-        $where = "WHERE s.status = 'Em andamento'";
-    } elseif ($filtro === 'finalizados') {
-        $where = "WHERE s.status = 'Finalizado'";
-    } elseif ($filtro === 'inativos') {
-        $where = "WHERE s.status = 'Inativo'";
-    }
+    // $where = "";
+    // if ($filtro === 'ativos') {
+    //     $where = "WHERE s.status = 'Em andamento'";
+    // } elseif ($filtro === 'finalizados') {
+    //     $where = "WHERE s.status = 'Finalizado'";
+    // } elseif ($filtro === 'inativos') {
+    //     $where = "WHERE s.status = 'Inativo'";
+    // }
     // Se $filtro for null ou 'todos', não aplica filtro
 
     $sql = "SELECT s.*, 
@@ -94,7 +94,7 @@ class ServicoModel
             INNER JOIN operacoes o ON s.operacao_id = o.id
             LEFT JOIN usuarios u ON s.costureira_id = u.id
             LEFT JOIN especialidade e ON u.especialidade_id = e.id
-            $where
+            
             ORDER BY s.data_envio DESC";
 
     $stmt = $this->pdo->prepare($sql);

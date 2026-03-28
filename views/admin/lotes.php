@@ -3,18 +3,17 @@
     <div class="conteudo-tabela">
     <h2>Lotes</h2>
         <div class="filtro flex s-gap">
-            <input type="text" id="filtro" placeholder="Digite sua busca (nome, coleção ou empresa)" onkeyup="filtrarLotes()">
+            <input type="text" id="filtro" placeholder="Digite sua busca (nome, coleção ou empresa)" onkeyup="filtrarBusca()">
             <span class="flex v-center">
-                <input type="checkbox" id="inativos" onchange="filtrarLotesInativos(this)">
+                <input type="checkbox" id="inativos" onchange="filtrarInativos(this)">
                 <label class="flex v-center" for="inativos">Mostrar Inativos</label>
             </span>
             <a href="<?= BASE_URL ?>admin/criar-lote" class="botao-azul">Criar Lote</a>
         </div>
         <div class="tabela">
-            <table cellspacing='0' class="redondinho shadow" id="tabelaLotes">
+            <table cellspacing='0' class="redondinho shadow filter" >
                 <thead>
                     <tr>
-                        <th class="ae">Empresa</th>
                         <th class="ae">Coleção</th>
                         <th class="ae">Nome</th>
                         <th class="ae">Data Entrada</th>
@@ -30,14 +29,17 @@
                         </tr>
                     <?php else: ?>
                         <?php foreach ($listaLotes as $lote): ?>
-                            <tr class="linha-lote" data-ativo="<?= $lote['ativo'] ? '1' : '0' ?>">
-                                <td class="ae"><?= htmlspecialchars($lote['empresa_id']) ?></td>
+                            <tr class="linha-filter" data-ativo="<?= $lote['ativo'] ? '1' : '0' ?>">
                                 <td class="ae"><?= htmlspecialchars($lote['colecao']) ?></td>
                                 <td class="ae"><?= htmlspecialchars($lote['nome']) ?></td>
                                 <td class="ae"><?= date('d/m/Y', strtotime($lote['data_entrada'])) ?></td>
                                 <td class="ae">R$ <?= number_format($lote['valor_total'], 2, ',', '.') ?></td>
                                 <td class="ae">
-                                    <span class="status-<?= strtolower($lote['status']) ?>">
+                                    <span class="status-badge <?= match($lote['status']) {
+                                        'Aberto'    => 'active',
+                                        'Entregue'  => 'completed',
+                                        'Cancelado' => 'inactive',
+                                    } ?>">
                                         <?= htmlspecialchars($lote['status']) ?>
                                     </span>
                                 </td>
@@ -67,52 +69,3 @@
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    esconderLotesInativos();
-});
-
-function filtrarLotes() {
-    const input = document.getElementById('filtro');
-    const filter = input.value.trim().toUpperCase();
-    const table = document.getElementById('tabelaLotes');
-    const rows = table.querySelectorAll('.linha-lote');
-    
-    rows.forEach(row => {
-        const empresa = row.cells[0].textContent.toUpperCase();
-        const colecao = row.cells[1].textContent.toUpperCase();
-        const nome = row.cells[2].textContent.toUpperCase();
-        
-        const match = empresa.includes(filter) || colecao.includes(filter) || nome.includes(filter);
-        row.style.display = match ? '' : 'none';
-    });
-}
-
-function filtrarLotesInativos(elemento) {
-    if (elemento.checked) {
-        listarLotesInativos(); 
-    } else {
-        esconderLotesInativos();
-    } 
-}
-
-function esconderLotesInativos() {
-    const table = document.getElementById('tabelaLotes');
-    const rows = table.querySelectorAll('.linha-lote');
-    
-    rows.forEach(row => {
-        const ativo = row.getAttribute('data-ativo');
-        row.style.display = ativo === '1' ? '' : 'none';
-    });
-}
-
-function listarLotesInativos() {
-    const table = document.getElementById('tabelaLotes');
-    const rows = table.querySelectorAll('.linha-lote');
-    
-    rows.forEach(row => {
-        row.style.display = "";
-    });
-}
-</script>
