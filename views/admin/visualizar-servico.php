@@ -9,6 +9,7 @@
                 <span class="flex v-center">Lote</span>
                 <span class="flex v-center">Operação</span>
                 <span class="flex v-center">Costureira</span>
+                <span class="flex v-center">Peças concluídas</span>
                 <span class="flex v-center">Quantidade de peças</span>
                 <span class="flex v-center">Valor da operação</span>
                 <span class="flex v-center">Valor total</span>
@@ -36,7 +37,7 @@
             <span class="texto-vermelho">Nenhuma costureira vinculada</span>
         <?php endif; ?>
     </span>
-    <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['quantidade_pecas']) ?></span>
+                <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['pecas_concluidas']) ?></span>
                 <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($servico['quantidade_pecas']) ?></span>
                 <span class="flex v-center" style="min-height:20px">R$ <?= number_format($servico['valor_operacao'], 2, ',', '.') ?></span>
                 <span class="flex v-center" style="min-height:20px">R$ <?= number_format($servico['valor_operacao'] * $servico['quantidade_pecas'], 2, ',', '.') ?></span>

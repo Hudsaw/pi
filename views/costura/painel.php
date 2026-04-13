@@ -69,11 +69,7 @@
                         <tbody>
                             <?php foreach ($servicos as $servico): ?>
                                 <tr>
-                                    <td>
-                                        <a href="<?= BASE_URL ?>costura/visualizar-servico?id=<?= $servico['id'] ?>">
-                                            <?= htmlspecialchars($servico['operacao_nome'] ?? 'N/A') ?>
-                                        </a>
-                                    </td>
+                                    <td><?= htmlspecialchars($servico['operacao_nome'] ?? 'N/A') ?></td>
                                     <td><?= htmlspecialchars($servico['lote_nome'] ?? 'N/A') ?></td>
                                     <td><?= number_format($servico['quantidade_pecas'] ?? 0, 0, ',', '.') ?></td>
                                     <td>R$ <?= number_format($servico['valor_operacao'] ?? 0, 2, ',', '.') ?></td>
@@ -95,8 +91,12 @@
                                         </span>
                                     </td>
                                     <td class="ac">
-                                        <a href="<?= BASE_URL ?>costura/visualizar-servico?id=<?= $servico['id'] ?>" class="btn-visualizar" title="Visualizar">
-                                            <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
+                                        <form method="POST" action="<?= BASE_URL ?>costura/visualizar-servico" style="display: inline;">
+    <input type="hidden" name="servico_id" value="<?= $servico['id'] ?>">
+    <a href="#" onclick="this.closest('form').submit(); return false;" class="btn-visualizar" title="Visualizar">
+                                                    <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
+</a>
+</form>
                                         </a>
                                     </td>
                                 </tr>

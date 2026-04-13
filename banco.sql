@@ -162,6 +162,7 @@ CREATE TABLE servicos (
     lote_id INT NOT NULL,
     operacao_id INT NOT NULL,
     quantidade_pecas INT NOT NULL,
+    pecas_concluidas INT DEFAULT 0,
     valor_operacao DECIMAL(10,2) NOT NULL,
     data_envio DATE NOT NULL,
     data_finalizacao DATE NULL,

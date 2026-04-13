@@ -92,6 +92,7 @@ $router->get('/admin/remover-tamanho', 'AdminController@removerTamanho', ['AuthM
 $router->get('/costura/painel', 'CosturaController@painel', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->get('/costura/servicos', 'CosturaController@servicos', ['AuthMiddleware', 'RoleMiddleware::costureira']); 
 $router->post('/costura/visualizar-servico', 'CosturaController@visualizarServico', ['AuthMiddleware', 'RoleMiddleware::costureira']);
+$router->post('/costura/atualizar-progresso', 'CosturaController@atualizarProgresso', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->get('/costura/pagamentos', 'CosturaController@pagamentos', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->post('/costura/visualizar-pagamento', 'CosturaController@visualizarPagamento', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->get('/costura/mensagens', 'CosturaController@mensagens', ['AuthMiddleware', 'RoleMiddleware::costureira']);

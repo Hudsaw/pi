@@ -267,6 +267,86 @@ private function validarPerfil($post)
     ]);
 }
 
+    // Método para atualizar progresso do serviço
+    public function atualizarProgresso()
+{
+    // Verificar se é POST via AJAX ou formulário normal
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $_SESSION['error_message'] = 'Método não permitido';
+        $this->redirect('costura/servicos');
+        return;
+    }
+
+    $user = $this->getUsuario();
+    
+    // Pode receber via POST normal ou JSON (para AJAX)
+    if (!empty($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $servicoId = $input['servico_id'] ?? null;
+        $pecasConcluidas = isset($input['pecas_concluidas']) ? (int)$input['pecas_concluidas'] : null;
+    } else {
+        $servicoId = $_POST['servico_id'] ?? null;
+        $pecasConcluidas = isset($_POST['pecas_concluidas']) ? (int)$_POST['pecas_concluidas'] : null;
+    }
+
+    if (!$servicoId) {
+        $_SESSION['error_message'] = 'Serviço não identificado';
+        $this->redirect('costura/servicos');
+        return;
+    }
+
+    if ($pecasConcluidas === null) {
+        $_SESSION['error_message'] = 'Informe a quantidade de peças concluídas';
+        $this->redirect('costura/visualizar-servico', ['servico_id' => $servicoId]);
+        return;
+    }
+
+    // Buscar o serviço
+    $servico = $this->servicoModel->getServicoPorId($servicoId);
+    
+    if (!$servico) {
+        $_SESSION['error_message'] = 'Serviço não encontrado';
+        $this->redirect('costura/servicos');
+        return;
+    }
+
+    // Verificar se o serviço pertence à costureira
+    if ($servico['costureira_id'] != $user['id']) {
+        $_SESSION['error_message'] = 'Acesso não autorizado';
+        $this->redirect('costura/servicos');
+        return;
+    }
+
+    // Verificar se o serviço não está finalizado
+    if ($servico['status'] == 'Finalizado') {
+        $_SESSION['error_message'] = 'Este serviço já foi finalizado.';
+        $this->redirect('costura/visualizar-servico', ['servico_id' => $servicoId]);
+        return;
+    }
+
+    try {
+        $this->servicoModel->atualizarProgresso($servicoId, $pecasConcluidas);
+        $_SESSION['success_message'] = 'Progresso atualizado com sucesso!';
+        
+        // Se for requisição AJAX, retornar JSON
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'Progresso atualizado com sucesso!']);
+            exit;
+        }
+        
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Erro: ' . $e->getMessage();
+        
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            exit;
+        }
+    }
+
+    $this->redirect('costura/painel');
+}
 
     // Meus Pagamentos
     public function pagamentos()

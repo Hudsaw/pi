@@ -129,29 +129,89 @@ class ServicoModel
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-    // Obter serviço por ID
-    public function getServicoPorId($id)
-    {
-        $sql = "SELECT s.*, 
-                       l.nome as lote_nome,
-                       l.colecao,
-                       o.nome as operacao_nome,
-                       o.valor as valor_base_operacao,
-                       u.id as costureira_id,
-                       u.nome as costureira_nome,
-                       e.nome as costureira_especialidade
-                FROM servicos s
-                INNER JOIN lotes l ON s.lote_id = l.id
-                INNER JOIN operacoes o ON s.operacao_id = o.id
-                LEFT JOIN usuarios u ON s.costureira_id = u.id
-                LEFT JOIN especialidade e ON u.especialidade_id = e.id
-                WHERE s.id = :id";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':id' => $id]);
-        
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+    public function atualizarProgresso($servicoId, $pecasConcluidas)
+{
+    // Buscar o serviço atual
+    $servico = $this->getServicoPorId($servicoId);
+    if (!$servico) {
+        throw new Exception('Serviço não encontrado');
     }
+
+    $quantidadeTotal = $servico['quantidade_pecas'];
+
+    // Validar se não excede o total
+    if ($pecasConcluidas > $quantidadeTotal) {
+        throw new Exception('Não é possível concluir mais peças do que o total do serviço');
+    }
+
+    if ($pecasConcluidas < 0) {
+        throw new Exception('Valor inválido para peças concluídas');
+    }
+
+    // Iniciar transação
+    $this->pdo->beginTransaction();
+    
+    try {
+        // Atualizar as peças concluídas
+        $sql = "UPDATE servicos SET pecas_concluidas = :pecas_concluidas WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':pecas_concluidas' => $pecasConcluidas,
+            ':id' => $servicoId
+        ]);
+        
+        // Se todas as peças foram concluídas e ainda não está finalizado
+        if ($pecasConcluidas >= $quantidadeTotal && $servico['status'] != 'Finalizado') {
+            $sqlStatus = "UPDATE servicos SET status = 'Finalizado', data_finalizacao = NOW() WHERE id = :id";
+            $stmtStatus = $this->pdo->prepare($sqlStatus);
+            $stmtStatus->execute([':id' => $servicoId]);
+        } 
+        // Se NÃO atingiu o total mas está como Finalizado (caso de correção)
+        else if ($pecasConcluidas < $quantidadeTotal && $servico['status'] == 'Finalizado') {
+            $sqlStatus = "UPDATE servicos SET status = 'Em andamento', data_finalizacao = NULL WHERE id = :id";
+            $stmtStatus = $this->pdo->prepare($sqlStatus);
+            $stmtStatus->execute([':id' => $servicoId]);
+        }
+        
+        $this->pdo->commit();
+        return true;
+        
+    } catch (Exception $e) {
+        $this->pdo->rollBack();
+        throw $e;
+    }
+}
+
+    public function getServicoPorId($id)
+{
+    $sql = "SELECT s.*, 
+                   l.nome as lote_nome,
+                   l.colecao,
+                   l.data_entrega,
+                   o.nome as operacao_nome,
+                   o.valor as valor_base_operacao,
+                   u.id as costureira_id,
+                   u.nome as costureira_nome,
+                   e.nome as costureira_especialidade
+            FROM servicos s
+            INNER JOIN lotes l ON s.lote_id = l.id
+            INNER JOIN operacoes o ON s.operacao_id = o.id
+            LEFT JOIN usuarios u ON s.costureira_id = u.id
+            LEFT JOIN especialidade e ON u.especialidade_id = e.id
+            WHERE s.id = :id";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':id' => $id]);
+    
+    $servico = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Garantir que pecas_concluidas tenha um valor padrão
+    if ($servico && !isset($servico['pecas_concluidas'])) {
+        $servico['pecas_concluidas'] = 0;
+    }
+    
+    return $servico;
+}
 
     // Obter costureiras ativas para vinculação
     public function getCostureirasAtivas()
@@ -332,12 +392,10 @@ public function getServicosRecentesPorCostureira($costureiraId, $limite = 10)
     $sql = "SELECT s.*, 
                    l.nome as lote_nome,
                    l.colecao,
+                   l.data_entrega,
                    o.nome as operacao_nome,
                    o.valor as valor_base_operacao,
-                   CASE 
-                       WHEN s.status = 1 THEN 'Finalizado'
-                       ELSE 'Em andamento'
-                   END as status
+                   s.status as status  
             FROM servicos s
             INNER JOIN lotes l ON s.lote_id = l.id
             INNER JOIN operacoes o ON s.operacao_id = o.id
@@ -357,13 +415,14 @@ public function getServicosAtivosPorCostureira($costureiraId)
     $sql = "SELECT s.*, 
                    l.nome as lote_nome,
                    l.colecao,
+                   l.data_entrega,  
                    o.nome as operacao_nome,
                    o.valor as valor_base_operacao
             FROM servicos s
             INNER JOIN lotes l ON s.lote_id = l.id
             INNER JOIN operacoes o ON s.operacao_id = o.id
             WHERE s.costureira_id = :costureira_id 
-            AND s.status = 'Em andamento'
+            AND s.status = 'Em andamento'  
             ORDER BY s.data_envio DESC";
 
     $stmt = $this->pdo->prepare($sql);
