@@ -88,6 +88,14 @@ $router->get('/admin/remover-tipo-peca', 'AdminController@removerTipoPeca', ['Au
 $router->get('/admin/remover-cor', 'AdminController@removerCor', ['AuthMiddleware', 'RoleMiddleware::admin']);
 $router->get('/admin/remover-tamanho', 'AdminController@removerTamanho', ['AuthMiddleware', 'RoleMiddleware::admin']);
 
+// Rotas Financeiras
+$router->get('/admin/financeiro', 'AdminController@financeiro', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->get('/admin/relatorio-pagamentos', 'AdminController@relatorioPagamentos', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->get('/admin/pagamentos', 'AdminController@pagamentos', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->get('/admin/registrar-pagamento', 'AdminController@registrarPagamento', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->post('/admin/registrar-pagamento', 'AdminController@processarPagamento', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->get('/admin/cancelar-pagamento', 'AdminController@cancelarPagamento', ['AuthMiddleware', 'RoleMiddleware::admin']);
+
 // Rotas da Costureira
 $router->get('/costura/painel', 'CosturaController@painel', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->get('/costura/servicos', 'CosturaController@servicos', ['AuthMiddleware', 'RoleMiddleware::costureira']); 

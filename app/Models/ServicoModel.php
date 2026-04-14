@@ -247,18 +247,147 @@ class ServicoModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    
     // Finalizar serviço
-    public function finalizarServico($servicoId, $dataFinalizacao)
-    {
+public function finalizarServico($servicoId, $dataFinalizacao)
+{
+    // Iniciar transação para garantir consistência
+    $this->pdo->beginTransaction();
+    
+    try {
+        // Buscar informações do serviço antes de finalizar
+        $servico = $this->getServicoPorId($servicoId);
+        if (!$servico) {
+            throw new Exception('Serviço não encontrado');
+        }
+        
+        // Verificar se já não está finalizado
+        if ($servico['status'] === 'Finalizado') {
+            throw new Exception('Serviço já está finalizado');
+        }
+        
+        // Atualizar status para Finalizado
         $sql = "UPDATE servicos SET status = 'Finalizado', data_finalizacao = :data_finalizacao 
                 WHERE id = :id";
         
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
+        $result = $stmt->execute([
             ':data_finalizacao' => $dataFinalizacao,
             ':id' => $servicoId
         ]);
+        
+        if (!$result) {
+            throw new Exception('Erro ao finalizar serviço');
+        }
+        
+        // Criar pagamento automaticamente se houver costureira vinculada
+        if ($servico['costureira_id']) {
+            $this->criarPagamentoAutomatico(
+                $servicoId,
+                $servico['costureira_id'],
+                $servico['pecas_concluidas'] ?: $servico['quantidade_pecas'], // Usa peças concluídas ou total
+                $servico['valor_operacao']
+            );
+        }
+        
+        $this->pdo->commit();
+        return true;
+        
+    } catch (Exception $e) {
+        $this->pdo->rollBack();
+        error_log("Erro ao finalizar serviço: " . $e->getMessage());
+        throw $e;
     }
+}
+
+public function criarPagamentoAutomatico($servicoId, $costureiraId, $quantidadePecas, $valorOperacao)
+{
+    error_log("=== INICIANDO CRIAÇÃO DE PAGAMENTO AUTOMÁTICO ===");
+    error_log("Serviço ID: $servicoId, Costureira ID: $costureiraId, Qtd: $quantidadePecas, Valor Unit: $valorOperacao");
+    
+    try {
+        // Verificar se já existe pagamento pendente para este serviço
+        $sql = "SELECT pi.id, p.id as pagamento_id, p.status
+                FROM pagamento_itens pi 
+                INNER JOIN pagamentos p ON pi.pagamento_id = p.id 
+                WHERE pi.servico_id = :servico_id AND p.status IN ('Pendente', 'Pago')";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':servico_id' => $servicoId]);
+        
+        $existente = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($existente) {
+            error_log("Já existe pagamento para este serviço. Pagamento ID: " . $existente['pagamento_id']);
+            return $existente['pagamento_id'];
+        }
+        
+        $valorTotal = $quantidadePecas * $valorOperacao;
+        $periodoReferencia = date('Y-m-01'); // Primeiro dia do mês atual
+        
+        error_log("Valor Total: $valorTotal, Período: $periodoReferencia");
+        
+        // Verificar se já existe pagamento pendente para esta costureira neste mês
+        $sql = "SELECT id FROM pagamentos 
+                WHERE costureira_id = :costureira_id 
+                AND periodo_referencia = :periodo 
+                AND status = 'Pendente'";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':costureira_id' => $costureiraId,
+            ':periodo' => $periodoReferencia
+        ]);
+        $pagamentoExistente = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($pagamentoExistente) {
+            $pagamentoId = $pagamentoExistente['id'];
+            error_log("Pagamento existente encontrado. ID: $pagamentoId");
+            
+            // Atualizar valor bruto do pagamento
+            $sql = "UPDATE pagamentos 
+                    SET valor_bruto = valor_bruto + :valor,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':valor' => $valorTotal,
+                ':id' => $pagamentoId
+            ]);
+            error_log("Valor do pagamento atualizado");
+        } else {
+            error_log("Criando novo pagamento");
+            // Criar novo pagamento
+            $sql = "INSERT INTO pagamentos (costureira_id, periodo_referencia, valor_bruto, status) 
+                    VALUES (:costureira_id, :periodo, :valor, 'Pendente')";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':costureira_id' => $costureiraId,
+                ':periodo' => $periodoReferencia,
+                ':valor' => $valorTotal
+            ]);
+            $pagamentoId = $this->pdo->lastInsertId();
+            error_log("Novo pagamento criado. ID: $pagamentoId");
+        }
+        
+        // Adicionar item ao pagamento
+        $sql = "INSERT INTO pagamento_itens (pagamento_id, servico_id, valor_calculado) 
+                VALUES (:pagamento_id, :servico_id, :valor)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':pagamento_id' => $pagamentoId,
+            ':servico_id' => $servicoId,
+            ':valor' => $valorTotal
+        ]);
+        
+        error_log("Item adicionado ao pagamento");
+        error_log("=== PAGAMENTO CRIADO COM SUCESSO ===");
+        
+        return $pagamentoId;
+        
+    } catch (Exception $e) {
+        error_log("ERRO ao criar pagamento automático: " . $e->getMessage());
+        error_log("Stack trace: " . $e->getTraceAsString());
+        throw $e;
+    }
+}
 
     // Atualizar serviço
     public function atualizarServico($id, $dados)

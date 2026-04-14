@@ -65,12 +65,13 @@
                 </a>
                 
                 <!-- Finalizar serviço -->
-                <form method="POST" action="<?= BASE_URL ?>admin/finalizar-servico?id=<?= $servico['id'] ?>">
-                    <input type="hidden" name="data_finalizacao" value="<?= date('Y-m-d') ?>">
-                    <button type="submit" class="botao-remover" onclick="return confirm('Tem certeza que deseja finalizar este serviço?')">
-                        Finalizar Serviço
-                    </button>
-                </form>
+<form method="POST" action="<?= BASE_URL ?>admin/finalizar-servico">
+    <input type="hidden" name="id" value="<?= $servico['id'] ?>">
+    <input type="hidden" name="data_finalizacao" value="<?= date('Y-m-d') ?>">
+    <button type="submit" class="botao-remover" onclick="return confirm('Tem certeza que deseja finalizar este serviço?')">
+        Finalizar Serviço
+    </button>
+</form>
                 <?php endif; ?>
             </div>
         </div>

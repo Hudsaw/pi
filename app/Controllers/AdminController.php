@@ -1523,19 +1523,37 @@ public function vincularCostureira()
 // Finalizar serviço
 public function finalizarServico()
 {
-    error_log("Finalizando servico");
-    $servicoId = $_GET['id'];
+    error_log("=== AdminController::finalizarServico chamado ===");
+    
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        error_log("Método não é POST, redirecionando");
+        $this->redirect('admin/servicos');
+        return;
+    }
+    
+    $servicoId = $_POST['id'] ?? null;
     $dataFinalizacao = $_POST['data_finalizacao'] ?? date('Y-m-d');
+    
+    error_log("ID do serviço: " . ($servicoId ?? 'NÃO INFORMADO'));
+    error_log("Data finalização: " . $dataFinalizacao);
+    
+    if (!$servicoId) {
+        error_log("ERRO: ID do serviço não informado");
+        $_SESSION['error_message'] = 'ID do serviço não informado';
+        $this->redirect('admin/servicos');
+        return;
+    }
 
     try {
         $success = $this->servicoModel->finalizarServico($servicoId, $dataFinalizacao);
         
         if ($success) {
-            $_SESSION['success_message'] = 'Serviço finalizado com sucesso!';
+            $_SESSION['success_message'] = 'Serviço finalizado com sucesso! Pagamento pendente criado.';
         } else {
             $_SESSION['error_message'] = 'Erro ao finalizar serviço';
         }
     } catch (Exception $e) {
+        error_log("ERRO ao finalizar serviço: " . $e->getMessage());
         $_SESSION['error_message'] = 'Erro ao finalizar serviço: ' . $e->getMessage();
     }
 
@@ -1868,8 +1886,324 @@ private function validarTamanho($post)
     return $data;
 }
 
+public function pagamentos()
+{
+    error_log("Exibindo pagamentos");
+    $user = $this->getUsuario();
+    $filtro = $_GET['filtro'] ?? 'todos';
+    $termoBusca = $_GET['search'] ?? '';
+    $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+    $itensPorPagina = 15;
+    
+    // Se for requisição de exportação
+    if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+        return $this->exportarPagamentosCSV($filtro, $termoBusca);
+    }
+    
+    // Buscar pagamentos com paginação
+    $listaPagamentos = $this->pagamentoModel->getPagamentosPaginados($filtro, $termoBusca, $pagina, $itensPorPagina);
+    $totalPagamentos = $this->pagamentoModel->getTotalPagamentos($filtro, $termoBusca);
+    $totalPaginas = ceil($totalPagamentos / $itensPorPagina);
+    
+    error_log("Lista de pagamentos retornada: " . count($listaPagamentos));
+    error_log("Total de pagamentos: " . $totalPagamentos);
+    
+    if (empty($listaPagamentos)) {
+        error_log("Nenhum pagamento encontrado. Verifique se há serviços finalizados.");
+    }
+    
+    $resumoFinanceiro = $this->pagamentoModel->getResumoFinanceiro();
 
+    $this->render('admin/pagamentos', [
+        'title' => 'PontoCerto - Pagamentos',
+        'user' => $user,
+        'nomeUsuario' => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'listaPagamentos' => $listaPagamentos,
+        'filtro' => $filtro,  
+        'termoBusca' => $termoBusca,
+        'resumoFinanceiro' => $resumoFinanceiro,
+        'paginaAtual' => $pagina,
+        'totalPaginas' => $totalPaginas,
+        'totalRegistros' => $totalPagamentos,
+        'itensPorPagina' => $itensPorPagina
+    ]);
+}
 
+// Método para exportar CSV
+private function exportarPagamentosCSV($filtro, $termo)
+{
+    $pagamentos = $this->pagamentoModel->exportarPagamentos($filtro, $termo);
+    
+    // Definir cabeçalhos para download
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="pagamentos_' . date('Y-m-d_His') . '.csv"');
+    
+    // Criar output
+    $output = fopen('php://output', 'w');
+    
+    // Adicionar BOM para UTF-8 no Excel
+    fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+    
+    // Cabeçalhos
+    fputcsv($output, [
+        'ID',
+        'Costureira',
+        'Email',
+        'Telefone',
+        'Período Referência',
+        'Total Serviços',
+        'Valor Bruto (R$)',
+        'Valor Líquido (R$)',
+        'Status',
+        'Data Pagamento',
+        'Data Criação',
+        'Observação'
+    ], ';');
+    
+    // Dados
+    foreach ($pagamentos as $p) {
+        fputcsv($output, [
+            $p['id'],
+            $p['costureira_nome'],
+            $p['costureira_email'] ?? '',
+            $p['telefone'] ?? '',
+            date('m/Y', strtotime($p['periodo_referencia'])),
+            $p['total_servicos'] ?? 0,
+            number_format($p['valor_bruto'] ?? 0, 2, ',', '.'),
+            number_format($p['valor_liquido'] ?? $p['valor_bruto'] ?? 0, 2, ',', '.'),
+            $p['status'],
+            $p['data_pagamento'] ? date('d/m/Y', strtotime($p['data_pagamento'])) : '-',
+            $p['created_at'] ? date('d/m/Y H:i', strtotime($p['created_at'])) : '-',
+            $p['observacao'] ?? ''
+        ], ';');
+    }
+    
+    fclose($output);
+    exit;
+}
+
+// Registrar pagamento efetuado - GET para exibir formulário
+public function registrarPagamento()
+{
+    error_log("Exibindo formulário de registro de pagamento");
+    $user = $this->getUsuario();
+    $pagamentoId = $_GET['id'] ?? null;
+    
+    if (!$pagamentoId) {
+        $_SESSION['error_message'] = 'ID do pagamento não informado';
+        $this->redirect('admin/pagamentos');
+    }
+    
+    $pagamento = $this->pagamentoModel->getPagamentoPorId($pagamentoId);
+    
+    if (!$pagamento) {
+        $_SESSION['error_message'] = 'Pagamento não encontrado';
+        $this->redirect('admin/pagamentos');
+    }
+    
+    // Buscar itens do pagamento
+    $itens = $this->pagamentoModel->getItensPagamento($pagamentoId);
+    $pagamento['itens'] = $itens;
+    // Calcular valor líquido (se não existir na tabela)
+    $pagamento['valor_liquido'] = $pagamento['valor_bruto'] - ($pagamento['valor_desconto'] ?? 0);
+    
+    $this->render('admin/criar-pagamento', [
+        'title' => 'PontoCerto - Registrar Pagamento',
+        'user' => $user,
+        'nomeUsuario' => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'pagamento' => $pagamento
+    ]);
+}
+
+// Processar o registro do pagamento - POST
+public function processarPagamento()
+{
+    error_log("Processando registro de pagamento");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/pagamentos');
+    }
+    
+    $pagamentoId = $_POST['id'] ?? null;
+    if (!$pagamentoId) {
+        $_SESSION['error_message'] = 'ID do pagamento não informado';
+        $this->redirect('admin/pagamentos');
+    }
+    
+    $dataPagamento = $_POST['data_pagamento'] ?? date('Y-m-d');
+    $observacao = $_POST['observacao'] ?? '';
+    
+    // Processar comprovante
+    $comprovanteNome = null;
+    if (isset($_FILES['comprovante']) && $_FILES['comprovante']['error'] === UPLOAD_ERR_OK) {
+        $comprovanteNome = $this->processarUploadComprovante($_FILES['comprovante']);
+    }
+    
+    try {
+        $success = $this->pagamentoModel->registrarPagamento($pagamentoId, $dataPagamento, $comprovanteNome, $observacao);
+        
+        if ($success) {
+            $_SESSION['success_message'] = 'Pagamento registrado com sucesso!';
+            $this->redirect('admin/pagamentos');
+        } else {
+            $_SESSION['error_message'] = 'Erro ao registrar o pagamento';
+            $this->redirect('admin/registrar-pagamento?id=' . $pagamentoId);
+        }
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Erro ao registrar o pagamento: ' . $e->getMessage();
+        $this->redirect('admin/registrar-pagamento?id=' . $pagamentoId);
+    }
+}
+
+// Cancelar pagamento
+public function cancelarPagamento()
+{
+    error_log("Cancelando pagamento");
+    $pagamentoId = $_GET['id'];
+    $motivo = $_GET['motivo'] ?? null;
+    
+    try {
+        $success = $this->pagamentoModel->cancelarPagamento($pagamentoId, $motivo);
+        
+        if ($success) {
+            $_SESSION['success_message'] = 'Pagamento cancelado com sucesso!';
+        } else {
+            $_SESSION['error_message'] = 'Erro ao cancelar o pagamento';
+        }
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Erro ao cancelar o pagamento: ' . $e->getMessage();
+    }
+    
+    $this->redirect('admin/pagamentos');
+}
+
+// Processar upload de comprovante
+private function processarUploadComprovante($comprovante)
+{
+    if ($comprovante['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
+    
+    $tiposPermitidos = ['pdf', 'jpg', 'jpeg', 'png'];
+    $extensao = strtolower(pathinfo($comprovante['name'], PATHINFO_EXTENSION));
+    
+    if (!in_array($extensao, $tiposPermitidos)) {
+        return null;
+    }
+    
+    $diretorioUpload = UPLOADS_PATH . 'comprovantes/';
+    
+    if (!is_dir($diretorioUpload)) {
+        mkdir($diretorioUpload, 0755, true);
+    }
+    
+    $nomeArquivo = 'comprovante_' . uniqid() . '_' . date('Y-m-d') . '.' . $extensao;
+    $caminhoCompleto = $diretorioUpload . $nomeArquivo;
+    
+    if (move_uploaded_file($comprovante['tmp_name'], $caminhoCompleto)) {
+        return $nomeArquivo;
+    }
+    
+    return null;
+}
+
+// =============================================
+// MÓDULO DE LUCRO E FINANCEIRO
+// =============================================
+
+// Dashboard Financeiro
+public function financeiro()
+{
+    error_log("Exibindo dashboard financeiro");
+    $user = $this->getUsuario();
+    
+    $ano = $_GET['ano'] ?? date('Y');
+    $mes = $_GET['mes'] ?? null;
+    
+    // Dados de lucro
+    $lucroData = $this->pagamentoModel->calcularLucro($ano, $mes);
+    
+    // Dados mensais para o gráfico (últimos 12 meses ou ano específico)
+    if ($mes) {
+        // Se tem mês específico, pegar últimos 12 meses até aquele mês
+        $lucroMensal = $this->pagamentoModel->getLucroPorMesAte($ano, $mes);
+    } else {
+        $lucroMensal = $this->pagamentoModel->getLucroPorMes($ano);
+    }
+    
+    $rentabilidadeLotes = $this->pagamentoModel->getRentabilidadePorLote();
+    $estatisticas = $this->pagamentoModel->getEstatisticasFinanceiras();
+    
+    // Lotes entregues no período
+    $lotesEntregues = $this->pagamentoModel->getLotesEntregues($ano, $mes);
+    
+    // Pagamentos pendentes
+    $pagamentosPendentes = $this->pagamentoModel->getPagamentos('pendentes');
+    
+    // Calcular total pendente
+    $totalPendente = 0;
+    foreach ($pagamentosPendentes as $pg) {
+        $totalPendente += $pg['valor_bruto'] ?? 0;
+    }
+    
+    // Resumo financeiro para os cards
+    $resumoFinanceiro = [
+        'receita' => $lucroData['receita'],
+        'despesas' => $lucroData['despesa'],
+        'lucro' => $lucroData['lucro'],
+        'margem' => $lucroData['margem'],
+        'pendentes' => $totalPendente,
+        'qtd_pendentes' => count($pagamentosPendentes)
+    ];
+    
+    // Anos disponíveis para filtro
+    $anosDisponiveis = $this->pagamentoModel->getAnosComDados();
+    
+    $this->render('admin/financeiro', [
+        'title' => 'PontoCerto - Dashboard Financeiro',
+        'user' => $user,
+        'nomeUsuario' => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'resumoFinanceiro' => $resumoFinanceiro,
+        'lucroMensal' => $lucroMensal,
+        'rentabilidadeLotes' => $rentabilidadeLotes,
+        'estatisticas' => $estatisticas,
+        'lotesEntregues' => $lotesEntregues,
+        'pagamentosPendentes' => $pagamentosPendentes,
+        'totalPendente' => $totalPendente,
+        'anoSelecionado' => $ano,
+        'mesSelecionado' => $mes,
+        'anosDisponiveis' => $anosDisponiveis
+    ]);
+}
+
+// Relatório de pagamentos por período
+public function relatorioPagamentos()
+{
+    error_log("Exibindo relatório de pagamentos");
+    $user = $this->getUsuario();
+    
+    $dataInicio = $_GET['data_inicio'] ?? date('Y-m-01');
+    $dataFim = $_GET['data_fim'] ?? date('Y-m-t');
+    
+    $relatorio = $this->pagamentoModel->getRelatorioPeriodo($dataInicio, $dataFim);
+    
+    $totalBruto = array_sum(array_column($relatorio, 'valor_bruto'));
+    $totalPago = array_sum(array_column($relatorio, 'valor_bruto'));
+    
+    $this->render('admin/relatorio-pagamentos', [
+        'title' => 'PontoCerto - Relatório de Pagamentos',
+        'user' => $user,
+        'nomeUsuario' => $user ? $user['nome'] : 'Visitante',
+        'usuarioLogado' => $this->estaLogado(),
+        'relatorio' => $relatorio,
+        'dataInicio' => $dataInicio,
+        'dataFim' => $dataFim,
+        'totalBruto' => $totalBruto,
+        'totalPago' => $totalPago
+    ]);
+}
 }
 
 

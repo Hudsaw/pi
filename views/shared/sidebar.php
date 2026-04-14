@@ -8,10 +8,11 @@ $menuItems = [
         ['route' => 'admin/painel', 'label' => 'Painel'],
         ['route' => 'admin/lotes', 'label' => 'Lotes'],
         ['route' => 'admin/servicos', 'label' => 'Serviços'],
+        ['route' => 'admin/financeiro', 'label' => 'Financeiro'],
         ['route' => 'admin/usuarios', 'label' => 'Usuários'],
         ['route' => 'admin/empresas', 'label' => 'Empresas'],
         ['route' => 'admin/operacoes', 'label' => 'Operações'],
-        ['route' => 'admin/pecas', 'label'=> 'Gerenciamento de Peças'],
+        ['route' => 'admin/pecas', 'label'=> 'Peças'],
     ],
     'costureira' => [
         ['route' => 'costura/painel', 'label' => 'Painel'],
