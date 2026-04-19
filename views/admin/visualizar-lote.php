@@ -27,7 +27,7 @@
         <?php if (!empty($lote['anexos'])): ?>
             <a href="<?= BASE_URL ?>uploads/lotes/<?= htmlspecialchars($lote['anexos']) ?>" 
                target="_blank" class="botao-link">
-               📎 Ver Anexo
+              Ver Anexo
             </a>
         <?php else: ?>
             Nenhum anexo

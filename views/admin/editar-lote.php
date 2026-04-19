@@ -64,19 +64,20 @@
         
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label" for="anexo">
-                    Anexo
+                <label class="form-label v-center flex" for="anexo">
+                    
                     <img class="icone" src="<?php echo ASSETS_URL?>icones/anexo.svg" alt="Anexo">
+                    <small>Deixe em branco para manter o anexo atual</small>
                 </label>
                 <?php if (!empty($lote['anexos'])): ?>
                     <div class="anexo-atual">
-                        <small>Anexo atual: <?= htmlspecialchars($lote['anexos']) ?></small>
+                        <small><b>Anexo atual:</b> <?= htmlspecialchars($lote['anexos']) ?></small>
                     </div>
                 <?php endif; ?>
-                <input type="file" name="anexo" id="anexo" class="form-input" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                <small>Deixe em branco para manter o anexo atual</small>
+                 <input type="file" name="anexo" id="anexo" class="form-input escondido" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
             </div>
         </div>
+        
         
         <div class="form-row">
             <div class="form-group-full">
@@ -94,7 +95,6 @@
                         <th>Tipo Peça</th>
                         <th>Cor</th>
                         <th>Tamanho</th>
-                        <th>Operação</th>
                         <th>Quantidade</th>
                         <th>Valor Unitário</th>
                         <th>Ações</th>
@@ -167,16 +167,6 @@
                     </select>
                 </td>
                 <td class="ac">
-                    <select name="pecas[${index}][operacao_id]" class="form-select" required>
-                        <option value="">Selecione a operação</option>
-                        <?php foreach ($operacoes as $operacao): ?>
-                            <option value="<?= $operacao['id'] ?>" ${peca.operacao_id == <?= $operacao['id'] ?> ? 'selected' : ''}>
-                                <?= htmlspecialchars($operacao['nome']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </td>
-                <td class="ac">
                     <input type="number" name="pecas[${index}][quantidade]" class="form-input" placeholder="Quantidade" min="1" value="${peca.quantidade}" required>
                 </td>
                 <td class="ac">
@@ -226,14 +216,6 @@
                 <option value="">Selecione o tamanho</option>
                 <?php foreach ($tamanhos as $tamanho): ?>
                     <option value="<?= $tamanho['id'] ?>"><?= htmlspecialchars($tamanho['nome']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </td>
-        <td class="ac">
-            <select name="pecas[${pecaCount}][operacao_id]" class="form-select" required>
-                <option value="">Selecione a operação</option>
-                <?php foreach ($operacoes as $operacao): ?>
-                    <option value="<?= $operacao['id'] ?>"><?= htmlspecialchars($operacao['nome']) ?></option>
                 <?php endforeach; ?>
             </select>
         </td>

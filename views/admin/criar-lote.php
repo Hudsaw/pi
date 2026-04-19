@@ -62,12 +62,12 @@
         
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label" for="anexo">
-                    Anexo
+                <label class="form-label v-center flex" for="anexo">
+                    
                     <img class="icone" src="<?php echo ASSETS_URL?>icones/anexo.svg" alt="Anexo">
+                    <small>Formatos aceitos: PDF, JPG, PNG, DOC (Max: 5MB)</small>
                 </label>
-                <input type="file" name="anexo" id="anexo" class="form-input" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                <small>Formatos aceitos: PDF, JPG, PNG, DOC (Max: 5MB)</small>
+                <input type="file" name="anexo" id="anexo" class="form-input escondido" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
             </div>
         </div>
         
@@ -87,7 +87,6 @@
                         <th>Tipo Peça</th>
                         <th>Cor</th>
                         <th>Tamanho</th>
-                        <th>Operação</th>
                         <th>Quantidade</th>
                         <th>Valor Unitário</th>
                         <th>Ações</th>
@@ -122,16 +121,6 @@
                                 <?php foreach ($tamanhos as $tamanho): ?>
                                     <option value="<?= $tamanho['id'] ?>" <?= (isset($old['pecas'][0]['tamanho_id']) && $old['pecas'][0]['tamanho_id'] == $tamanho['id']) ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($tamanho['nome']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </td>
-                        <td class="ac">
-                            <select name="pecas[0][operacao_id]" class="form-select" required>
-                                <option value="">Selecione a operação</option>
-                                <?php foreach ($operacoes as $operacao): ?>
-                                    <option value="<?= $operacao['id'] ?>" <?= (isset($old['pecas'][0]['operacao_id']) && $old['pecas'][0]['operacao_id'] == $operacao['id']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($operacao['nome']) ?> - R$ <?= number_format($operacao['valor'], 2, ',', '.') ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
