@@ -93,7 +93,8 @@ $router->get('/admin/financeiro', 'AdminController@financeiro', ['AuthMiddleware
 $router->get('/admin/relatorio-pagamentos', 'AdminController@relatorioPagamentos', ['AuthMiddleware', 'RoleMiddleware::admin']);
 $router->get('/admin/pagamentos', 'AdminController@pagamentos', ['AuthMiddleware', 'RoleMiddleware::admin']);
 $router->get('/admin/registrar-pagamento', 'AdminController@registrarPagamento', ['AuthMiddleware', 'RoleMiddleware::admin']);
-$router->post('/admin/registrar-pagamento', 'AdminController@processarPagamento', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->post('/admin/processar-pagamento', 'AdminController@processarPagamento', ['AuthMiddleware', 'RoleMiddleware::admin']);
+$router->get('/admin/estornar-pagamento', 'AdminController@estornarPagamento', ['AuthMiddleware', 'RoleMiddleware::admin']);
 $router->get('/admin/cancelar-pagamento', 'AdminController@cancelarPagamento', ['AuthMiddleware', 'RoleMiddleware::admin']);
 
 // Rotas da Costureira

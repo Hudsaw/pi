@@ -2056,6 +2056,33 @@ public function processarPagamento()
     }
 }
 
+// Estornar pagamento (voltar de Pago para Pendente)
+public function estornarPagamento()
+{
+    error_log("Estornando pagamento");
+    $pagamentoId = $_GET['id'] ?? null;
+    
+    if (!$pagamentoId) {
+        $_SESSION['error_message'] = 'ID do pagamento não informado';
+        $this->redirect('admin/pagamentos');
+        return;
+    }
+    
+    try {
+        $success = $this->pagamentoModel->estornarPagamento($pagamentoId);
+        
+        if ($success) {
+            $_SESSION['success_message'] = 'Pagamento estornado com sucesso! O status voltou para Pendente.';
+        } else {
+            $_SESSION['error_message'] = 'Erro ao estornar o pagamento';
+        }
+    } catch (Exception $e) {
+        $_SESSION['error_message'] = 'Erro ao estornar o pagamento: ' . $e->getMessage();
+    }
+    
+    $this->redirect('admin/pagamentos');
+}
+
 // Cancelar pagamento
 public function cancelarPagamento()
 {

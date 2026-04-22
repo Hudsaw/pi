@@ -80,11 +80,22 @@
                                         <img class="icone" src="<?= ASSETS_URL ?>icones/remover.svg" alt="cancelar">
                                     </a>
                                 <?php endif; ?>
-                                <?php if ($pagamento['status'] === 'Pago' && !empty($pagamento['comprovante'])): ?>
-                                    <a href="<?= BASE_URL ?>uploads/comprovantes/<?= $pagamento['comprovante'] ?>" target="_blank" class="btn-acao" title="Ver Comprovante">
-                                        <img class="icone" src="<?= ASSETS_URL ?>icones/anexo.svg" alt="comprovante">
-                                    </a>
-                                <?php endif; ?>
+                                <?php if ($pagamento['status'] === 'Pago'): ?>
+    <?php if (!empty($pagamento['comprovante'])): ?>
+        <button type="button" onclick="verComprovante('<?= BASE_URL ?>uploads/comprovantes/<?= $pagamento['comprovante'] ?>')" class="btn-acao" title="Ver Comprovante">
+            <img class="icone" src="<?= ASSETS_URL ?>icones/anexo.svg" alt="comprovante">
+        </button>
+    <?php else: ?>
+        <span class="btn-acao disabled" title="Sem comprovante" style="opacity: 0.5; cursor: not-allowed;">
+            <img class="icone" src="<?= ASSETS_URL ?>icones/anexo.svg" alt="sem comprovante">
+        </span>
+    <?php endif; ?>
+    <a href="<?= BASE_URL ?>admin/estornar-pagamento?id=<?= $pagamento['id'] ?>" 
+       onclick="return confirm('Tem certeza que deseja estornar este pagamento? O status voltará para Pendente.')"
+       class="btn-acao btn-estornar" title="Estornar Pagamento">
+        <img class="icone" src="<?= ASSETS_URL ?>icones/voltar.svg" alt="estornar">
+    </a>
+<?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -127,6 +138,28 @@
         </ul>
     </div>
     <?php endif; ?>
+    <!-- Modal para visualizar comprovante -->
+<div id="modalComprovante" class="modal" style="display: none;">
+    <div class="modal-content modal-comprovante">
+        <div class="modal-header">
+            <h3>Comprovante de Pagamento</h3>
+            <button type="button" class="modal-close" onclick="fecharModalComprovante()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="comprovanteContainer" class="comprovante-container">
+                <!-- A imagem ou PDF será carregado aqui -->
+            </div>
+            <div class="modal-actions">
+                <a id="btnDownloadComprovante" href="#" download class="btn-download">
+                    <img class="icone" src="<?= ASSETS_URL ?>icones/download.svg" alt="download">
+                    Baixar Comprovante
+                </a>
+                <button type="button" class="btn-fechar" onclick="fecharModalComprovante()">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </div>
 </div>
 
@@ -152,4 +185,54 @@ function filtrarPorStatus() {
     url.searchParams.delete('pagina');
     window.location.href = url.toString();
 }
+
+// Função para abrir modal com comprovante
+function verComprovante(url) {
+    const modal = document.getElementById('modalComprovante');
+    const container = document.getElementById('comprovanteContainer');
+    const btnDownload = document.getElementById('btnDownloadComprovante');
+    
+    // Definir URL para download
+    btnDownload.href = url;
+    
+    // Verificar extensão do arquivo
+    const extensao = url.split('.').pop().toLowerCase();
+    
+    if (extensao === 'pdf') {
+        // Para PDF, usar embed
+        container.innerHTML = `
+            <embed src="${url}" type="application/pdf" width="100%" height="500px" />
+            <p class="pdf-fallback">
+                <a href="${url}" target="_blank">Clique aqui se o PDF não carregar</a>
+            </p>
+        `;
+    } else {
+        // Para imagens (jpg, jpeg, png)
+        container.innerHTML = `<img src="${url}" alt="Comprovante de Pagamento" class="comprovante-img" />`;
+    }
+    
+    // Mostrar modal
+    modal.style.display = 'flex';
+    
+    // Adicionar evento para fechar ao clicar fora
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            fecharModalComprovante();
+        }
+    });
+}
+
+// Função para fechar modal
+function fecharModalComprovante() {
+    const modal = document.getElementById('modalComprovante');
+    modal.style.display = 'none';
+    document.getElementById('comprovanteContainer').innerHTML = '';
+}
+
+// Fechar modal com tecla ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        fecharModalComprovante();
+    }
+});
 </script>
