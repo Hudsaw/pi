@@ -1,178 +1,133 @@
 <div class="conteudo flex">
-    <?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
+<?php require VIEWS_PATH . 'shared/sidebar.php'; ?>
+<div class="conteudo-tabela">
+    <h2>Pagamentos</h2>
     
-    <div class="conteudo-tabela">
-        <div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>Meus Pagamentos</h2>
-            <a href="<?= BASE_URL ?>costura/painel" class="botao">
-                <i class="fas fa-arrow-left"></i> Voltar ao Painel
-            </a>
+    <!-- Cards de estatísticas -->
+    <div class="cards-estatisticas grid-4 mb-20">
+        <div class="card card-pendente">
+            <div class="card-titulo">Pendentes</div>
+            <div class="card-valor">R$ <?= number_format($estatisticas['total_pendente'], 2, ',', '.') ?></div>
+            <div class="card-detalhe"><?= $estatisticas['pendentes'] ?> pagamentos</div>
         </div>
-        
-        <!-- Cards de Resumo Financeiro (mantido pois é útil) -->
-        <div class="cards-dashboard" style="margin-bottom: 25px;">
-            <!-- Total Recebido -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Total Recebido</h3>
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-                <div class="card-content">
-                    <div class="numero">R$ <?= number_format(array_sum(array_column($pagamentos ?? [], 'valor_bruto')), 2, ',', '.') ?></div>
-                    <p>Valor bruto total</p>
-                </div>
-            </div>
-            
-            <!-- Pagamentos Pendentes -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Pagamentos Pendentes</h3>
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="card-content">
-                    <div class="numero"><?= count(array_filter($pagamentos ?? [], fn($p) => ($p['status'] ?? '') == 'Pendente')) ?></div>
-                    <p>Aguardando pagamento</p>
-                </div>
-            </div>
-            
-            <!-- Pagamentos Recebidos -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Pagamentos Recebidos</h3>
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="card-content">
-                    <div class="numero"><?= count(array_filter($pagamentos ?? [], fn($p) => ($p['status'] ?? '') == 'Pago')) ?></div>
-                    <p>Já processados</p>
-                </div>
-            </div>
+        <div class="card card-pago">
+            <div class="card-titulo">Pagos</div>
+            <div class="card-valor">R$ <?= number_format($estatisticas['total_pago'], 2, ',', '.') ?></div>
+            <div class="card-detalhe"><?= $estatisticas['pagos'] ?> pagamentos</div>
         </div>
+        <div class="card card-cancelado">
+            <div class="card-titulo">Cancelados</div>
+            <div class="card-valor">R$ <?= number_format($estatisticas['total_cancelado'], 2, ',', '.') ?></div>
+            <div class="card-detalhe"><?= $estatisticas['cancelados'] ?> pagamentos</div>
+        </div>
+        <div class="card card-total">
+            <div class="card-titulo">Total Geral</div>
+            <div class="card-valor">R$ <?= number_format($estatisticas['total_pendente'] + $estatisticas['total_pago'] + $estatisticas['total_cancelado'], 2, ',', '.') ?></div>
+            <div class="card-detalhe"><?= $estatisticas['total'] ?> pagamentos</div>
+        </div>
+    </div>
+    
+    <div class="filtro flex s-gap">
+        <input type="text" id="filtro" placeholder="Digite sua busca" onkeyup="filtrarPagamentos()">
+        <span class="flex v-center">
+            <select id="filtroStatus" onchange="filtrarPorStatus(this)">
+                <option value="todos" <?= $filtro === 'todos' ? 'selected' : '' ?>>Todos</option>
+                <option value="pendentes" <?= $filtro === 'pendentes' ? 'selected' : '' ?>>Pendentes</option>
+                <option value="pagos" <?= $filtro === 'pagos' ? 'selected' : '' ?>>Pagos</option>
+                <option value="cancelados" <?= $filtro === 'cancelados' ? 'selected' : '' ?>>Cancelados</option>
+            </select>
+        </span>
+        <a href="<?= BASE_URL ?>admin/criar-pagamento" class="botao-azul">Novo Pagamento Manual</a>
+    </div>
 
-        <!-- Filtro por status -->
-        <div class="filtro flex s-gap" style="margin-bottom: 20px;">
-            <div class="flex v-center" style="gap: 10px;">
-                <label for="statusFilter">Filtrar por status:</label>
-                <select id="statusFilter" class="form-control" style="width: 200px;" onchange="filtrarPorStatus(this.value)">
-                    <option value="all">Todos os status</option>
-                    <option value="Pendente">Pendentes</option>
-                    <option value="Pago">Pagos</option>
-                    <option value="Cancelado">Cancelados</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Contador de registros -->
-        <div id="resultado-info" style="margin-bottom: 10px;">
-            <span id="contador-registros">Mostrando <?= count($pagamentos ?? []) ?> pagamentos</span>
-        </div>
-
-        <!-- Tabela de pagamentos -->
-        <div class="tabela">
-            <table cellspacing='0' class="redondinho shadow" id="tabela-pagamentos">
-                <thead>
+    <div class="tabela">
+        <table cellspacing='0' class="redondinho shadow">
+            <thead>
+                <tr>
+                    <th class="ae">Período</th>
+                    <th class="ae">Costureira</th>
+                    <th class="ae">Valor Bruto</th>
+                    <th class="ae">Desconto</th>
+                    <th class="ae">Valor Líquido</th>
+                    <th class="ae">Status</th>
+                    <th class="ae">Data Pagamento</th>
+                    <th class="ac">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($listaPagamentos)): ?>
                     <tr>
-                        <th class="ae">Período</th>
-                        <th class="ae">Valor Bruto</th>
-                        <th class="ae">Descontos</th>
-                        <th class="ae">Valor Líquido</th>
-                        <th class="ae">Serviços</th>
-                        <th class="ae">Data Pagamento</th>
-                        <th class="ae">Status</th>
-                        <th class="ac">Ações</th>
+                        <td colspan="8" class="ac">Nenhum pagamento encontrado</td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($pagamentos)): ?>
-                        <tr>
-                            <td colspan="8" class="ac">Nenhum pagamento encontrado</td>
+                <?php else: ?>
+                    <?php foreach ($listaPagamentos as $pagamento): ?>
+                        <tr data-status="<?= strtolower($pagamento['status']) ?>">
+                            <td class="ae"><?= date('m/Y', strtotime($pagamento['periodo_referencia'])) ?></td>
+                            <td class="ae"><?= htmlspecialchars($pagamento['costureira_nome']) ?></td>
+                            <td class="ae">R$ <?= number_format($pagamento['valor_bruto'], 2, ',', '.') ?></td>
+                            <td class="ae">R$ <?= number_format($pagamento['valor_desconto'], 2, ',', '.') ?></td>
+                            <td class="ae">R$ <?= number_format($pagamento['valor_liquido'], 2, ',', '.') ?></td>
+                            <td class="ae status-<?= strtolower($pagamento['status']) ?>">
+                                <?= htmlspecialchars($pagamento['status']) ?>
+                                <?php if ($pagamento['quantidade_servicos']): ?>
+                                    <small>(<?= $pagamento['quantidade_servicos'] ?> serv.)</small>
+                                <?php endif; ?>
+                            </td>
+                            <td class="ae">
+                                <?= $pagamento['data_pagamento'] ? date('d/m/Y', strtotime($pagamento['data_pagamento'])) : '-' ?>
+                            </td>
+                            <td class="ac">
+                                <a href="<?= BASE_URL ?>admin/visualizar-pagamento?id=<?= $pagamento['id'] ?>" 
+                                   class="btn-visualizar" title="Visualizar">
+                                    <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
+                                </a>
+                                <?php if ($pagamento['status'] === 'Pendente'): ?>
+                                    <a href="<?= BASE_URL ?>admin/editar-pagamento?id=<?= $pagamento['id'] ?>"> 
+                                        <img class="icone" src="<?php echo ASSETS_URL?>icones/editar.svg" alt="editar">
+                                    </a>
+                                    <a href="<?= BASE_URL ?>admin/finalizar-pagamento?id=<?= $pagamento['id'] ?>" 
+                                       class="btn-pagar" title="Finalizar Pagamento">
+                                        <img class="icone" src="<?= ASSETS_URL ?>icones/pagar.svg" alt="pagar">
+                                    </a>
+                                    <a href="<?= BASE_URL ?>admin/cancelar-pagamento?id=<?= $pagamento['id'] ?>" 
+                                       onclick="return confirm('Tem certeza que deseja cancelar este pagamento?')"
+                                       class="btn-cancelar" title="Cancelar">
+                                        <img class="icone" src="<?= ASSETS_URL ?>icones/cancelar.svg" alt="cancelar">
+                                    </a>
+                                <?php elseif ($pagamento['status'] === 'Cancelado'): ?>
+                                    <a href="<?= BASE_URL ?>admin/excluir-pagamento?id=<?= $pagamento['id'] ?>" 
+                                       onclick="return confirm('Tem certeza que deseja excluir este pagamento?')"
+                                       class="btn-remover" title="Excluir">
+                                        <img class="icone" src="<?= ASSETS_URL ?>icones/remover.svg" alt="excluir">
+                                    </a>
+                                <?php endif; ?>
+                            </td>
                         </tr>
-                    <?php else: ?>
-                        <?php foreach ($pagamentos as $pagamento): ?>
-                            <tr data-status="<?= $pagamento['status'] ?? '' ?>">
-                                <td class="ae">
-                                    <strong><?= date('m/Y', strtotime($pagamento['periodo_referencia'] ?? 'now')) ?></strong>
-                                </td>
-                                <td class="ae">R$ <?= number_format($pagamento['valor_bruto'] ?? 0, 2, ',', '.') ?></td>
-                                <td class="ae <?= ($pagamento['valor_desconto'] ?? 0) > 0 ? 'texto-vermelho' : '' ?>">
-                                    <?php if (($pagamento['valor_desconto'] ?? 0) > 0): ?>
-                                        - R$ <?= number_format($pagamento['valor_desconto'], 2, ',', '.') ?>
-                                        <?php if (!empty($pagamento['motivo_desconto'])): ?>
-                                            <i class="fas fa-info-circle" title="<?= htmlspecialchars($pagamento['motivo_desconto']) ?>"></i>
-                                        <?php endif; ?>
-                                    <?php else: ?>
-                                        R$ 0,00
-                                    <?php endif; ?>
-                                </td>
-                                <td class="ae"><strong>R$ <?= number_format($pagamento['valor_liquido'] ?? 0, 2, ',', '.') ?></strong></td>
-                                <td class="ae"><?= $pagamento['quantidade_servicos'] ?? 0 ?></td>
-                                <td class="ae">
-                                    <?= !empty($pagamento['data_pagamento']) ? date('d/m/Y', strtotime($pagamento['data_pagamento'])) : '-' ?>
-                                </td>
-                                <td class="ae">
-                                    <?php
-                                    $statusClass = '';
-                                    $statusText = $pagamento['status'] ?? 'Pendente';
-                                    
-                                    if ($statusText == 'Pago') {
-                                        $statusClass = 'completed';
-                                    } elseif ($statusText == 'Pendente') {
-                                        $statusClass = 'in-progress';
-                                    } elseif ($statusText == 'Cancelado') {
-                                        $statusClass = 'cancelled';
-                                    }
-                                    ?>
-                                    <span class="status-badge <?= $statusClass ?>">
-                                        <?= $statusText ?>
-                                    </span>
-                                </td>
-                                <td class="ac">
-                                    <form method="POST" action="<?= BASE_URL ?>costura/visualizar-pagamento" style="display: inline;">
-                                        <input type="hidden" name="pagamento_id" value="<?= $pagamento['id'] ?>">
-                                        <button type="submit" class="btn-visualizar" title="Visualizar">
-                                            <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
-                                        </button>
-                                    </form>
-                                    
-                                    <?php if (($pagamento['status'] ?? '') == 'Pago' && !empty($pagamento['comprovante'])): ?>
-                                        <a href="<?= BASE_URL ?>uploads/comprovantes/<?= $pagamento['comprovante'] ?>" target="_blank" class="btn-download" title="Comprovante">
-                                            <img class="icone" src="<?= ASSETS_URL ?>icones/download.svg" alt="download">
-                                        </a>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
 <script>
-function filtrarPorStatus(status) {
-    const linhas = document.querySelectorAll('#tabela-pagamentos tbody tr');
-    let contadorVisiveis = 0;
+function filtrarPagamentos() {
+    const filtro = document.getElementById('filtro').value.toLowerCase();
+    const linhas = document.querySelectorAll('.tabela tbody tr');
     
     linhas.forEach(linha => {
-        // Pular linha de "Nenhum pagamento encontrado"
-        if (linha.cells.length <= 1 || linha.querySelector('td[colspan]')) {
-            return;
-        }
-        
-        const statusLinha = linha.getAttribute('data-status');
-        
-        if (status === 'all' || statusLinha === status) {
+        if (linha.cells.length <= 1) return;
+        const textoLinha = linha.textContent.toLowerCase();
+        if (textoLinha.includes(filtro)) {
             linha.style.display = '';
-            contadorVisiveis++;
         } else {
             linha.style.display = 'none';
         }
     });
-    
-    // Atualiza contador
-    const contadorElement = document.getElementById('contador-registros');
-    if (contadorElement) {
-        contadorElement.textContent = `Mostrando ${contadorVisiveis} pagamentos`;
-    }
+}
+
+function filtrarPorStatus(select) {
+    const status = select.value;
+    window.location.href = '<?= BASE_URL ?>admin/pagamentos?filtro=' + status;
 }
 </script>

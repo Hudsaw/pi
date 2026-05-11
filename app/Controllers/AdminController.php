@@ -1321,6 +1321,8 @@ private function validarCPF($cpf)
     return true;
 }      
 
+// ==================== SERVIÇOS ====================
+
 // Listar serviços
 public function servicos()
 {
@@ -1556,7 +1558,35 @@ public function finalizarServico()
         error_log("ERRO ao finalizar serviço: " . $e->getMessage());
         $_SESSION['error_message'] = 'Erro ao finalizar serviço: ' . $e->getMessage();
     }
-
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $quantidadeConcluida = (int)($_POST['quantidade_concluida'] ?? 0);
+        $dataFinalizacao = $_POST['data_finalizacao'] ?? date('Y-m-d');
+        $observacaoPerdas = trim($_POST['observacao_finalizacao'] ?? '');
+        
+        error_log("Finalizando serviço {$servicoId} - Quantidade concluída: {$quantidadeConcluida}");
+        
+        try {
+            $success = $this->servicoModel->finalizarServico(
+                $servicoId, 
+                $dataFinalizacao, 
+                $quantidadeConcluida, 
+                $observacaoPerdas
+            );
+            
+            if ($success) {
+                $_SESSION['success_message'] = 'Serviço finalizado com sucesso! Pagamento pendente criado automaticamente.';
+                error_log("Serviço {$servicoId} finalizado com sucesso");
+            } else {
+                $_SESSION['error_message'] = 'Erro ao finalizar serviço';
+                error_log("Erro ao finalizar serviço {$servicoId}");
+            }
+        } catch (Exception $e) {
+            $_SESSION['error_message'] = 'Erro ao finalizar serviço: ' . $e->getMessage();
+            error_log("Exceção ao finalizar serviço {$servicoId}: " . $e->getMessage());
+        }
+    }
+    
     $this->redirect('admin/visualizar-servico?id=' . $servicoId);
 }
 
@@ -1642,6 +1672,8 @@ private function validarServico($post, $isUpdate = false)
 
     return $data;
 }
+
+// ==================== PEÇAS ====================
 
 public function pecas()
 {

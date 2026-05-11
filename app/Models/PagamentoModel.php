@@ -683,7 +683,7 @@ public function getTotaisPorMes($ano, $mes = null)
     }
 }
 
-// Obter pagamentos de uma costureira
+    // Obter pagamentos de uma costureira
     public function getPagamentosPorCostureira($costureiraId)
     {
         $sql = "SELECT p.*,
@@ -697,55 +697,206 @@ public function getTotaisPorMes($ano, $mes = null)
                 ORDER BY p.periodo_referencia DESC, p.created_at DESC";
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':costureira_id' => $costureiraId]);
+        $stmt->execute([
+            ':costureira_id' => $costureiraId,
+            ':mes' => date('m', strtotime($periodoReferencia)),
+            ':ano' => date('Y', strtotime($periodoReferencia))
+        ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
+
     // Calcular pagamento do mês para uma costureira
     public function calcularPagamentoMes($costureiraId)
     {
-        $primeiroDia = date('Y-m-01');
-        $ultimoDia = date('Y-m-t');
-
-        $sql = "SELECT COALESCE(SUM(s.quantidade_pecas * s.valor_operacao), 0) as total
-                FROM servicos s
-                WHERE s.costureira_id = :costureira_id 
-                AND s.status = 'Finalizado'
-                AND s.data_finalizacao BETWEEN :data_inicio AND :data_fim";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':costureira_id' => $costureiraId,
-            ':data_inicio' => $primeiroDia,
-            ':data_fim' => $ultimoDia
-        ]);
-        
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result['total'] ?? 0;
+        try {
+            $this->pdo->beginTransaction();
+            
+            $pagamento = $this->getPagamentoPorId($id);
+            if ($pagamento['status'] !== 'Cancelado') {
+                throw new Exception('Apenas pagamentos cancelados podem ser excluídos');
+            }
+            
+            $sql = "DELETE FROM pagamentos WHERE id = :id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            
+            $this->pdo->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
 
-    // Contar serviços com entrega próxima (3 dias)
-    public function contarProximasEntregas($costureiraId)
+    // Obter costureiras disponíveis para pagamento
+    public function getCostureirasComServicosNaoPagos()
     {
-        $hoje = date('Y-m-d');
-        $limite = date('Y-m-d', strtotime('+3 days'));
+        $sql = "SELECT DISTINCT u.id, u.nome
+                FROM usuarios u
+                INNER JOIN servicos s ON u.id = s.costureira_id
+                LEFT JOIN pagamento_itens pi ON s.id = pi.servico_id
+                WHERE s.status = 'Finalizado'
+                  AND pi.id IS NULL
+                ORDER BY u.nome";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-        $sql = "SELECT COUNT(*) as total
-                FROM servicos s
-                INNER JOIN lotes l ON s.lote_id = l.id
-                WHERE s.costureira_id = :costureira_id 
-                AND s.status = 'Em andamento'
-                AND l.data_entrega BETWEEN :hoje AND :limite";
+    // Obter estatísticas de pagamentos
+    public function getEstatisticas()
+    {
+        $sql = "SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'Pendente' THEN 1 ELSE 0 END) as pendentes,
+                    SUM(CASE WHEN status = 'Pago' THEN 1 ELSE 0 END) as pagos,
+                    SUM(CASE WHEN status = 'Cancelado' THEN 1 ELSE 0 END) as cancelados,
+                    COALESCE(SUM(CASE WHEN status = 'Pendente' THEN valor_liquido ELSE 0 END), 0) as total_pendente,
+                    COALESCE(SUM(CASE WHEN status = 'Pago' THEN valor_liquido ELSE 0 END), 0) as total_pago,
+                    COALESCE(SUM(CASE WHEN status = 'Cancelado' THEN valor_liquido ELSE 0 END), 0) as total_cancelado
+                FROM pagamentos";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
+    // Criar pagamento a partir de serviços já finalizados
+public function criarPagamentoAutomatico($costureiraId, $periodoReferencia, $servicos)
+{
+    try {
+        $this->pdo->beginTransaction();
+        
+        // Verificar se já existe pagamento para o período
+        $pagamentoExistente = $this->pagamentoExiste($costureiraId, $periodoReferencia);
+        if ($pagamentoExistente) {
+            throw new Exception('Já existe um pagamento para este período');
+        }
+        
+        // Calcular valor bruto
+        $valorBruto = 0;
+        $servicosIds = [];
+        foreach ($servicos as $servico) {
+            $valorBruto += $servico['valor_total'];
+            $servicosIds[] = $servico['id'];
+        }
+        
+        // Inserir pagamento pendente
+        $sql = "INSERT INTO pagamentos (costureira_id, periodo_referencia, valor_bruto, 
+                                        valor_desconto, valor_liquido, status, 
+                                        created_at, observacao) 
+                VALUES (:costureira_id, :periodo_referencia, :valor_bruto, 
+                        0, :valor_bruto, 'Pendente', 
+                        NOW(), 'Pagamento gerado automaticamente')";
+        
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':costureira_id' => $costureiraId,
-            ':hoje' => $hoje,
-            ':limite' => $limite
+            ':periodo_referencia' => $periodoReferencia,
+            ':valor_bruto' => $valorBruto,
+            ':valor_bruto' => $valorBruto
         ]);
         
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result['total'] ?? 0;
+        $pagamentoId = $this->pdo->lastInsertId();
+        
+        // Adicionar itens do pagamento
+        $sqlItem = "INSERT INTO pagamento_itens (pagamento_id, servico_id, valor_calculado) 
+                    VALUES (:pagamento_id, :servico_id, :valor_calculado)";
+        $stmtItem = $this->pdo->prepare($sqlItem);
+        
+        foreach ($servicos as $servico) {
+            $stmtItem->execute([
+                ':pagamento_id' => $pagamentoId,
+                ':servico_id' => $servico['id'],
+                ':valor_calculado' => $servico['valor_total']
+            ]);
+        }
+        
+        $this->pdo->commit();
+        return [
+            'success' => true,
+            'pagamento_id' => $pagamentoId,
+            'valor_bruto' => $valorBruto,
+            'quantidade_servicos' => count($servicos)
+        ];
+        
+    } catch (Exception $e) {
+        $this->pdo->rollBack();
+        throw $e;
     }
+}
 
+// Verificar se existem serviços finalizados não pagos
+public function verificarServicosNaoPagos($costureiraId = null)
+{
+    $sql = "SELECT s.id, s.costureira_id, u.nome as costureira_nome,
+                   DATE_FORMAT(s.data_finalizacao, '%Y-%m') as periodo_referencia,
+                   (s.quantidade_pecas * s.valor_operacao) as valor_total
+            FROM servicos s
+            INNER JOIN usuarios u ON s.costureira_id = u.id
+            LEFT JOIN pagamento_itens pi ON s.id = pi.servico_id
+            WHERE s.status = 'Finalizado'
+              AND pi.id IS NULL";
+    
+    if ($costureiraId) {
+        $sql .= " AND s.costureira_id = :costureira_id";
+    }
+    
+    $sql .= " ORDER BY s.data_finalizacao DESC";
+    
+    $stmt = $this->pdo->prepare($sql);
+    
+    if ($costureiraId) {
+        $stmt->execute([':costureira_id' => $costureiraId]);
+    } else {
+        $stmt->execute();
+    }
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Finalizar pagamento (marcar como pago)
+public function finalizarPagamento($id, $dataPagamento, $comprovante = null, $observacao = null)
+{
+    try {
+        $this->pdo->beginTransaction();
+        
+        // Verificar se pagamento existe e está pendente
+        $pagamento = $this->getPagamentoPorId($id);
+        
+        if (!$pagamento) {
+            throw new Exception('Pagamento não encontrado');
+        }
+        
+        if ($pagamento['status'] !== 'Pendente') {
+            throw new Exception('Apenas pagamentos pendentes podem ser finalizados');
+        }
+        
+        // Atualizar pagamento
+        $sql = "UPDATE pagamentos 
+                SET status = 'Pago', 
+                    data_pagamento = :data_pagamento,
+                    comprovante = :comprovante,
+                    observacao = CONCAT(IFNULL(observacao, ''), ' | ', :observacao),
+                    updated_at = NOW()
+                WHERE id = :id";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':id' => $id,
+            ':data_pagamento' => $dataPagamento,
+            ':comprovante' => $comprovante,
+            ':observacao' => $observacao ?? 'Pagamento realizado'
+        ]);
+        
+        $this->pdo->commit();
+        return true;
+        
+    } catch (Exception $e) {
+        $this->pdo->rollBack();
+        throw $e;
+    }
+}
 }
