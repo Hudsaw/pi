@@ -146,7 +146,6 @@ private function criarPecasParaLote($loteId, $pecas)
     }
 
     
-
     private function removerPecasLote($loteId)
     {
         $sql = "DELETE FROM pecas WHERE lote_id = :lote_id";
@@ -281,4 +280,225 @@ private function criarPecasParaLote($loteId, $pecas)
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function finalizarLote($loteId, $dataEntrega)
+{
+    // Iniciar transação para garantir consistência
+    $this->pdo->beginTransaction();
+    
+    try {
+        // Verificar se o lote existe e está com status Aberto
+        $lote = $this->getLotePorId($loteId);
+        
+        if (!$lote) {
+            throw new Exception('Lote não encontrado');
+        }
+        
+        if ($lote['status'] !== 'Aberto') {
+            throw new Exception('Apenas lotes com status "Aberto" podem ser finalizados');
+        }
+        
+        // 1. Atualizar status do lote para Entregue
+        $sql = "UPDATE lotes SET 
+                status = 'Entregue', 
+                data_entrega = :data_entrega 
+                WHERE id = :id";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':data_entrega' => $dataEntrega,
+            ':id' => $loteId
+        ]);
+        
+        // 2. Buscar dados completos do lote para criar o pagamento
+        $sqlLote = "SELECT l.*, e.nome as empresa_nome 
+                    FROM lotes l 
+                    LEFT JOIN empresas e ON l.empresa_id = e.id 
+                    WHERE l.id = :id";
+        
+        $stmtLote = $this->pdo->prepare($sqlLote);
+        $stmtLote->execute([':id' => $loteId]);
+        $loteAtualizado = $stmtLote->fetch(PDO::FETCH_ASSOC);
+        
+        // Commit da transação
+        $this->pdo->commit();
+        
+        return $loteAtualizado;
+        
+    } catch (Exception $e) {
+        $this->pdo->rollBack();
+        throw $e;
+    }
+}
+
+// Método para criar pagamento recebido (entrada de dinheiro)
+public function criarPagamentoRecebido($loteId, $valorRecebido, $observacao = '')
+{
+    $this->pdo->beginTransaction();
+    
+    try {
+        // Buscar dados do lote
+        $lote = $this->getLotePorId($loteId);
+        
+        if (!$lote) {
+            throw new Exception('Lote não encontrado');
+        }
+        
+        // Inserir registro de pagamento recebido
+        $sql = "INSERT INTO pagamentos 
+                (costureira_id, periodo_referencia, valor_bruto, 
+                 valor_liquido, status, data_pagamento, observacao, 
+                 created_at) 
+                VALUES 
+                (:empresa_id, :periodo_referencia, :valor_bruto, 
+                 :valor_liquido, 'Recebido', :data_pagamento, :observacao, 
+                 NOW())";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':empresa_id' => $lote['empresa_id'],
+            ':periodo_referencia' => $lote['data_entrega'] ?? date('Y-m-d'),
+            ':valor_bruto' => $lote['valor_total'],
+            ':valor_liquido' => $valorRecebido,
+            ':data_pagamento' => date('Y-m-d'),
+            ':observacao' => "Pagamento recebido - Lote #{$loteId}: {$lote['nome']} (Coleção: {$lote['colecao']})\n" . 
+                            ($observacao ? "Obs: {$observacao}" : "")
+        ]);
+        
+        $pagamentoId = $this->pdo->lastInsertId();
+        
+        // Registrar item do pagamento (vinculando o lote como referência)
+        $sqlItem = "INSERT INTO pagamento_itens 
+                    (pagamento_id, servico_id, valor_calculado) 
+                    VALUES 
+                    (:pagamento_id, :lote_id, :valor_calculado)";
+        
+        $stmtItem = $this->pdo->prepare($sqlItem);
+        $stmtItem->execute([
+            ':pagamento_id' => $pagamentoId,
+            ':lote_id' => $loteId,
+            ':valor_calculado' => $lote['valor_total']
+        ]);
+        
+        $this->pdo->commit();
+        
+        return [
+            'pagamento_id' => $pagamentoId,
+            'valor_recebido' => $valorRecebido,
+            'lote' => $lote
+        ];
+        
+    } catch (Exception $e) {
+        $this->pdo->rollBack();
+        throw $e;
+    }
+}
+
+// Método completo para finalizar lote e registrar pagamento
+public function finalizarLoteComPagamento($loteId, $dataEntrega, $valorRecebido = null, $observacao = '')
+{
+    // Iniciar transação principal
+    $this->pdo->beginTransaction();
+    
+    try {
+        // 1. Buscar o lote e verificar se pode ser finalizado
+        $sqlBusca = "SELECT l.*, e.nome as empresa_nome 
+                     FROM lotes l 
+                     LEFT JOIN empresas e ON l.empresa_id = e.id 
+                     WHERE l.id = :id";
+        
+        $stmtBusca = $this->pdo->prepare($sqlBusca);
+        $stmtBusca->execute([':id' => $loteId]);
+        $lote = $stmtBusca->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$lote) {
+            throw new Exception('Lote não encontrado');
+        }
+        
+        if ($lote['status'] !== 'Aberto') {
+            throw new Exception('Apenas lotes com status "Aberto" podem ser finalizados');
+        }
+        
+        // 2. Atualizar status do lote para Entregue
+        $sqlUpdate = "UPDATE lotes SET 
+                      status = 'Entregue', 
+                      data_entrega = :data_entrega,
+                      updated_at = CURRENT_TIMESTAMP
+                      WHERE id = :id AND status = 'Aberto'";
+        
+        $stmtUpdate = $this->pdo->prepare($sqlUpdate);
+        $resultado = $stmtUpdate->execute([
+            ':data_entrega' => $dataEntrega,
+            ':id' => $loteId
+        ]);
+        
+        if (!$resultado || $stmtUpdate->rowCount() === 0) {
+            throw new Exception('Erro ao atualizar status do lote');
+        }
+        
+        error_log("Lote {$loteId} atualizado para Entregue com sucesso");
+        
+        // 3. Criar registro de pagamento recebido
+        $valorFinal = $valorRecebido ?? $lote['valor_total'];
+        
+        $sqlPagamento = "INSERT INTO pagamentos 
+                        (costureira_id, periodo_referencia, valor_bruto, 
+                         valor_liquido, status, data_pagamento, observacao, 
+                         created_at) 
+                        VALUES 
+                        (:empresa_id, :periodo_referencia, :valor_bruto, 
+                         :valor_liquido, 'Recebido', :data_pagamento, :observacao, 
+                         NOW())";
+        
+        $stmtPagamento = $this->pdo->prepare($sqlPagamento);
+        $stmtPagamento->execute([
+            ':empresa_id' => $lote['empresa_id'],
+            ':periodo_referencia' => $dataEntrega,
+            ':valor_bruto' => $lote['valor_total'],
+            ':valor_liquido' => $valorFinal,
+            ':data_pagamento' => date('Y-m-d'),
+            ':observacao' => "Pagamento recebido - Lote #{$loteId}: {$lote['nome']}\n" .
+                            "Coleção: {$lote['colecao']}\n" .
+                            "Empresa: {$lote['empresa_nome']}\n" .
+                            ($observacao ? "Obs: {$observacao}" : "")
+        ]);
+        
+        $pagamentoId = $this->pdo->lastInsertId();
+        error_log("Pagamento {$pagamentoId} criado com sucesso para o lote {$loteId}");
+        
+        // 4. Registrar item do pagamento (usando servico_id como referência ao lote)
+        $sqlItem = "INSERT INTO pagamento_itens 
+                    (pagamento_id, servico_id, valor_calculado) 
+                    VALUES 
+                    (:pagamento_id, :lote_id, :valor_calculado)";
+        
+        $stmtItem = $this->pdo->prepare($sqlItem);
+        $stmtItem->execute([
+            ':pagamento_id' => $pagamentoId,
+            ':lote_id' => $loteId,
+            ':valor_calculado' => $lote['valor_total']
+        ]);
+        
+        error_log("Item do pagamento criado com sucesso");
+        
+        // 5. Commit da transação
+        $this->pdo->commit();
+        error_log("Transação concluída com sucesso para o lote {$loteId}");
+        
+        return [
+            'success' => true,
+            'lote' => $lote,
+            'pagamento' => [
+                'id' => $pagamentoId,
+                'valor_recebido' => $valorFinal
+            ]
+        ];
+        
+    } catch (Exception $e) {
+        // Rollback em caso de erro
+        $this->pdo->rollBack();
+        error_log("Erro ao finalizar lote {$loteId}: " . $e->getMessage());
+        throw $e;
+    }
+}
 }

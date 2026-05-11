@@ -1092,6 +1092,52 @@ public function editarLote()
         $this->redirect('admin/visualizar-lote?id=' . $loteId);
     }
 
+    public function finalizarLote()
+{
+    error_log("=== Iniciando finalização de lote ===");
+    
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('admin/lotes');
+    }
+    
+    $loteId = $_POST['id'] ?? null;
+    
+    if (!$loteId) {
+        $_SESSION['error_message'] = 'ID do lote não informado';
+        $this->redirect('admin/lotes');
+    }
+    
+    error_log("Finalizando lote ID: " . $loteId);
+    error_log("Dados POST: " . json_encode($_POST));
+    
+    // Pegar dados do formulário
+    $dataEntrega = $_POST['data_entrega'] ?? date('Y-m-d');
+    $valorRecebido = !empty($_POST['valor_recebido']) ? floatval(str_replace(',', '.', $_POST['valor_recebido'])) : null;
+    $observacaoPagamento = trim($_POST['observacao_pagamento'] ?? '');
+    
+    try {
+        // Chamar o Model para fazer toda a operação
+        $resultado = $this->loteModel->finalizarLoteComPagamento(
+            $loteId, 
+            $dataEntrega, 
+            $valorRecebido, 
+            $observacaoPagamento
+        );
+        
+        if ($resultado['success']) {
+            $valorFormatado = number_format($resultado['pagamento']['valor_recebido'], 2, ',', '.');
+            $_SESSION['success_message'] = "✅ Lote #{$loteId} finalizado com sucesso! Pagamento de R$ {$valorFormatado} registrado automaticamente.";
+            error_log("Lote {$loteId} finalizado com sucesso");
+        }
+        
+    } catch (Exception $e) {
+        error_log("❌ Erro ao finalizar lote {$loteId}: " . $e->getMessage());
+        $_SESSION['error_message'] = 'Erro ao finalizar lote: ' . $e->getMessage();
+    }
+    
+    $this->redirect('admin/visualizar-lote?id=' . $loteId);
+}
+    
     // Métodos de validação
     private function validarLote($post)
     {

@@ -187,7 +187,7 @@ CREATE TABLE pagamentos (
     valor_liquido DECIMAL(10, 2) DEFAULT 0.00,
     motivo_desconto TEXT,
     data_pagamento DATE,
-    status ENUM('Pendente', 'Pago', 'Cancelado') DEFAULT 'Pendente',
+    status ENUM('Pendente', 'Pago', 'Cancelado', 'Recebido') DEFAULT 'Pendente',
     comprovante VARCHAR(500),
     observacao TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
