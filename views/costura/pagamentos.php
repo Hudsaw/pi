@@ -37,7 +37,6 @@
                 <option value="cancelados" <?= $filtro === 'cancelados' ? 'selected' : '' ?>>Cancelados</option>
             </select>
         </span>
-        <a href="<?= BASE_URL ?>admin/criar-pagamento" class="botao-azul">Novo Pagamento Manual</a>
     </div>
 
     <div class="tabela">
@@ -45,7 +44,6 @@
             <thead>
                 <tr>
                     <th class="ae">Período</th>
-                    <th class="ae">Costureira</th>
                     <th class="ae">Valor Bruto</th>
                     <th class="ae">Desconto</th>
                     <th class="ae">Valor Líquido</th>
@@ -63,7 +61,6 @@
                     <?php foreach ($listaPagamentos as $pagamento): ?>
                         <tr data-status="<?= strtolower($pagamento['status']) ?>">
                             <td class="ae"><?= date('m/Y', strtotime($pagamento['periodo_referencia'])) ?></td>
-                            <td class="ae"><?= htmlspecialchars($pagamento['costureira_nome']) ?></td>
                             <td class="ae">R$ <?= number_format($pagamento['valor_bruto'], 2, ',', '.') ?></td>
                             <td class="ae">R$ <?= number_format($pagamento['valor_desconto'], 2, ',', '.') ?></td>
                             <td class="ae">R$ <?= number_format($pagamento['valor_liquido'], 2, ',', '.') ?></td>

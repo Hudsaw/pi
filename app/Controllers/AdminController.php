@@ -678,7 +678,6 @@ private function validarLoteComPecas($post)
                 'tipo_peca_id' => trim($pecaData['tipo_peca_id'] ?? ''),
                 'cor_id' => trim($pecaData['cor_id'] ?? ''),
                 'tamanho_id' => trim($pecaData['tamanho_id'] ?? ''),
-                'operacao_id' => trim($pecaData['operacao_id'] ?? ''),
                 'quantidade' => trim($pecaData['quantidade'] ?? ''),
                 'valor_unitario' => trim($pecaData['valor_unitario'] ?? '')
             ];
@@ -694,10 +693,6 @@ private function validarLoteComPecas($post)
 
             if (empty($peca['tamanho_id'])) {
                 $errors['pecas'][$index]['tamanho_id'] = 'Tamanho é obrigatório';
-            }
-
-            if (empty($peca['operacao_id'])) {
-                $errors['pecas'][$index]['operacao_id'] = 'Operação é obrigatória';
             }
 
             if (empty($peca['quantidade']) || !is_numeric($peca['quantidade']) || $peca['quantidade'] <= 0) {
@@ -727,51 +722,60 @@ public function visualizarLote()
     $user = $this->getUsuario();
     $id = $_GET['id'];
     
-    // Configuração da paginação
-    $itensPorPagina = 10;
-    $paginaAtual = $_GET['page'] ?? 1;
-    $offset = ($paginaAtual - 1) * $itensPorPagina;
+    // Paginação peças
+    $itensPorPaginaPecas = 10;
+    $paginaAtualPecas = $_GET['page_pecas'] ?? 1;
+    $offsetPecas = ($paginaAtualPecas - 1) * $itensPorPaginaPecas;
     
-    // Busca
-    $search = $_GET['search'] ?? '';
+    // Paginação serviços
+    $itensPorPaginaServicos = 5;
+    $paginaAtualServicos = $_GET['page_servicos'] ?? 1;
+    $offsetServicos = ($paginaAtualServicos - 1) * $itensPorPaginaServicos;
     
     $lote = $this->loteModel->getLotePorId($id);
     
-    // Buscar peças com paginação
-    $pecasData = $this->pecaModel->getPecasPorLoteComPaginacao($id, $itensPorPagina, $offset, $search);
-    $pecas = $pecasData['pecas'];
-    $totalPecas = $pecasData['total'];
+    // Peças
+    $pecasData = $this->pecaModel->getPecasPorLoteComPaginacao($id, $itensPorPaginaPecas, $offsetPecas);
     
-    // Calcular totais
-    $totalPaginas = ceil($totalPecas / $itensPorPagina);
-    $inicio = $offset + 1;
-    $fim = min($offset + $itensPorPagina, $totalPecas);
+    // Serviços
+    $totalServicos = $this->loteModel->getTotalServicosPorLote($id);
+    $servicos = $this->loteModel->getServicosPorLote($id, $itensPorPaginaServicos, $offsetServicos);
+    $totalPaginasServicos = ceil($totalServicos / $itensPorPaginaServicos);
     
     $this->render('admin/visualizar-lote', [
-        'title'         => 'PontoCerto - Visualizar Lote',
-        'user'          => $user,
-        'nomeUsuario'   => $user ? $user['nome'] : 'Visitante',
+        'title' => 'PontoCerto - Visualizar Lote',
+        'user' => $user,
+        'nomeUsuario' => $user ? $user['nome'] : 'Visitante',
         'usuarioLogado' => $this->estaLogado(),
-        'lote'          => $lote,
-        'pecas'         => $pecas,
-        'totalPecas'    => $totalPecas,
-        'paginaAtual'   => $paginaAtual,
-        'totalPaginas'  => $totalPaginas,
-        'inicio'        => $inicio,
-        'fim'           => $fim,
-        'search'        => $search
+        'lote' => $lote,
+        'pecas' => $pecasData['pecas'],
+        'totalPecas' => $pecasData['total'],
+        'paginaAtualPecas' => $paginaAtualPecas,
+        'totalPaginasPecas' => ceil($pecasData['total'] / $itensPorPaginaPecas),
+        'servicos' => $servicos,
+        'totalServicos' => $totalServicos,
+        'paginaAtualServicos' => $paginaAtualServicos,
+        'totalPaginasServicos' => $totalPaginasServicos
     ]);
 }
 
 public function atualizarLote()
 {
-    error_log("Tentativa de atualização de lote");
+    error_log("Atualizando lote");
+    
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         $this->redirect('admin/lotes');
+        return;
     }
 
-    $loteId = $_POST['id'];
+    $loteId = $_POST['id'] ?? null;
     
+    if (!$loteId) {
+        $_SESSION['error_message'] = 'ID do lote não informado';
+        $this->redirect('admin/lotes');
+        return;
+    }
+        
     // Processar upload de anexo se existir
     $anexoNome = null;
     if (isset($_FILES['anexo']) && $_FILES['anexo']['error'] === UPLOAD_ERR_OK) {
@@ -779,19 +783,19 @@ public function atualizarLote()
         if ($anexoNome) {
             error_log("Novo anexo processado: " . $anexoNome);
         }
-    } else {
-        error_log("Nenhum novo anexo enviado ou erro no upload: " . ($_FILES['anexo']['error'] ?? 'N/A'));
     }
 
+    // Validar dados (sem operacao_id)
     $data = $this->validarLoteComPecas($_POST);
 
     if (isset($data['errors'])) {
         $_SESSION['lote_erros'] = $data['errors'];
         $_SESSION['lote_data'] = $_POST;
         $this->redirect('admin/editar-lote?id=' . $loteId);
+        return;
     }
 
-    // Adicionar nome do anexo aos dados se foi feito upload
+    // Adicionar anexo aos dados se foi feito upload
     if ($anexoNome) {
         $data['anexos'] = $anexoNome;
     } else {
@@ -802,7 +806,7 @@ public function atualizarLote()
 
     $data['id'] = $loteId;
 
-    try {
+    try {       
         $success = $this->loteModel->atualizarLote($loteId, $data);
         
         if ($success) {
@@ -1106,10 +1110,12 @@ public function editarLote()
         $_SESSION['error_message'] = 'ID do lote não informado';
         $this->redirect('admin/lotes');
     }
-    
-    error_log("Finalizando lote ID: " . $loteId);
-    error_log("Dados POST: " . json_encode($_POST));
-    
+    $todosFinalizados = $this->loteModel->verificarTodosServicosFinalizados($loteId);
+    if (!$todosFinalizados) {
+        $_SESSION['error_message'] = 'Não é possível finalizar o lote. Existem serviços pendentes ou em andamento.';
+        $this->redirect('admin/visualizar-lote?id=' . $loteId);
+        return;
+    }    
     // Pegar dados do formulário
     $dataEntrega = $_POST['data_entrega'] ?? date('Y-m-d');
     $valorRecebido = !empty($_POST['valor_recebido']) ? floatval(str_replace(',', '.', $_POST['valor_recebido'])) : null;
@@ -1973,18 +1979,10 @@ public function pagamentos()
     $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
     $itensPorPagina = 15;
     
-    // Se for requisição de exportação
-    if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-        return $this->exportarPagamentosCSV($filtro, $termoBusca);
-    }
-    
     // Buscar pagamentos com paginação
     $listaPagamentos = $this->pagamentoModel->getPagamentosPaginados($filtro, $termoBusca, $pagina, $itensPorPagina);
     $totalPagamentos = $this->pagamentoModel->getTotalPagamentos($filtro, $termoBusca);
     $totalPaginas = ceil($totalPagamentos / $itensPorPagina);
-    
-    error_log("Lista de pagamentos retornada: " . count($listaPagamentos));
-    error_log("Total de pagamentos: " . $totalPagamentos);
     
     if (empty($listaPagamentos)) {
         error_log("Nenhum pagamento encontrado. Verifique se há serviços finalizados.");
@@ -2008,59 +2006,22 @@ public function pagamentos()
     ]);
 }
 
-// Método para exportar CSV
-private function exportarPagamentosCSV($filtro, $termo)
+// Método para imprimir/PDF via navegador
+public function imprimirPagamentos()
 {
-    $pagamentos = $this->pagamentoModel->exportarPagamentos($filtro, $termo);
+    $filtro = $_GET['filtro'] ?? 'todos';
+    $termoBusca = $_GET['search'] ?? '';
     
-    // Definir cabeçalhos para download
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="pagamentos_' . date('Y-m-d_His') . '.csv"');
+    // Buscar todos os pagamentos (sem paginação para o relatório)
+    $pagamentos = $this->pagamentoModel->exportarPagamentos($filtro, $termoBusca);
     
-    // Criar output
-    $output = fopen('php://output', 'w');
-    
-    // Adicionar BOM para UTF-8 no Excel
-    fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-    
-    // Cabeçalhos
-    fputcsv($output, [
-        'ID',
-        'Costureira',
-        'Email',
-        'Telefone',
-        'Período Referência',
-        'Total Serviços',
-        'Valor Bruto (R$)',
-        'Valor Líquido (R$)',
-        'Status',
-        'Data Pagamento',
-        'Data Criação',
-        'Observação'
-    ], ';');
-    
-    // Dados
-    foreach ($pagamentos as $p) {
-        fputcsv($output, [
-            $p['id'],
-            $p['costureira_nome'],
-            $p['costureira_email'] ?? '',
-            $p['telefone'] ?? '',
-            date('m/Y', strtotime($p['periodo_referencia'])),
-            $p['total_servicos'] ?? 0,
-            number_format($p['valor_bruto'] ?? 0, 2, ',', '.'),
-            number_format($p['valor_liquido'] ?? $p['valor_bruto'] ?? 0, 2, ',', '.'),
-            $p['status'],
-            $p['data_pagamento'] ? date('d/m/Y', strtotime($p['data_pagamento'])) : '-',
-            $p['created_at'] ? date('d/m/Y H:i', strtotime($p['created_at'])) : '-',
-            $p['observacao'] ?? ''
-        ], ';');
-    }
-    
-    fclose($output);
-    exit;
+    // Carregar a view de impressão
+    $this->render('admin/impressao', [
+        'pagamentos' => $pagamentos,
+        'filtro' => $filtro,
+        'termoBusca' => $termoBusca
+    ]);
 }
-
 // Registrar pagamento efetuado - GET para exibir formulário
 public function registrarPagamento()
 {

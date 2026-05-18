@@ -44,7 +44,7 @@
             
             <?php if ($lote['status'] === 'Aberto'): ?>
                 <a href="<?= BASE_URL ?>admin/editar-lote?id=<?= $lote['id'] ?>" class="botao">Editar Lote</a>
-                <button type="button" class="botao-verde" onclick="abrirModalFinalizar()">
+                <button type="button" class="botao-remover" onclick="abrirModalFinalizar()">
                     Finalizar Lote
                 </button>
             <?php elseif ($lote['status'] === 'Entregue'): ?>
@@ -54,20 +54,8 @@
         
         <!-- Seção de Peças -->
         <div style="margin-top: 2rem;">
-            <h3>Peças do Lote (<?= $totalPecas ?> peças)</h3>
-            
-            <!-- Filtros e busca -->
-            <div class="filtro flex v-center s-gap" style="margin-bottom: 20px;">
-                <form method="GET" class="flex v-center s-gap">
-                    <input type="hidden" name="id" value="<?= $lote['id'] ?>">
-                    <input type="text" name="search" placeholder="Buscar peça..." value="<?= htmlspecialchars($search ?? '') ?>" class="form-input" style="width: 300px;">
-                    <button type="submit" class="botao-azul pequeno">Buscar</button>
-                    <?php if (!empty($search)): ?>
-                        <a href="?id=<?= $lote['id'] ?>" class="botao pequeno">Limpar</a>
-                    <?php endif; ?>
-                </form>
-            </div>
-            
+            <h3>Peças do Lote <small>(<?= $totalPecas ?> peças)</small></h3>
+                   
             <div class="tabela">
                 <table cellspacing='0' class="redondinho shadow" id="tabelaPecas">
                     <thead>
@@ -76,7 +64,6 @@
                             <th class="ae">Tipo Peça</th>
                             <th class="ae">Cor</th>
                             <th class="ae">Tamanho</th>
-                            <th class="ae">Operação</th>
                             <th class="ae">Quantidade</th>
                             <th class="ae">Valor Unitário</th>
                             <th class="ae">Valor Total</th>
@@ -99,7 +86,6 @@
                                         <?= htmlspecialchars($peca['cor_nome']) ?>
                                     </td>
                                     <td class="ae"><?= htmlspecialchars($peca['tamanho_nome']) ?></td>
-                                    <td class="ae"><?= htmlspecialchars($peca['operacao_nome']) ?></td>
                                     <td class="ae"><?= htmlspecialchars($peca['quantidade']) ?></td>
                                     <td class="ae">R$ <?= number_format($peca['valor_unitario'], 2, ',', '.') ?></td>
                                     <td class="ae">R$ <?= number_format($peca['valor_total'], 2, ',', '.') ?></td>
@@ -117,47 +103,113 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+
+<!-- Seção de Serviços do Lote -->
+<div style="margin-top: 2rem;">
+    <h3>Serviços do Lote 
+        <?php if ($totalServicos > 0): ?>
+            <span class="badge" style="font-size: 0.9rem; background: #6c757d; color: white; padding: 5px 10px; border-radius: 20px;">
+                <?= $resumoServicos['servicos_finalizados'] ?? 0 ?> / <?= $totalServicos ?> concluídos
+            </span>
+        <?php endif; ?>
+    </h3>
+    
+    
+    
+    <?php if ($totalServicos == 0): ?>
+        <div class="aviso" style="text-align: center; padding: 30px; background: #f8f9fa; border-radius: 8px;">
+            <p>Nenhum serviço criado para este lote ainda.</p>
+            <a href="<?= BASE_URL ?>admin/criar-servico" class="botao-azul pequeno">+ Criar Serviço</a>
+        </div>
+    <?php else: ?>
+        <div class="tabela">
+            <table cellspacing='0' class="redondinho shadow">
+                <thead>
+                    <tr>
+                        <th class="ae">ID</th>
+                        <th class="ae">Operação</th>
+                        <th class="ae">Costureira</th>
+                        <th class="ae">Quantidade</th>
+                        <th class="ae">Concluídas</th>
+                        <th class="ae">Valor Unit.</th>
+                        <th class="ae">Valor Total</th>
+                        <th class="ae">Status</th>
+                        <th class="ac">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($servicos as $servico): ?>
+                        <?php
+                        $progresso = $servico['quantidade_pecas'] > 0 
+                            ? round(($servico['pecas_concluidas'] / $servico['quantidade_pecas']) * 100) 
+                            : 0;
+                        $valorTotal = $servico['quantidade_pecas'] * $servico['valor_operacao'];
+                        ?>
+                        <tr>
+                            <td class="ae">#<?= $servico['id'] ?></td>
+                            <td class="ae"><?= htmlspecialchars($servico['operacao_nome']) ?></td>
+                            <td class="ae"><?= htmlspecialchars($servico['costureira_nome'] ?? 'Não vinculada') ?></td>
+                            <td class="ae"><?= number_format($servico['quantidade_pecas'], 0, ',', '.') ?></td>
+                            <td class="ae"><?= number_format($servico['pecas_concluidas'], 0, ',', '.') ?></td>
+                            
+                            <td class="ae">R$ <?= number_format($servico['valor_operacao'], 2, ',', '.') ?></td>
+                            <td class="ae">R$ <?= number_format($valorTotal, 2, ',', '.') ?></td>
+                            <td class="ae">
+                                <span class="status-badge status-<?= $servico['servico_status'] == 'Finalizado' ? 'success' : ($servico['servico_status'] == 'Em andamento' ? 'warning' : 'info') ?>">
+                                    <?= $servico['servico_status'] ?>
+                                </span>
+                            </td>
+                            <td class="ac">
+                                <a href="<?= BASE_URL ?>admin/visualizar-servico?id=<?= $servico['id'] ?>" 
+                                   class="btn-visualizar" title="Ver detalhes">
+                                    <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="ver" style="width: 20px;">
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginação dos Serviços -->
+        <?php if ($totalPaginasServicos > 1): ?>
+        <div class="paginacao flex center v-center s-gap" style="margin-top: 20px;">
+            <?php if ($paginaAtualServicos > 1): ?>
+                <a href="?id=<?= $lote['id'] ?>&page_servicos=1&page_pecas=<?= $paginaAtualPecas ?><?= !empty($searchPecas) ? '&search_pecas=' . urlencode($searchPecas) : '' ?>" class="pagina-link">« Primeira</a>
+            <?php endif; ?>
             
-            <!-- Paginação -->
-            <?php if ($totalPaginas > 1): ?>
-            <div class="paginacao flex center v-center s-gap" style="margin-top: 20px;">
-                <?php if ($paginaAtual > 1): ?>
-                    <a href="?id=<?= $lote['id'] ?>&page=1<?= !empty($search) ? '&search=' . urlencode($search) : '' ?>" class="pagina-link">« Primeira</a>
-                <?php endif; ?>
-                
-                <?php if ($paginaAtual > 1): ?>
-                    <a href="?id=<?= $lote['id'] ?>&page=<?= $paginaAtual - 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>" class="pagina-link">‹ Anterior</a>
-                <?php endif; ?>
-                
-                <?php for ($i = max(1, $paginaAtual - 2); $i <= min($totalPaginas, $paginaAtual + 2); $i++): ?>
-                    <?php if ($i == $paginaAtual): ?>
-                        <span class="pagina-atual"><?= $i ?></span>
-                    <?php else: ?>
-                        <a href="?id=<?= $lote['id'] ?>&page=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>" class="pagina-link"><?= $i ?></a>
-                    <?php endif; ?>
-                <?php endfor; ?>
-                
-                <?php if ($paginaAtual < $totalPaginas): ?>
-                    <a href="?id=<?= $lote['id'] ?>&page=<?= $paginaAtual + 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>" class="pagina-link">Próxima ›</a>
-                <?php endif; ?>
-                
-                <?php if ($paginaAtual < $totalPaginas): ?>
-                    <a href="?id=<?= $lote['id'] ?>&page=<?= $totalPaginas ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>" class="pagina-link">Última »</a>
-                <?php endif; ?>
-            </div>
+            <?php if ($paginaAtualServicos > 1): ?>
+                <a href="?id=<?= $lote['id'] ?>&page_servicos=<?= $paginaAtualServicos - 1 ?>&page_pecas=<?= $paginaAtualPecas ?><?= !empty($searchPecas) ? '&search_pecas=' . urlencode($searchPecas) : '' ?>" class="pagina-link">‹ Anterior</a>
+            <?php endif; ?>
             
-            <div class="info-paginacao flex center" style="margin-top: 10px;">
-                <span class="texto-pequeno">
-                    Mostrando <?= $inicio ?> a <?= $fim ?> de <?= $totalPecas ?> peças
-                    <?php if (!empty($search)): ?>
-                        (filtrado por: "<?= htmlspecialchars($search) ?>")
-                    <?php endif; ?>
-                </span>
-            </div>
+            <?php for ($i = max(1, $paginaAtualServicos - 2); $i <= min($totalPaginasServicos, $paginaAtualServicos + 2); $i++): ?>
+                <?php if ($i == $paginaAtualServicos): ?>
+                    <span class="pagina-atual"><?= $i ?></span>
+                <?php else: ?>
+                    <a href="?id=<?= $lote['id'] ?>&page_servicos=<?= $i ?>&page_pecas=<?= $paginaAtualPecas ?><?= !empty($searchPecas) ? '&search_pecas=' . urlencode($searchPecas) : '' ?>" class="pagina-link"><?= $i ?></a>
+                <?php endif; ?>
+            <?php endfor; ?>
+            
+            <?php if ($paginaAtualServicos < $totalPaginasServicos): ?>
+                <a href="?id=<?= $lote['id'] ?>&page_servicos=<?= $paginaAtualServicos + 1 ?>&page_pecas=<?= $paginaAtualPecas ?><?= !empty($searchPecas) ? '&search_pecas=' . urlencode($searchPecas) : '' ?>" class="pagina-link">Próxima ›</a>
+            <?php endif; ?>
+            
+            <?php if ($paginaAtualServicos < $totalPaginasServicos): ?>
+                <a href="?id=<?= $lote['id'] ?>&page_servicos=<?= $totalPaginasServicos ?>&page_pecas=<?= $paginaAtualPecas ?><?= !empty($searchPecas) ? '&search_pecas=' . urlencode($searchPecas) : '' ?>" class="pagina-link">Última »</a>
             <?php endif; ?>
         </div>
-    </form>
+        
+        <div class="info-paginacao flex center" style="margin-top: 10px;">
+            <span class="texto-pequeno">
+                Mostrando <?= $inicioServicos ?> a <?= $fimServicos ?> de <?= $totalServicos ?> serviços
+            </span>
+        </div>
+        <?php endif; ?>
+        
+    <?php endif; ?>
 </div>
+</form>
 
 <?php if ($lote['status'] === 'Aberto'): ?>
 <!-- Modal para finalizar lote -->

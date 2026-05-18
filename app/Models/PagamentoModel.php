@@ -683,51 +683,89 @@ public function getTotaisPorMes($ano, $mes = null)
     }
 }
 
-    // Obter pagamentos de uma costureira
-    public function getPagamentosPorCostureira($costureiraId)
-    {
-        $sql = "SELECT p.*,
-                       COUNT(pi.id) as quantidade_servicos,
-                       GROUP_CONCAT(DISTINCT s.id SEPARATOR ', ') as servicos_ids
-                FROM pagamentos p
-                LEFT JOIN pagamento_itens pi ON p.id = pi.pagamento_id
-                LEFT JOIN servicos s ON pi.servico_id = s.id
-                WHERE p.costureira_id = :costureira_id
-                GROUP BY p.id
-                ORDER BY p.periodo_referencia DESC, p.created_at DESC";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':costureira_id' => $costureiraId,
-            ':mes' => date('m', strtotime($periodoReferencia)),
-            ':ano' => date('Y', strtotime($periodoReferencia))
-        ]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    // Calcular pagamento do mês para uma costureira
+    // Calcular valor total de serviços finalizados no mês para uma costureira
     public function calcularPagamentoMes($costureiraId)
     {
         try {
-            $this->pdo->beginTransaction();
+            $sql = "SELECT COALESCE(SUM(s.quantidade_pecas * s.valor_operacao), 0) as total
+                    FROM servicos s
+                    WHERE s.costureira_id = :costureira_id
+                      AND s.status = 'Finalizado'
+                      AND MONTH(s.data_finalizacao) = MONTH(CURDATE())
+                      AND YEAR(s.data_finalizacao) = YEAR(CURDATE())
+                      AND NOT EXISTS (
+                          SELECT 1 FROM pagamento_itens pi 
+                          WHERE pi.servico_id = s.id
+                      )";
             
-            $pagamento = $this->getPagamentoPorId($id);
-            if ($pagamento['status'] !== 'Cancelado') {
-                throw new Exception('Apenas pagamentos cancelados podem ser excluídos');
-            }
-            
-            $sql = "DELETE FROM pagamentos WHERE id = :id";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([':id' => $id]);
+            $stmt->execute([':costureira_id' => $costureiraId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            $this->pdo->commit();
-            return true;
+            return floatval($result['total'] ?? 0);
             
         } catch (Exception $e) {
-            $this->pdo->rollBack();
-            throw $e;
+            error_log("Erro ao calcular pagamento do mês: " . $e->getMessage());
+            return 0;
         }
     }
+
+// Obter pagamentos de uma costureira
+public function getPagamentosPorCostureira($costureiraId)
+{
+    $sql = "SELECT p.*,
+                   (SELECT COUNT(*) FROM pagamento_itens pi WHERE pi.pagamento_id = p.id) as quantidade_servicos
+            FROM pagamentos p
+            WHERE p.costureira_id = :costureira_id
+            ORDER BY p.periodo_referencia DESC, p.created_at DESC";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':costureira_id' => $costureiraId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function contarProximasEntregas($costureiraId)
+{
+    $sql = "SELECT COUNT(*) as total
+            FROM servicos s
+            INNER JOIN lotes l ON s.lote_id = l.id
+            WHERE s.costureira_id = :costureira_id
+              AND s.status != 'Finalizado'
+              AND l.data_entrega >= CURDATE()
+              AND l.data_entrega <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
+    
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':costureira_id' => $costureiraId]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return $result['total'] ?? 0;
+}
+
+// Método para excluir pagamento (se existir)
+public function excluirPagamento($id)
+{
+    try {
+        $this->pdo->beginTransaction();
+        
+        // Primeiro excluir os itens do pagamento
+        $sqlItens = "DELETE FROM pagamento_itens WHERE pagamento_id = :id";
+        $stmtItens = $this->pdo->prepare($sqlItens);
+        $stmtItens->execute([':id' => $id]);
+        
+        // Depois excluir o pagamento
+        $sql = "DELETE FROM pagamentos WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $result = $stmt->execute([':id' => $id]);
+        
+        $this->pdo->commit();
+        return $result;
+        
+    } catch (Exception $e) {
+        $this->pdo->rollBack();
+        error_log("Erro ao excluir pagamento: " . $e->getMessage());
+        throw $e;
+    }
+}
 
     // Obter costureiras disponíveis para pagamento
     public function getCostureirasComServicosNaoPagos()
@@ -762,8 +800,9 @@ public function getTotaisPorMes($ano, $mes = null)
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    
 
-    // Criar pagamento a partir de serviços já finalizados
+// Criar pagamento a partir de serviços já finalizados
 public function criarPagamentoAutomatico($costureiraId, $periodoReferencia, $servicos)
 {
     try {

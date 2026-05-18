@@ -66,7 +66,8 @@ class LoteModel
                 observacao = :observacao, 
                 data_entrada = :data_entrada, 
                 data_entrega = :data_entrega, 
-                anexos = :anexos 
+                anexos = :anexos,
+                updated_at = NOW()
                 WHERE id = :id";
         
         $stmt = $this->pdo->prepare($sql);
@@ -103,8 +104,8 @@ class LoteModel
 
 private function criarPecasParaLote($loteId, $pecas)
     {
-        $sql = "INSERT INTO pecas (lote_id, tipo_peca_id, cor_id, tamanho_id, operacao_id, quantidade, valor_unitario) 
-                VALUES (:lote_id, :tipo_peca_id, :cor_id, :tamanho_id, :operacao_id, :quantidade, :valor_unitario)";
+        $sql = "INSERT INTO pecas (lote_id, tipo_peca_id, cor_id, tamanho_id, quantidade, valor_unitario) 
+                VALUES (:lote_id, :tipo_peca_id, :cor_id, :tamanho_id, :quantidade, :valor_unitario)";
         
         $stmt = $this->pdo->prepare($sql);
 
@@ -114,7 +115,6 @@ private function criarPecasParaLote($loteId, $pecas)
                 ':tipo_peca_id' => $peca['tipo_peca_id'],
                 ':cor_id' => $peca['cor_id'],
                 ':tamanho_id' => $peca['tamanho_id'],
-                ':operacao_id' => $peca['operacao_id'],
                 ':quantidade' => $peca['quantidade'],
                 ':valor_unitario' => $peca['valor_unitario']
             ]);
@@ -266,12 +266,10 @@ private function criarPecasParaLote($loteId, $pecas)
                        c.nome as cor_nome, 
                        c.codigo_hex,
                        t.nome as tamanho_nome,
-                       o.nome as operacao_nome 
                 FROM pecas p 
                 INNER JOIN tipos_peca tp ON p.tipo_peca_id = tp.id 
                 INNER JOIN cores c ON p.cor_id = c.id 
                 INNER JOIN tamanhos t ON p.tamanho_id = t.id 
-                INNER JOIN operacoes o ON p.operacao_id = o.id 
                 WHERE p.lote_id = :lote_id 
                 ORDER BY p.id";
         
@@ -280,6 +278,139 @@ private function criarPecasParaLote($loteId, $pecas)
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getQuantidadeTotalPecas($loteId)
+{
+    $sql = "SELECT COALESCE(SUM(quantidade), 0) as total FROM pecas WHERE lote_id = :lote_id";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':lote_id' => $loteId]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result['total'] ?? 0;
+}
+
+public function getQuantidadePecasEmServicos($loteId, $operacaoId = null)
+{
+    $sql = "SELECT COALESCE(SUM(quantidade_pecas), 0) as total 
+            FROM servicos 
+            WHERE lote_id = :lote_id AND status != 'Inativo'";
+    
+    if ($operacaoId) {
+        $sql .= " AND operacao_id = :operacao_id";
+    }
+    
+    $stmt = $this->pdo->prepare($sql);
+    $params = [':lote_id' => $loteId];
+    if ($operacaoId) {
+        $params[':operacao_id'] = $operacaoId;
+    }
+    $stmt->execute($params);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result['total'] ?? 0;
+}
+
+public function validarQuantidadeServico($loteId, $quantidadePecas, $operacaoId = null, $servicoId = null)
+{
+    // Buscar quantidade total de peças no lote
+    $totalPecasLote = $this->getQuantidadeTotalPecas($loteId);
+    
+    if ($totalPecasLote == 0) {
+        return ['error' => 'Este lote não possui peças cadastradas'];
+    }
+    
+    // Buscar quantidade já alocada em serviços (excluindo o próprio serviço em caso de edição)
+    $quantidadeAlocada = $this->getQuantidadePecasEmServicos($loteId, $operacaoId);
+    
+    if ($servicoId) {
+        // Para edição, subtrair a quantidade do serviço atual
+        $sql = "SELECT quantidade_pecas FROM servicos WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':id' => $servicoId]);
+        $servicoAtual = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($servicoAtual) {
+            $quantidadeAlocada -= $servicoAtual['quantidade_pecas'];
+        }
+    }
+    
+    $quantidadeTotalAposServico = $quantidadeAlocada + $quantidadePecas;
+    
+    // Verificar se ultrapassa o dobro
+    if ($quantidadeTotalAposServico > $totalPecasLote * 2) {
+        return ['error' => "A quantidade total de peças nos serviços não pode ultrapassar o dobro do lote. " .
+                          "Total no lote: {$totalPecasLote}, " .
+                          "Já alocado: {$quantidadeAlocada}, " .
+                          "Tentativa: {$quantidadePecas}, " .
+                          "Limite máximo: " . ($totalPecasLote * 2)];
+    }
+    
+    // Verificar se ultrapassa o total (opcional - se quiser limitar também)
+    if ($quantidadeTotalAposServico > $totalPecasLote) {
+        return ['warning' => "Atenção: A quantidade está ultrapassando o total do lote ({$totalPecasLote} peças). " .
+                            "O limite máximo permitido é o dobro"];
+    }
+    
+    return ['success' => true];
+}
+
+public function getServicosPorLote($loteId, $limit = null, $offset = null)
+{
+    $sql = "SELECT s.*, 
+                   o.nome as operacao_nome,
+                   o.valor as valor_base_operacao,
+                   u.nome as costureira_nome,
+                   u.id as costureira_id,
+                   s.status as servico_status,
+                   s.quantidade_pecas,
+                   s.pecas_concluidas,
+                   s.valor_operacao
+            FROM servicos s
+            INNER JOIN operacoes o ON s.operacao_id = o.id
+            LEFT JOIN usuarios u ON s.costureira_id = u.id
+            WHERE s.lote_id = :lote_id AND s.status != 'Inativo'
+            ORDER BY s.data_envio DESC";
+    
+    if ($limit !== null && $offset !== null) {
+        $sql .= " LIMIT :limit OFFSET :offset";
+    }
+    
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->bindValue(':lote_id', $loteId, PDO::PARAM_INT);
+    
+    if ($limit !== null && $offset !== null) {
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    }
+    
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getTotalServicosPorLote($loteId)
+{
+    $sql = "SELECT COUNT(*) as total 
+            FROM servicos 
+            WHERE lote_id = :lote_id AND status != 'Inativo'";
+    
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':lote_id' => $loteId]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return $result['total'] ?? 0;
+}
+
+public function verificarTodosServicosFinalizados($loteId)
+{
+    $sql = "SELECT COUNT(*) as total_pendentes 
+            FROM servicos 
+            WHERE lote_id = :lote_id 
+            AND status != 'Finalizado'
+            AND status != 'Inativo'";
+    
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':lote_id' => $loteId]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return $result['total_pendentes'] == 0;
+}
 
     public function finalizarLote($loteId, $dataEntrega)
 {

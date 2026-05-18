@@ -8,20 +8,26 @@
         <div class="titulo">Edição de Lote - <?= htmlspecialchars($lote['nome']) ?></div>
 
         <?php if (!empty($errors)): ?>
-            <div class="erro">
-                <ul>
-                    <?php foreach ($errors as $field => $errorMessages): ?>
-                        <?php if (is_array($errorMessages)): ?>
-                            <?php foreach ($errorMessages as $error): ?>
+    <div class="erro">
+        <ul>
+            <?php foreach ($errors as $field => $errorMessages): ?>
+                <?php if (is_array($errorMessages)): ?>
+                    <?php foreach ($errorMessages as $subErrors): ?>
+                        <?php if (is_array($subErrors)): ?>
+                            <?php foreach ($subErrors as $error): ?>
                                 <li><?= htmlspecialchars($error) ?></li>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <li><?= htmlspecialchars($errorMessages) ?></li>
+                            <li><?= htmlspecialchars($subErrors) ?></li>
                         <?php endif; ?>
                     <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
+                <?php else: ?>
+                    <li><?= htmlspecialchars($errorMessages) ?></li>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
         
         <hr class="shadow">
         

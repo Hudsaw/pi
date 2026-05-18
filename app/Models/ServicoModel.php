@@ -41,47 +41,54 @@ class ServicoModel
 
     // Criar serviço (operação dentro de um lote)
     public function criarServico($dados)
-    {
-        // Verificar se já existe serviço do mesmo tipo no lote
-        if ($this->servicoDoMesmoTipoExiste($dados['lote_id'], $dados['operacao_id'])) {
-            throw new Exception('Já existe um serviço deste tipo no lote selecionado.');
-        }
+{
+    // Verificar se já existe serviço do mesmo tipo no lote
+    if ($this->servicoDoMesmoTipoExiste($dados['lote_id'], $dados['operacao_id'])) {
+        throw new Exception('Já existe um serviço deste tipo no lote selecionado.');
+    }
+    
+    // VERIFICAÇÃO DA QUANTIDADE MÁXIMA DE PEÇAS
+    $loteModel = new LoteModel($this->pdo);
+    $validacao = $loteModel->validarQuantidadeServico(
+        $dados['lote_id'], 
+        $dados['quantidade_pecas'], 
+        $dados['operacao_id']
+    );
+    
+    if (isset($validacao['error'])) {
+        throw new Exception($validacao['error']);
+    }
+    
+    // Se tem warning, podemos permitir mas logar
+    if (isset($validacao['warning'])) {
+        error_log("AVISO: " . $validacao['warning']);
+    }
 
-        // Verificar se a costureira já tem serviço em andamento
+    // Verificar se a costureira já tem serviço em andamento
     if ($this->costureiraTemServicoEmAndamento($dados['costureira_id'])) {
         throw new Exception('Esta costureira já possui um serviço em andamento.');
     }
-        
-        $sql = "INSERT INTO servicos (lote_id, operacao_id, quantidade_pecas, valor_operacao, data_envio, observacao, status, costureira_id) 
-                VALUES (:lote_id, :operacao_id, :quantidade_pecas, :valor_operacao, :data_envio, :observacao, 'Em andamento', :costureira_id)";
-        
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':lote_id' => $dados['lote_id'],
-            ':operacao_id' => $dados['operacao_id'],
-            ':quantidade_pecas' => $dados['quantidade_pecas'],
-            ':valor_operacao' => $dados['valor_operacao'],
-            ':data_envio' => $dados['data_envio'],
-            ':observacao' => $dados['observacao'],
-            ':costureira_id' => $dados['costureira_id']
-        ]);
+    
+    $sql = "INSERT INTO servicos (lote_id, operacao_id, quantidade_pecas, valor_operacao, data_envio, observacao, status, costureira_id) 
+            VALUES (:lote_id, :operacao_id, :quantidade_pecas, :valor_operacao, :data_envio, :observacao, 'Em andamento', :costureira_id)";
+    
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([
+        ':lote_id' => $dados['lote_id'],
+        ':operacao_id' => $dados['operacao_id'],
+        ':quantidade_pecas' => $dados['quantidade_pecas'],
+        ':valor_operacao' => $dados['valor_operacao'],
+        ':data_envio' => $dados['data_envio'],
+        ':observacao' => $dados['observacao'],
+        ':costureira_id' => $dados['costureira_id']
+    ]);
 
-        return $this->pdo->lastInsertId();
-    }
+    return $this->pdo->lastInsertId();
+}
 
     // Obter todos os serviços (operações)
     public function getServicos($filtro = null)
 {
-    // $where = "";
-    // if ($filtro === 'ativos') {
-    //     $where = "WHERE s.status = 'Em andamento'";
-    // } elseif ($filtro === 'finalizados') {
-    //     $where = "WHERE s.status = 'Finalizado'";
-    // } elseif ($filtro === 'inativos') {
-    //     $where = "WHERE s.status = 'Inativo'";
-    // }
-    // Se $filtro for null ou 'todos', não aplica filtro
-
     $sql = "SELECT s.*, 
                    l.nome as lote_nome,
                    l.colecao,
@@ -251,30 +258,18 @@ class ServicoModel
     // Finalizar serviço
     public function finalizarServico($servicoId, $dataFinalizacao, $quantidadeConcluida = null, $observacaoPerdas = null)
 {
-    error_log("==========================================");
-    error_log("=== INICIANDO FINALIZAÇÃO DE SERVIÇO ===");
-    error_log("==========================================");
-    error_log("Timestamp: " . date('Y-m-d H:i:s'));
-    error_log("Serviço ID: " . var_export($servicoId, true));
-    error_log("Data Finalização: " . var_export($dataFinalizacao, true));
-    error_log("Qtd Concluída: " . var_export($quantidadeConcluida, true));
-    error_log("Obs Perdas: " . var_export($observacaoPerdas, true));
+    error_log("Finalizando SERVIÇO ===");
     
     try {
         // Primeiro, buscar o serviço
         $servico = $this->getServicoPorId($servicoId);
-        
-        error_log("Dados do serviço: " . json_encode($servico));
-        
+                
         if (!$servico) {
-            error_log("ERRO CRÍTICO: Serviço não encontrado!");
             throw new Exception('Serviço não encontrado');
         }
         
         // Verificar se tem costureira
         if (empty($servico['costureira_id'])) {
-            error_log("AVISO: Serviço não tem costureira vinculada!");
-            // Mesmo sem costureira, vamos finalizar
         } else {
             error_log("Costureira encontrada - ID: " . $servico['costureira_id'] . 
                      ", Nome: " . ($servico['costureira_nome'] ?? 'N/A'));
@@ -283,57 +278,36 @@ class ServicoModel
         // Se não foi informada quantidade concluída, usar o total
         if ($quantidadeConcluida === null || $quantidadeConcluida === '') {
             $quantidadeConcluida = $servico['quantidade_pecas'];
-            error_log("Quantidade concluída não informada, usando total: " . $quantidadeConcluida);
         }
         
-        // Converter para inteiro
         $quantidadeConcluida = (int)$quantidadeConcluida;
-        error_log("Quantidade concluída (int): " . $quantidadeConcluida);
-        
-        // Iniciar transação
         $this->pdo->beginTransaction();
-        error_log("Transação iniciada");
-        
-        // Atualizar serviço
         $sql = "UPDATE servicos SET 
                     status = 'Finalizado', 
                     data_finalizacao = :data_finalizacao,
                     quantidade_concluida = :quantidade_concluida
                 WHERE id = :id";
-        
-        error_log("SQL Update Serviço: " . $sql);
-        
+                
         $stmt = $this->pdo->prepare($sql);
         $result = $stmt->execute([
             ':data_finalizacao' => $dataFinalizacao,
             ':quantidade_concluida' => $quantidadeConcluida,
             ':id' => $servicoId
         ]);
-        
-        error_log("Update serviço executado: " . ($result ? 'SUCESSO' : 'FALHA'));
-        error_log("Linhas afetadas: " . $stmt->rowCount());
-        
-        // Se tem costureira, criar pagamento
+          
         $pagamentoId = null;
-        if ($servico['costureira_id']) {
-            error_log("Tentando criar pagamento para costureira ID: " . $servico['costureira_id']);
-            
-            $valorTotal = $quantidadeConcluida * $servico['valor_operacao'];
-            error_log("Valor total calculado: " . $valorTotal);
-            
-            $pagamentoId = $this->criarPagamentoDebug(
+        if ($servico['costureira_id']) {            
+            $valorTotal = $quantidadeConcluida * $servico['valor_operacao'];            
+            $pagamentoId = $this->criarPagamento(
                 $servicoId,
                 $servico['costureira_id'],
                 $quantidadeConcluida,
                 $servico['valor_operacao']
             );
             
-            error_log("Resultado criação pagamento: " . var_export($pagamentoId, true));
         }
         
-        // Commit
         $this->pdo->commit();
-        error_log("Transação comitada com sucesso");
         
         $resultado = [
             'success' => true,
@@ -341,31 +315,19 @@ class ServicoModel
             'valor_total' => ($quantidadeConcluida * $servico['valor_operacao']) ?? 0
         ];
         
-        error_log("Resultado final: " . json_encode($resultado));
-        error_log("=== FINALIZAÇÃO CONCLUÍDA ===");
-        
         return $resultado;
         
     } catch (Exception $e) {
         if ($this->pdo->inTransaction()) {
             $this->pdo->rollBack();
-            error_log("ROLLBACK executado");
         }
-        error_log("ERRO NA FINALIZAÇÃO: " . $e->getMessage());
-        error_log("Stack trace: " . $e->getTraceAsString());
         throw $e;
     }
 }
 
-// Método de debug para criar pagamento
-private function criarPagamentoDebug($servicoId, $costureiraId, $quantidadeConcluida, $valorOperacao)
+private function criarPagamento($servicoId, $costureiraId, $quantidadeConcluida, $valorOperacao)
 {
-    error_log("--- Iniciando criarPagamentoDebug ---");
-    error_log("Parâmetros recebidos:");
-    error_log("servicoId: " . var_export($servicoId, true));
-    error_log("costureiraId: " . var_export($costureiraId, true));
-    error_log("quantidadeConcluida: " . var_export($quantidadeConcluida, true));
-    error_log("valorOperacao: " . var_export($valorOperacao, true));
+    error_log("--- Iniciando criarPagamento ---");
     
     // Converter para tipos corretos
     $servicoId = (int)$servicoId;
@@ -373,17 +335,8 @@ private function criarPagamentoDebug($servicoId, $costureiraId, $quantidadeConcl
     $quantidadeConcluida = (int)$quantidadeConcluida;
     $valorOperacao = (float)$valorOperacao;
     
-    error_log("Valores convertidos:");
-    error_log("servicoId (int): " . $servicoId);
-    error_log("costureiraId (int): " . $costureiraId);
-    error_log("quantidadeConcluida (int): " . $quantidadeConcluida);
-    error_log("valorOperacao (float): " . $valorOperacao);
-    
     $valorTotal = $quantidadeConcluida * $valorOperacao;
     $periodoReferencia = date('Y-m-01');
-    
-    error_log("valorTotal: " . $valorTotal);
-    error_log("periodoReferencia: " . $periodoReferencia);
     
     try {
         // Verificar se existe pagamento pendente para este período
@@ -392,9 +345,7 @@ private function criarPagamentoDebug($servicoId, $costureiraId, $quantidadeConcl
                 AND periodo_referencia = :periodo 
                 AND status = 'Pendente'
                 LIMIT 1";
-        
-        error_log("SQL Verificar pagamento existente: " . $sql);
-        
+                
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':costureira_id' => $costureiraId,
@@ -402,15 +353,11 @@ private function criarPagamentoDebug($servicoId, $costureiraId, $quantidadeConcl
         ]);
         
         $pagamentoExistente = $stmt->fetch(PDO::FETCH_ASSOC);
-        error_log("Pagamento existente: " . json_encode($pagamentoExistente));
         
         if ($pagamentoExistente) {
             // Atualizar existente
             $pagamentoId = $pagamentoExistente['id'];
-            $novoValor = $pagamentoExistente['valor_bruto'] + $valorTotal;
-            
-            error_log("Atualizando pagamento ID: $pagamentoId com novo valor: $novoValor");
-            
+            $novoValor = $pagamentoExistente['valor_bruto'] + $valorTotal;            
             $sqlUpdate = "UPDATE pagamentos SET 
                             valor_bruto = :valor_bruto,
                             valor_liquido = :valor_liquido,
@@ -423,14 +370,9 @@ private function criarPagamentoDebug($servicoId, $costureiraId, $quantidadeConcl
                 ':valor_liquido' => $novoValor,
                 ':id' => $pagamentoId
             ]);
-            
-            error_log("Update executado: " . ($resultUpdate ? 'SIM' : 'NÃO'));
-            error_log("Linhas afetadas: " . $stmtUpdate->rowCount());
-            
+                        
         } else {
-            // Criar novo pagamento
-            error_log("Criando novo pagamento...");
-            
+            // Criar novo pagamento            
             $sqlInsert = "INSERT INTO pagamentos (
                             costureira_id,
                             periodo_referencia,
@@ -448,28 +390,20 @@ private function criarPagamentoDebug($servicoId, $costureiraId, $quantidadeConcl
                             'Pendente',
                             NOW()
                           )";
-            
-            error_log("SQL Insert: " . $sqlInsert);
-            
+                        
             $params = [
                 ':costureira_id' => $costureiraId,
                 ':periodo' => $periodoReferencia,
                 ':valor_bruto' => $valorTotal,
                 ':valor_liquido' => $valorTotal
-            ];
-            error_log("Parâmetros Insert: " . json_encode($params));
-            
+            ];            
             $stmtInsert = $this->pdo->prepare($sqlInsert);
             $resultInsert = $stmtInsert->execute($params);
-            
-            error_log("Insert executado: " . ($resultInsert ? 'SIM' : 'NÃO'));
-            
+                        
             if ($resultInsert) {
                 $pagamentoId = $this->pdo->lastInsertId();
-                error_log("Novo pagamento ID: " . $pagamentoId);
             } else {
                 $errorInfo = $stmtInsert->errorInfo();
-                error_log("ERRO no INSERT: " . json_encode($errorInfo));
                 throw new Exception("Falha ao inserir pagamento: " . ($errorInfo[2] ?? 'Erro desconhecido'));
             }
         }
@@ -487,7 +421,6 @@ private function criarPagamentoDebug($servicoId, $costureiraId, $quantidadeConcl
             ]);
             
             $itemExistente = $stmtCheckItem->fetch(PDO::FETCH_ASSOC);
-            error_log("Item existente: " . json_encode($itemExistente));
             
             if (!$itemExistente) {
                 $sqlInsertItem = "INSERT INTO pagamento_itens (
@@ -500,8 +433,6 @@ private function criarPagamentoDebug($servicoId, $costureiraId, $quantidadeConcl
                                     :valor
                                   )";
                 
-                error_log("SQL Insert Item: " . $sqlInsertItem);
-                
                 $stmtInsertItem = $this->pdo->prepare($sqlInsertItem);
                 $resultInsertItem = $stmtInsertItem->execute([
                     ':pagamento_id' => $pagamentoId,
@@ -509,18 +440,14 @@ private function criarPagamentoDebug($servicoId, $costureiraId, $quantidadeConcl
                     ':valor' => $valorTotal
                 ]);
                 
-                error_log("Insert Item executado: " . ($resultInsertItem ? 'SIM' : 'NÃO'));
-                
                 if (!$resultInsertItem) {
                     $errorInfo = $stmtInsertItem->errorInfo();
-                    error_log("ERRO no INSERT Item: " . json_encode($errorInfo));
                 }
             } else {
                 error_log("Item já existe, ignorando inserção");
             }
         }
         
-        error_log("--- criarPagamentoDebug concluído ---");
         return $pagamentoId;
         
     } catch (Exception $e) {
@@ -529,29 +456,54 @@ private function criarPagamentoDebug($servicoId, $costureiraId, $quantidadeConcl
     }
 }
 
-    // Atualizar serviço
+// Atualizar serviço
     public function atualizarServico($id, $dados)
-    {
-        // Verificar se já existe outro serviço do mesmo tipo no lote
-        if ($this->servicoDoMesmoTipoExiste($dados['lote_id'], $dados['operacao_id'], $id)) {
-            throw new Exception('Já existe um serviço deste tipo no lote selecionado.');
-        }
+{
+    // Verificar se já existe outro serviço do mesmo tipo no lote
+    if ($this->servicoDoMesmoTipoExiste($dados['lote_id'], $dados['operacao_id'], $id)) {
+        throw new Exception('Já existe um serviço deste tipo no lote selecionado.');
+    }
+    
+    // VERIFICAÇÃO DA QUANTIDADE MÁXIMA DE PEÇAS (para edição)
+    $loteModel = new LoteModel($this->pdo);
+    $validacao = $loteModel->validarQuantidadeServico(
+        $dados['lote_id'], 
+        $dados['quantidade_pecas'], 
+        $dados['operacao_id'],
+        $id  // Passa o ID do serviço atual para exclusão na validação
+    );
+    
+    if (isset($validacao['error'])) {
+        throw new Exception($validacao['error']);
+    }
 
-        // Verificar se a costureira já tem serviço em andamento
-    if ($this->costureiraTemServicoEmAndamento($dados['costureira_id'])) {
+    // Verificar se a costureira já tem serviço em andamento (excluindo este)
+    if ($this->costureiraTemServicoEmAndamento($dados['costureira_id'], $id)) {
         throw new Exception('Esta costureira já possui um serviço em andamento.');
     }
-        
-        if (!$result) {
-            throw new Exception('Erro ao atualizar serviço');
-        }
-        
-        // Criar pagamento pendente automaticamente
-        $this->criarPagamentoPendenteAutomatico($servicoId, $quantidadeConcluida, $valorTotalAjustado);
-        
-        $this->pdo->commit();
-        return true;
-        
+    
+    $sql = "UPDATE servicos SET 
+                lote_id = :lote_id,
+                operacao_id = :operacao_id,
+                quantidade_pecas = :quantidade_pecas,
+                valor_operacao = :valor_operacao,
+                data_envio = :data_envio,
+                observacao = :observacao,
+                costureira_id = :costureira_id,
+                updated_at = NOW()
+            WHERE id = :id";
+    
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([
+        ':lote_id' => $dados['lote_id'],
+        ':operacao_id' => $dados['operacao_id'],
+        ':quantidade_pecas' => $dados['quantidade_pecas'],
+        ':valor_operacao' => $dados['valor_operacao'],
+        ':data_envio' => $dados['data_envio'],
+        ':observacao' => $dados['observacao'],
+        ':costureira_id' => $dados['costureira_id'],
+        ':id' => $id
+    ]);
 }
 
 // Criar pagamento pendente automaticamente ao finalizar serviço

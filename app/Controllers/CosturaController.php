@@ -350,58 +350,50 @@ private function validarPerfil($post)
 
     // Meus Pagamentos
     public function pagamentos()
-    {
-        $user = $this->getUsuario();
-        $pagamentos = $this->pagamentoModel->getPagamentosPorCostureira($user['id']);
-
-        $this->render('costura/pagamentos', [
-            'title' => 'PontoCerto - Meus Pagamentos',
-            'user' => $user,
-            'nomeUsuario' => $user['nome'],
-            'usuarioLogado' => true,
-            'pagamentos' => $pagamentos
-        ]);
-    }
-
-    public function visualizarPagamento()
 {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        $_SESSION['error_message'] = 'Método não permitido';
-        $this->redirect('costura/pagamentos');
-    }
-
     $user = $this->getUsuario();
-    $pagamentoId = $_POST['pagamento_id'] ?? null;
-
-    if (!$pagamentoId) {
-        $_SESSION['error_message'] = 'Pagamento não identificado';
-        $this->redirect('costura/pagamentos');
-    }
     
-    // Buscar o pagamento pelo ID
-    $pagamento = $this->pagamentoModel->getPagamentoPorId($pagamentoId);
+    // Buscar pagamentos da costureira
+    $pagamentos = $this->pagamentoModel->getPagamentosPorCostureira($user['id']);
     
-    // Verificar se o pagamento existe
-    if (!$pagamento) {
-        $_SESSION['error_message'] = 'Pagamento não encontrado';
-        $this->redirect('costura/pagamentos');
-    }
+    // Calcular estatísticas para os cards
+    $estatisticas = [
+        'total' => 0,
+        'pendentes' => 0,
+        'pagos' => 0,
+        'cancelados' => 0,
+        'total_pendente' => 0,
+        'total_pago' => 0,
+        'total_cancelado' => 0
+    ];
     
-    // Verificar se o pagamento pertence à costureira
-    if ($pagamento['costureira_id'] != $user['id']) {
-        $_SESSION['error_message'] = 'Acesso não autorizado';
-        $this->redirect('costura/pagamentos');
+    foreach ($pagamentos as $pagamento) {
+        $estatisticas['total']++;
+        
+        switch ($pagamento['status']) {
+            case 'Pendente':
+                $estatisticas['pendentes']++;
+                $estatisticas['total_pendente'] += $pagamento['valor_liquido'];
+                break;
+            case 'Pago':
+                $estatisticas['pagos']++;
+                $estatisticas['total_pago'] += $pagamento['valor_liquido'];
+                break;
+            case 'Cancelado':
+                $estatisticas['cancelados']++;
+                $estatisticas['total_cancelado'] += $pagamento['valor_liquido'];
+                break;
+        }
     }
 
-    $itens = $this->pagamentoModel->getItensPagamento($pagamentoId);
-
-    $this->render('costura/visualizar-pagamento', [
-        'title' => 'PontoCerto - Detalhes do Pagamento',
+    $this->render('costura/pagamentos', [
+        'title' => 'PontoCerto - Meus Pagamentos',
         'user' => $user,
         'nomeUsuario' => $user['nome'],
         'usuarioLogado' => true,
-        'pagamento' => $pagamento,
-        'itens' => $itens
+        'listaPagamentos' => $pagamentos,
+        'estatisticas' => $estatisticas, 
+        'filtro' => $_GET['filtro'] ?? 'todos'  
     ]);
 }
 

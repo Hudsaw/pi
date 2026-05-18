@@ -4,10 +4,11 @@
     <div class="cabecalho-pagina flex-between">
         <h2>Pagamentos</h2>
         <div class="acoes-cabecalho">
-            <a href="<?= BASE_URL ?>admin/pagamentos?export=csv<?= !empty($filtro) ? '&filtro=' . $filtro : '' ?><?= !empty($termoBusca) ? '&search=' . urlencode($termoBusca) : '' ?>" class="btn-exportar">
-                <img class="icone" src="<?= ASSETS_URL ?>icones/download.svg" alt="exportar">
-                Exportar CSV
-            </a>
+        <a href="<?= BASE_URL ?>admin/imprimir-pagamentos?<?= !empty($filtro) ? 'filtro=' . $filtro : '' ?><?= !empty($termoBusca) ? '&search=' . urlencode($termoBusca) : '' ?>" 
+       class="btn-exportar" target="_blank">
+        <img class="icone" src="<?= ASSETS_URL ?>icones/download.svg" alt="imprimir">
+        Imprimir / PDF
+    </a>
         </div>
     </div>
     

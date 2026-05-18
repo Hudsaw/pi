@@ -46,12 +46,11 @@ class PecaModel
                    c.nome as cor_nome, 
                    c.codigo_hex,
                    t.nome as tamanho_nome,
-                   o.nome as operacao_nome 
+                   (p.quantidade * p.valor_unitario) as valor_total
             FROM pecas p 
             INNER JOIN tipos_peca tp ON p.tipo_peca_id = tp.id 
             INNER JOIN cores c ON p.cor_id = c.id 
             INNER JOIN tamanhos t ON p.tamanho_id = t.id 
-            INNER JOIN operacoes o ON p.operacao_id = o.id 
             WHERE p.lote_id = :lote_id 
             ORDER BY p.id";
     
@@ -125,7 +124,7 @@ class PecaModel
         return $stmt->execute([':id' => $id]);
     }
 
-    public function getPecasPorLoteComPaginacao($loteId, $itensPorPagina, $offset, $search = '')
+    public function getPecasPorLoteComPaginacao($loteId, $itensPorPagina, $offset)
 {
     // Query base
     $sql = "SELECT p.*, 
@@ -133,54 +132,30 @@ class PecaModel
                    c.nome as cor_nome, 
                    c.codigo_hex,
                    t.nome as tamanho_nome,
-                   o.nome as operacao_nome 
+                   (p.quantidade * p.valor_unitario) as valor_total
             FROM pecas p 
             INNER JOIN tipos_peca tp ON p.tipo_peca_id = tp.id 
             INNER JOIN cores c ON p.cor_id = c.id 
             INNER JOIN tamanhos t ON p.tamanho_id = t.id 
-            INNER JOIN operacoes o ON p.operacao_id = o.id 
-            WHERE p.lote_id = :lote_id";
-    
-    // Adicionar busca se existir
-    if (!empty($search)) {
-        $sql .= " AND (tp.nome LIKE :search OR c.nome LIKE :search OR t.nome LIKE :search OR o.nome LIKE :search)";
-    }
-    
-    $sql .= " ORDER BY p.id DESC LIMIT :limit OFFSET :offset";
+            WHERE p.lote_id = :lote_id
+            ORDER BY p.id DESC 
+            LIMIT :limit OFFSET :offset";
     
     $stmt = $this->pdo->prepare($sql);
     $stmt->bindValue(':lote_id', $loteId, PDO::PARAM_INT);
     $stmt->bindValue(':limit', $itensPorPagina, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     
-    if (!empty($search)) {
-        $stmt->bindValue(':search', '%' . $search . '%');
-    }
-    
     $stmt->execute();
     $pecas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Contar total
     $sqlCount = "SELECT COUNT(*) as total 
-                 FROM pecas p 
-                 INNER JOIN tipos_peca tp ON p.tipo_peca_id = tp.id 
-                 INNER JOIN cores c ON p.cor_id = c.id 
-                 INNER JOIN tamanhos t ON p.tamanho_id = t.id 
-                 INNER JOIN operacoes o ON p.operacao_id = o.id 
-                 WHERE p.lote_id = :lote_id";
-    
-    if (!empty($search)) {
-        $sqlCount .= " AND (tp.nome LIKE :search OR c.nome LIKE :search OR t.nome LIKE :search OR o.nome LIKE :search)";
-    }
+                 FROM pecas 
+                 WHERE lote_id = :lote_id";
     
     $stmtCount = $this->pdo->prepare($sqlCount);
-    $stmtCount->bindValue(':lote_id', $loteId, PDO::PARAM_INT);
-    
-    if (!empty($search)) {
-        $stmtCount->bindValue(':search', '%' . $search . '%');
-    }
-    
-    $stmtCount->execute();
+    $stmtCount->execute([':lote_id' => $loteId]);
     $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
     
     return [
