@@ -69,6 +69,12 @@ body {
     height: 100%;
 }
 
+.welcome-message {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--azul-escuro);
+}
+
 /* MANTER ESTILOS ORIGINAIS DOS ELEMENTOS */
 h1 {
     font-size: 5rem;
@@ -475,6 +481,10 @@ tr:hover {
 
 .ac {
     text-align: center;
+}
+
+.ad {
+    text-align: right;
 }
 
 .conteudo-tabela {

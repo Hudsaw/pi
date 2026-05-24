@@ -24,9 +24,6 @@ $menuItems = [
 ?>
 
 <aside class="menu flex vertical shadow">
-    <div class="sidebar-header">
-        <h3 style="color: var(--white);"><?= "Menu " . ucfirst($userRole) ?></h3>
-    </div>
     <nav class="sidebar-nav">
         <ul>
             <?php foreach ($menuItems[$userRole] ?? [] as $item): ?>

@@ -218,13 +218,6 @@ private function validarPerfil($post)
 
     public function visualizarServico()
 {
-    // Verificar se é POST
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        $_SESSION['error_message'] = 'Método não permitido';
-        $this->redirect('costura/servicos');
-        return;
-    }
-
     $user = $this->getUsuario();
     
     // Verificar se o usuário está logado
@@ -233,7 +226,7 @@ private function validarPerfil($post)
         return;
     }
     
-    $servicoId = $_POST['servico_id'] ?? null;
+    $servicoId = $_GET['servico_id'] ?? null;
 
     if (!$servicoId) {
         $_SESSION['error_message'] = 'Serviço não identificado';

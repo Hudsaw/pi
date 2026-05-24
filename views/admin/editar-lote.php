@@ -71,7 +71,6 @@
         <div class="form-row">
             <div class="form-group">
                 <label class="form-label v-center flex" for="anexo">
-                    
                     <img class="icone" src="<?php echo ASSETS_URL?>icones/anexo.svg" alt="Anexo">
                     <small>Deixe em branco para manter o anexo atual</small>
                 </label>

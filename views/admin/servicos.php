@@ -18,7 +18,7 @@
                     <th class="ae">Lote</th>
                     <th class="ae">Operação</th>
                     <th class="ae">Costureira</th>                    
-                    <th class="ae">Progresso</th>                    
+                    <th class="ac">Progresso</th>                    
                     <th class="ae">Data Envio</th>
                     <th class="ae">Status</th>
                     <th class="ac">Ações</th>
@@ -38,20 +38,18 @@
                             <td class="ae">
                                 <?= $servico['costureira_nome'] ? htmlspecialchars($servico['costureira_nome']) : '<span class="texto-vermelho">Não vinculada</span>' ?>
                             </td>
-                            <td class="ae">
-    <?php 
-    $progresso = 0;
-    if ($servico['quantidade_pecas'] > 0) {
-        $progresso = ($servico['pecas_concluidas'] / $servico['quantidade_pecas']) * 100;
-    }
-    ?>
-    <div class="progress-container">
-        <div class="progress-bar" style="width: <?= $progresso ?>%;">
-            <span class="progress-text"><?= round($progresso, 1) ?>%</span>
-        </div>
-    </div>
-    <small><?= $servico['pecas_concluidas'] ?> / <?= $servico['quantidade_pecas'] ?> peças</small>
-</td>
+                            <td class="ac">
+                                <?php 
+                                $progresso = 0;
+                                if ($servico['quantidade_pecas'] > 0) {
+                                    $progresso = ($servico['pecas_concluidas'] / $servico['quantidade_pecas']) * 100;
+                                }
+                                ?>
+                                <div class="progress-container">
+                                    <div class="progress-bar" data-progresso="<?= $progresso ?>"></div>
+                                </div>
+                                <small><?= $servico['pecas_concluidas'] ?> / <?= $servico['quantidade_pecas'] ?> peças</small>
+                            </td>
                             <td class="ae"><?= date('d/m/Y', strtotime($servico['data_envio'])) ?></td>
                             <td class="ae">
                                     <span class="status-badge <?= match($servico['status']) {
@@ -84,3 +82,9 @@
         </table>
     </div>
 </div>
+<script src="<?= ASSETS_URL ?>js/utils.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    exibeBarraDeProgresso();
+});
+</script>

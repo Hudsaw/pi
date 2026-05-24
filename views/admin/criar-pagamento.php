@@ -16,10 +16,10 @@
                 <span class="flex v-center">Observação (Opcional)</span>
             </span>
             <span class="lista-informacoes-coluna flex vertical">
-                <span class="flex v-center" style="min-height:35px"><?= htmlspecialchars($pagamento['costureira_nome']) ?></span>
-                <span class="flex v-center" style="min-height:35px"><?= date('m/Y', strtotime($pagamento['periodo_referencia'])) ?></span>
-                <span class="flex v-center" style="min-height:35px">R$ <?= number_format($pagamento['valor_liquido'] ?? $pagamento['valor_bruto'], 2, ',', '.') ?></span>
-                <span class="flex v-center" style="min-height:35px">
+                <span class="flex v-center" style="min-height:20px"><?= htmlspecialchars($pagamento['costureira_nome']) ?></span>
+                <span class="flex v-center" style="min-height:20px"><?= date('m/Y', strtotime($pagamento['periodo_referencia'])) ?></span>
+                <span class="flex v-center" style="min-height:20px">R$ <?= number_format($pagamento['valor_liquido'] ?? $pagamento['valor_bruto'], 2, ',', '.') ?></span>
+                <span class="flex v-center" style="min-height:20px">
                     <?php if (!empty($pagamento['chave_pix'])): ?>
                         <?= ucfirst($pagamento['tipo_chave_pix'] ?? 'PIX') ?> - <?= htmlspecialchars($pagamento['chave_pix']) ?>
                     <?php else: ?>
@@ -27,11 +27,11 @@
                     <?php endif; ?>
                 </span>
 
-                <span class="flex v-center" style="min-height:35px">
+                <span class="flex v-center" style="min-height:20px">
                     <input type="date" name="data_pagamento" id="data_pagamento" class="form-control" value="<?= date('Y-m-d') ?>" required>
                 </span>
                 
-                <span class="flex v-center" style="min-height:35px">
+                <span class="flex v-center" style="min-height:20px">
                     <div class="upload-comprovante-wrapper">
                         <label class="btn-upload" for="comprovante">
                             <img class="icone" src="<?= ASSETS_URL ?>icones/anexo.svg" alt="Anexo">
@@ -43,7 +43,7 @@
                     </div>
                 </span>
                 
-                <span class="flex v-center" style="min-height:35px">
+                <span class="flex v-center" style="min-height:20px">
                     <textarea name="observacao" id="observacao" class="form-control" rows="2" placeholder="Informações adicionais sobre o pagamento..."><?= htmlspecialchars($observacao ?? '') ?></textarea>
                 </span>
             </span>

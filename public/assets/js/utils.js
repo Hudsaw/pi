@@ -258,3 +258,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function exibeBarraDeProgresso() {
+    const elementos = document.querySelectorAll('[data-progresso]');
+    elementos.forEach(e => {
+        const progresso = Number(e.dataset.progresso);
+        const container = e.parentElement;
+
+        container.style.width = '100%';
+        container.style.height = '12px';
+        container.style.border = '1px solid gray'
+        container.style.borderRadius = '8px';
+        container.style.background = 'var(--cinza)';
+
+        e.style.background = 'var(--verde)';
+        e.style.width = `${progresso}%`;
+        e.style.height = '12px';
+        e.style.borderRadius = '8px';
+    });
+}

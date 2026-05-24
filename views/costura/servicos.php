@@ -31,8 +31,8 @@
                         <th class="ae">Lote</th>
                         <th class="ae">Coleção</th>
                         <th class="ae">Operação</th>
-                        <th class="ae">Qtd. Peças</th>
                         <th class="ae">Data Envio</th>
+                        <th class="ac">Progresso</th>
                         <th class="ae">Status</th>
                         <th class="ac">Ações</th>
                     </tr>
@@ -51,9 +51,20 @@
                                 </td>
                                 <td class="ae"><?= htmlspecialchars($servico['colecao'] ?? '') ?></td>
                                 <td class="ae"><?= htmlspecialchars($servico['operacao_nome'] ?? 'N/A') ?></td>
-                                <td class="ae"><?= number_format($servico['quantidade_pecas'] ?? 0, 0, ',', '.') ?></td>
                                 <td class="ae">
                                     <?= isset($servico['data_envio']) ? date('d/m/Y', strtotime($servico['data_envio'])) : 'N/A' ?>
+                                </td>
+                                <td class="ac">
+                                    <?php 
+                                    $progresso = 0;
+                                    if ($servico['quantidade_pecas'] > 0) {
+                                        $progresso = ($servico['pecas_concluidas'] / $servico['quantidade_pecas']) * 100;
+                                    }
+                                    ?>
+                                    <div class="progress-container">
+                                        <div class="progress-bar" data-progresso="<?= $progresso ?>"></div>
+                                    </div>
+                                    <small><?= $servico['pecas_concluidas'] ?> / <?= $servico['quantidade_pecas'] ?> peças</small>
                                 </td>
                                 <td class="ae">
                                     <?php if (($servico['status'] ?? '') == 'Finalizado'): ?>
@@ -63,12 +74,9 @@
                                     <?php endif; ?>
                                 </td>
                                 <td class="ac">
-                                    <form method="POST" action="<?= BASE_URL ?>costura/visualizar-servico" style="display: inline;">
-                                        <input type="hidden" name="servico_id" value="<?= $servico['id'] ?>">
-                                        <button type="submit" class="btn-visualizar" title="Visualizar">
-                                            <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
-                                        </button>
-                                    </form>
+                                    <a href="<?= BASE_URL ?>costura/visualizar-servico?servico_id=<?= $servico['id'] ?>" class="btn-visualizar" title="Visualizar">
+                                        <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
+                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -78,8 +86,11 @@
         </div>
     </div>
 </div>
-
+<script src="<?= ASSETS_URL ?>js/utils.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    exibeBarraDeProgresso();
+});
 function filtrarPorData(dataSelecionada) {
     const linhas = document.querySelectorAll('#tabela-servicos tbody tr');
     let contadorVisiveis = 0;

@@ -193,14 +193,6 @@
             </select>
         </td>
         <td class="ac">
-            <select name="pecas[${pecaCount}][operacao_id]" class="form-select" required>
-                <option value="">Selecione a operação</option>
-                <?php foreach ($operacoes as $operacao): ?>
-                    <option value="<?= $operacao['id'] ?>"><?= htmlspecialchars($operacao['nome']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </td>
-        <td class="ac">
             <input type="number" name="pecas[${pecaCount}][quantidade]" class="form-input" placeholder="Quantidade" min="1" required>
         </td>
         <td class="ac">

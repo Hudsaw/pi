@@ -79,27 +79,27 @@
             <?php if (empty($pagamentosPendentes)): ?>
                 <p class="no-data">Nenhum pagamento pendente no período.</p>
             <?php else: ?>
-                <div class="table-responsive">
-                    <table class="table">
+                <div class="tabela">
+                    <table cellspacing='0' class="redondinho shadow filter">
                         <thead>
                             <tr>
-                                <th>Costureira</th>
-                                <th>Período</th>
-                                <th>Serviços</th>
-                                <th>Valor Bruto</th>
-                                <th>Valor Líquido</th>
-                                <th>Ações</th>
+                                <th class="ae">Costureira</th>
+                                <th class="ae">Período</th>
+                                <th class="ae">Serviços</th>
+                                <th class="ad">Valor Bruto</th>
+                                <th class="ad">Valor Líquido</th>
+                                <th class="ac">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($pagamentosPendentes as $pagamento): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($pagamento['costureira_nome'] ?? 'N/A') ?></td>
-                                    <td><?= date('m/Y', strtotime($pagamento['periodo_referencia'])) ?></td>
-                                    <td><?= $pagamento['total_servicos'] ?? 0 ?> serviço(s)</td>
-                                    <td>R$ <?= number_format($pagamento['valor_bruto'] ?? 0, 2, ',', '.') ?></td>
-                                    <td class="texto-verde">R$ <?= number_format($pagamento['valor_liquido'] ?? 0, 2, ',', '.') ?></td>
-                                    <td class="acoes">
+                                    <td class="ae"><?= htmlspecialchars($pagamento['costureira_nome'] ?? 'N/A') ?></td>
+                                    <td class="ae"><?= date('m/Y', strtotime($pagamento['periodo_referencia'])) ?></td>
+                                    <td class="ae"><?= $pagamento['total_servicos'] ?? 0 ?> serviço(s)</td>
+                                    <td class="ad">R$ <?= number_format($pagamento['valor_bruto'] ?? 0, 2, ',', '.') ?></td>
+                                    <td class="ad texto-verde">R$ <?= number_format($pagamento['valor_liquido'] ?? 0, 2, ',', '.') ?></td>
+                                    <td class="ac acoes">
                                         <a href="<?= BASE_URL ?>admin/registrar-pagamento?id=<?= $pagamento['id'] ?>" class="btn-visualizar" title="Visualizar">
                                             <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
                                         </a>
@@ -115,7 +115,7 @@
                         <tfoot>
                             <tr class="total-row">
                                 <td colspan="4" class="ae"><strong>Total Pendente</strong></td>
-                                <td class="ae"><strong>R$ <?= number_format($totalPendente, 2, ',', '.') ?></strong></td>
+                                <td class="ad"><strong>R$ <?= number_format($totalPendente, 2, ',', '.') ?></strong></td>
                                 <td></td>
                             </tr>
                         </tfoot>

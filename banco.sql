@@ -326,7 +326,7 @@ CREATE INDEX idx_pecas_tamanho ON pecas(tamanho_id);
 CREATE INDEX idx_servicos_lote_id ON servicos(lote_id);
 CREATE INDEX idx_servicos_costureira_id ON servicos(costureira_id);
 CREATE INDEX idx_servicos_status ON servicos(status);
-CREATE INDEX idx_servicos_data_inicio ON servicos(data_inicio);
+-- CREATE INDEX idx_servicos_data_inicio ON servicos(data_inicio);
 CREATE INDEX idx_servicos_operacao_id ON servicos(operacao_id);
 
 -- Índices para pagamentos

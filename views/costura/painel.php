@@ -53,27 +53,27 @@
             <?php if (empty($servicos)): ?>
                 <p class="no-data">Nenhum serviço em andamento no momento.</p>
             <?php else: ?>
-                <div class="table-responsive">
-                    <table class="table">
+                <div class="tabela">
+                    <table cellspacing='0' class="redondinho shadow filter">
                         <thead>
                             <tr>
-                                <th>Operação</th>
-                                <th>Lote</th>
-                                <th>Qtd. Peças</th>
-                                <th>Valor por Peça</th>
-                                <th>Data Entrega</th>
-                                <th>Status</th>
-                                <th>Ações</th>
+                                <th class="ae">Operação</th>
+                                <th class="ae">Lote</th>
+                                <th class="ad">Qtd. Peças</th>
+                                <th class="ad">Valor por Peça</th>
+                                <th class="ae">Data Entrega</th>
+                                <th class="ae">Status</th>
+                                <th class="ac">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($servicos as $servico): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($servico['operacao_nome'] ?? 'N/A') ?></td>
-                                    <td><?= htmlspecialchars($servico['lote_nome'] ?? 'N/A') ?></td>
-                                    <td><?= number_format($servico['quantidade_pecas'] ?? 0, 0, ',', '.') ?></td>
-                                    <td>R$ <?= number_format($servico['valor_operacao'] ?? 0, 2, ',', '.') ?></td>
-                                    <td>
+                                    <td class="ae"><?= htmlspecialchars($servico['operacao_nome'] ?? 'N/A') ?></td>
+                                    <td class="ae"><?= htmlspecialchars($servico['lote_nome'] ?? 'N/A') ?></td>
+                                    <td class="ad"><?= number_format($servico['quantidade_pecas'] ?? 0, 0, ',', '.') ?></td>
+                                    <td class="ad">R$ <?= number_format($servico['valor_operacao'] ?? 0, 2, ',', '.') ?></td>
+                                    <td class="ae">
                                         <?= isset($servico['data_entrega']) ? date('d/m/Y', strtotime($servico['data_entrega'])) : 'N/A' ?>
                                         <?php
                                         // Lógica para destacar prazos próximos (opcional)
@@ -85,18 +85,18 @@
                                         }
                                         ?>
                                     </td>
-                                    <td>
+                                    <td class="ae">
                                         <span class="status-badge in-progress">
                                             Em Andamento
                                         </span>
                                     </td>
                                     <td class="ac">
                                         <form method="POST" action="<?= BASE_URL ?>costura/visualizar-servico" style="display: inline;">
-    <input type="hidden" name="servico_id" value="<?= $servico['id'] ?>">
-    <a href="#" onclick="this.closest('form').submit(); return false;" class="btn-visualizar" title="Visualizar">
-                                                    <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
-</a>
-</form>
+                                            <input type="hidden" name="servico_id" value="<?= $servico['id'] ?>">
+                                            <a href="#" onclick="this.closest('form').submit(); return false;" class="btn-visualizar" title="Visualizar">
+                                                <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
+                                            </a>
+                                        </form>
                                         </a>
                                     </td>
                                 </tr>

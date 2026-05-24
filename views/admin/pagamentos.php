@@ -3,31 +3,21 @@
 <div class="conteudo-tabela">
     <div class="cabecalho-pagina flex-between">
         <h2>Pagamentos</h2>
-        <div class="acoes-cabecalho">
-        <a href="<?= BASE_URL ?>admin/imprimir-pagamentos?<?= !empty($filtro) ? 'filtro=' . $filtro : '' ?><?= !empty($termoBusca) ? '&search=' . urlencode($termoBusca) : '' ?>" 
-       class="btn-exportar" target="_blank">
-        <img class="icone" src="<?= ASSETS_URL ?>icones/download.svg" alt="imprimir">
-        Imprimir / PDF
-    </a>
-        </div>
-    </div>
-    
-    <div class="filtro flex s-gap">
-        <div class="busca-wrapper">
+        
+        <div class="filtro flex s-gap">
+            <a style="height: 32px" href="<?= BASE_URL ?>admin/imprimir-pagamentos?<?= !empty($filtro) ? 'filtro=' . $filtro : '' ?><?= !empty($termoBusca) ? '&search=' . urlencode($termoBusca) : '' ?>" class="btn-exportar" target="_blank">
+                <img class="icone" style="height: 32px" src="<?= ASSETS_URL ?>icones/pdf.svg" alt="imprimir">
+            </a>
             <input type="text" id="filtro" placeholder="Buscar por costureira ou período..." value="<?= htmlspecialchars($termoBusca) ?>" onkeypress="if(event.key === 'Enter') filtrarBusca()">
-            <button onclick="filtrarBusca()" class="btn-buscar">Buscar</button>
+            <button onclick="filtrarBusca()" class="botao">Buscar</button>
+            <select id="filtroStatus" onchange="filtrarPorStatus()">
+                <option value="todos" <?= $filtro === 'todos' ? 'selected' : '' ?>>Todos</option>
+                <option value="pendentes" <?= $filtro === 'pendentes' ? 'selected' : '' ?>>Pendentes</option>
+                <option value="pagos" <?= $filtro === 'pagos' ? 'selected' : '' ?>>Pagos</option>
+                <option value="cancelados" <?= $filtro === 'cancelados' ? 'selected' : '' ?>>Cancelados</option>
+            </select>
         </div>
         
-        <select id="filtroStatus" onchange="filtrarPorStatus()">
-            <option value="todos" <?= $filtro === 'todos' ? 'selected' : '' ?>>Todos</option>
-            <option value="pendentes" <?= $filtro === 'pendentes' ? 'selected' : '' ?>>Pendentes</option>
-            <option value="pagos" <?= $filtro === 'pagos' ? 'selected' : '' ?>>Pagos</option>
-            <option value="cancelados" <?= $filtro === 'cancelados' ? 'selected' : '' ?>>Cancelados</option>
-        </select>
-    </div>
-    
-    <div class="info-paginacao">
-        <span>Mostrando <?= count($listaPagamentos) ?> de <?= $totalRegistros ?> registros</span>
     </div>
     
     <div class="tabela">
@@ -94,7 +84,7 @@
     <a href="<?= BASE_URL ?>admin/estornar-pagamento?id=<?= $pagamento['id'] ?>" 
        onclick="return confirm('Tem certeza que deseja estornar este pagamento? O status voltará para Pendente.')"
        class="btn-acao btn-estornar" title="Estornar Pagamento">
-        <img class="icone" src="<?= ASSETS_URL ?>icones/voltar.svg" alt="estornar">
+        <img class="icone" src="<?= ASSETS_URL ?>icones/estornar.svg" alt="estornar">
     </a>
 <?php endif; ?>
                             </td>
