@@ -25,7 +25,6 @@ class CosturaController extends BaseController
     $pagamentoMes = $this->pagamentoModel->calcularPagamentoMes($user['id']);
     $proximasEntregas = $this->pagamentoModel->contarProximasEntregas($user['id']);
     
-    $mensagensNaoLidas = $this->notificacaoModel->getNotificacoesPorUsuario($user['id'], 50);
 
     $this->render('costura/painel', [
         'title' => 'PontoCerto - Meu Painel',
@@ -35,8 +34,7 @@ class CosturaController extends BaseController
         'servicosAtivos' => count($servicosAtivos),
         'pagamentoMes' => $pagamentoMes,
         'proximasEntregas' => $proximasEntregas,
-        'servicos' => $servicosAtivos,
-        'mensagensNaoLidas' => $mensagensNaoLidas
+        'servicos' => $servicosAtivos
     ]);
 }
 
@@ -389,52 +387,5 @@ private function validarPerfil($post)
         'filtro' => $_GET['filtro'] ?? 'todos'  
     ]);
 }
-
-    // Notificações
-    public function mensagens()
-    {
-        $user = $this->getUsuario();
-        
-        // Buscar mensagens (notificações) do usuário
-        $mensagens = $this->notificacaoModel->getNotificacoesPorUsuario($user['id'], 100);
-
-        $this->render('costura/mensagens', [
-            'title' => 'PontoCerto - Minhas Mensagens',
-            'user' => $user,
-            'nomeUsuario' => $user['nome'],
-            'usuarioLogado' => true,
-            'mensagens' => $mensagens
-        ]);
-    }
-
-    public function excluirMensagem()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('costura/mensagens');
-        }
-
-        $user = $this->getUsuario();
-        $mensagemId = $_POST['mensagem_id'] ?? null;
-
-        if (!$mensagemId) {
-            $_SESSION['error_message'] = 'Mensagem não identificada';
-            $this->redirect('costura/mensagens');
-        }
-
-        try {
-            // Excluir a notificação
-            $excluido = $this->notificacaoModel->excluirNotificacoes($user['id'], [$mensagemId]);
-
-            if ($excluido) {
-                $_SESSION['success_message'] = 'Mensagem excluída com sucesso!';
-            } else {
-                $_SESSION['error_message'] = 'Erro ao excluir mensagem';
-            }
-        } catch (Exception $e) {
-            $_SESSION['error_message'] = 'Erro ao excluir mensagem: ' . $e->getMessage();
-        }
-
-        $this->redirect('costura/mensagens');
-    }
     
 }

@@ -78,26 +78,6 @@
                                    class="btn-visualizar" title="Visualizar">
                                     <img class="icone" src="<?= ASSETS_URL ?>icones/visualizar.svg" alt="visualizar">
                                 </a>
-                                <?php if ($pagamento['status'] === 'Pendente'): ?>
-                                    <a href="<?= BASE_URL ?>costura/editar-pagamento?id=<?= $pagamento['id'] ?>"> 
-                                        <img class="icone" src="<?php echo ASSETS_URL?>icones/editar.svg" alt="editar">
-                                    </a>
-                                    <a href="<?= BASE_URL ?>costura/finalizar-pagamento?id=<?= $pagamento['id'] ?>" 
-                                       class="btn-pagar" title="Finalizar Pagamento">
-                                        <img class="icone" src="<?= ASSETS_URL ?>icones/pagar.svg" alt="pagar">
-                                    </a>
-                                    <a href="<?= BASE_URL ?>costura/cancelar-pagamento?id=<?= $pagamento['id'] ?>" 
-                                       onclick="return confirm('Tem certeza que deseja cancelar este pagamento?')"
-                                       class="btn-cancelar" title="Cancelar">
-                                        <img class="icone" src="<?= ASSETS_URL ?>icones/cancelar.svg" alt="cancelar">
-                                    </a>
-                                <?php elseif ($pagamento['status'] === 'Cancelado'): ?>
-                                    <a href="<?= BASE_URL ?>costura/excluir-pagamento?id=<?= $pagamento['id'] ?>" 
-                                       onclick="return confirm('Tem certeza que deseja excluir este pagamento?')"
-                                       class="btn-remover" title="Excluir">
-                                        <img class="icone" src="<?= ASSETS_URL ?>icones/remover.svg" alt="excluir">
-                                    </a>
-                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
