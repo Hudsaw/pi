@@ -1,9 +1,52 @@
 <?php
 require_once __DIR__ . '/../config/constants.php';
-require_once __DIR__ . '/../vendor/autoload.php';
 
+// Autoload manual robusto
+spl_autoload_register(function ($class) {
+    // Mapeamento de namespaces para diretórios
+    $prefixes = [
+        'App\\Controllers\\' => __DIR__ . '/../app/Controllers/',
+        'App\\Core\\' => __DIR__ . '/../app/Core/',
+        'App\\Models\\' => __DIR__ . '/../app/Models/',
+        'App\\Middlewares\\' => __DIR__ . '/../app/Middlewares/',
+    ];
+    
+    foreach ($prefixes as $prefix => $base_dir) {
+        $len = strlen($prefix);
+        if (strncmp($prefix, $class, $len) !== 0) {
+            continue;
+        }
+        
+        $relative_class = substr($class, $len);
+        $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+        
+        if (file_exists($file)) {
+            require $file;
+            return;
+        }
+    }
+    
+    // Fallback para caso a classe não esteja nos namespaces mapeados
+    $directories = [
+        __DIR__ . '/../app/Controllers/',
+        __DIR__ . '/../app/Core/',
+        __DIR__ . '/../app/Models/',
+        __DIR__ . '/../app/Middlewares/',
+    ];
+    
+    $className = basename(str_replace('\\', '/', $class));
+    
+    foreach ($directories as $directory) {
+        $file = $directory . $className . '.php';
+        if (file_exists($file)) {
+            require $file;
+            return;
+        }
+    }
+});
+
+// Importar as classes
 use App\Controllers\PageController;
-use App\Core\Database;
 use App\Core\Router;
 use App\Core\Container;
 
@@ -102,10 +145,10 @@ $router->get('/admin/imprimir-pagamentos', 'AdminController@imprimirPagamentos',
 // Rotas da Costureira
 $router->get('/costura/painel', 'CosturaController@painel', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->get('/costura/servicos', 'CosturaController@servicos', ['AuthMiddleware', 'RoleMiddleware::costureira']); 
-$router->get('/costura/visualizar-servico', 'CosturaController@visualizarServico', ['AuthMiddleware', 'RoleMiddleware::costureira']);
+$router->post('/costura/visualizar-servico', 'CosturaController@visualizarServico', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->post('/costura/atualizar-progresso', 'CosturaController@atualizarProgresso', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->get('/costura/pagamentos', 'CosturaController@pagamentos', ['AuthMiddleware', 'RoleMiddleware::costureira']);
-$router->get('/costura/visualizar-pagamento', 'CosturaController@visualizarPagamento', ['AuthMiddleware', 'RoleMiddleware::costureira']);
+$router->post('/costura/visualizar-pagamento', 'CosturaController@visualizarPagamento', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->get('/costura/visualizar-perfil', 'CosturaController@visualizarPerfil', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->get('/costura/editar-perfil', 'CosturaController@editarPerfil', ['AuthMiddleware', 'RoleMiddleware::costureira']);
 $router->post('/costura/atualizar-perfil', 'CosturaController@atualizarPerfil', ['AuthMiddleware', 'RoleMiddleware::costureira']);

@@ -34,7 +34,6 @@ class Router
         ];
     }
 
-    // No Router::dispatch(), adicione mais logs:
 public function dispatch()
 {
     if (session_status() === PHP_SESSION_NONE) {
@@ -54,7 +53,6 @@ if ($uri[0] !== '/') {
    
     parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY), $_GET);
 
-    // Verifique se a rota existe
     if (isset($this->routes[$method][$uri])) {
         $route = $this->routes[$method][$uri];
 
@@ -64,10 +62,8 @@ foreach ($route['middlewares'] as $middleware) {
     if (strpos($middleware, '::') !== false) {
         [$middlewareClass, $method] = explode('::', $middleware);
         
-        // Use o container para obter a instância da classe
         $middlewareInstance = $this->container->get($middlewareClass);
         
-        // Chame o método estático na instância
         $configuredMiddleware = $middlewareInstance->$method();
         
         if (!$configuredMiddleware->handle()) {
