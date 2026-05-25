@@ -685,30 +685,26 @@ public function getTotaisPorMes($ano, $mes = null)
 
     // Calcular valor total de serviços finalizados no mês para uma costureira
     public function calcularPagamentoMes($costureiraId)
-    {
-        try {
-            $sql = "SELECT COALESCE(SUM(s.quantidade_pecas * s.valor_operacao), 0) as total
-                    FROM servicos s
-                    WHERE s.costureira_id = :costureira_id
-                      AND s.status = 'Finalizado'
-                      AND MONTH(s.data_finalizacao) = MONTH(CURDATE())
-                      AND YEAR(s.data_finalizacao) = YEAR(CURDATE())
-                      AND NOT EXISTS (
-                          SELECT 1 FROM pagamento_itens pi 
-                          WHERE pi.servico_id = s.id
-                      )";
-            
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([':costureira_id' => $costureiraId]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            return floatval($result['total'] ?? 0);
-            
-        } catch (Exception $e) {
-            error_log("Erro ao calcular pagamento do mês: " . $e->getMessage());
-            return 0;
-        }
+{
+    try {
+        $sql = "SELECT COALESCE(SUM(p.valor_liquido), 0) as total
+                FROM pagamentos p
+                WHERE p.costureira_id = :costureira_id
+                  AND p.status = 'Pago'
+                  AND MONTH(p.data_pagamento) = MONTH(CURDATE())
+                  AND YEAR(p.data_pagamento) = YEAR(CURDATE())";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':costureira_id' => $costureiraId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return floatval($result['total'] ?? 0);
+        
+    } catch (Exception $e) {
+        error_log("Erro ao calcular pagamento do mês: " . $e->getMessage());
+        return 0;
     }
+}
 
 // Obter pagamentos de uma costureira
 public function getPagamentosPorCostureira($costureiraId)

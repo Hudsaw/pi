@@ -26,7 +26,7 @@
                 </div>
                 <div class="card-content">
                     <div class="numero">R$ <?= number_format($pagamentoMes ?? 0, 2, ',', '.') ?></div>
-                    <p>Valor estimado</p>
+                    <p>Valor pago</p>
                 </div>
             </div>
             

@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Core\Database;
 use App\Models\AdminModel;
-use App\Models\CosturaModel;
 use App\Models\EmpresaModel;
 use App\Models\LoteModel;
 use App\Models\NotificacaoModel;
@@ -17,7 +16,6 @@ use App\Models\UserModel;
 class BaseController
 {
     protected $adminModel;
-    protected $costuraModel;
     protected $empresaModel;
     protected $loteModel;
     protected $notificacaoModel;
@@ -30,7 +28,6 @@ class BaseController
     public function __construct()
     {
         $this->adminModel = new AdminModel(Database::getInstance());
-        $this->costuraModel = new CosturaModel(Database::getInstance());
         $this->empresaModel = new EmpresaModel(Database::getInstance());
         $this->loteModel = new LoteModel(Database::getInstance());
         $this->notificacaoModel = new NotificacaoModel(Database::getInstance());

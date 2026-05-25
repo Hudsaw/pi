@@ -2,7 +2,6 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\CosturaModel;
 use App\Models\NotificacaoModel;
 use App\Models\PagamentoModel;
 use App\Models\ServicoModel;
@@ -18,27 +17,28 @@ class CosturaController extends BaseController
     }
 
     public function painel()
-    {
-        $user = $this->getUsuario();
-        
-        // Buscar dados para o dashboard
-        $servicosAtivos = $this->servicoModel->getServicosAtivosPorCostureira($user['id']);
-        $pagamentoMes = $this->pagamentoModel->calcularPagamentoMes($user['id']);
-        $proximasEntregas = $this->pagamentoModel->contarProximasEntregas($user['id']);
-        $mensagensNaoLidas = $this->notificacaoModel->getNotificacoesPorUsuario($user['id'], 50);
+{
+    $user = $this->getUsuario();
+    
+    // Buscar dados para o dashboard
+    $servicosAtivos = $this->servicoModel->getServicosAtivosPorCostureira($user['id']);
+    $pagamentoMes = $this->pagamentoModel->calcularPagamentoMes($user['id']);
+    $proximasEntregas = $this->pagamentoModel->contarProximasEntregas($user['id']);
+    
+    $mensagensNaoLidas = $this->notificacaoModel->getNotificacoesPorUsuario($user['id'], 50);
 
-        $this->render('costura/painel', [
-            'title' => 'PontoCerto - Meu Painel',
-            'user' => $user,
-            'nomeUsuario' => $user['nome'],
-            'usuarioLogado' => true,
-            'servicosAtivos' => count($servicosAtivos),
-            'pagamentoMes' => $pagamentoMes,
-            'proximasEntregas' => $proximasEntregas,
-            'servicos' => $servicosAtivos,
-            'mensagensNaoLidas' => $mensagensNaoLidas
-        ]);
-    }
+    $this->render('costura/painel', [
+        'title' => 'PontoCerto - Meu Painel',
+        'user' => $user,
+        'nomeUsuario' => $user['nome'],
+        'usuarioLogado' => true,
+        'servicosAtivos' => count($servicosAtivos),
+        'pagamentoMes' => $pagamentoMes,
+        'proximasEntregas' => $proximasEntregas,
+        'servicos' => $servicosAtivos,
+        'mensagensNaoLidas' => $mensagensNaoLidas
+    ]);
+}
 
     // Visualizar perfil da costureira
 public function visualizarPerfil()
